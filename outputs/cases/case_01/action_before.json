@@ -1,5 +1,5 @@
 {
-  "case_id": "CASE_1789895815_afb4dc",
+  "case_id": "CASE_1789896812_ad5e20",
   "stage": "BEFORE_ADDITIONAL_EVIDENCE",
   "action_type": "FREEZE_ACCOUNT",
   "approval_tier": "FRAUD_OPS_LEAD",
@@ -9,6 +9,6 @@
   "reason": "Immediate account freeze per institutional policy rule RULE_BLOCK_ACC_002",
   "policy_reference": "RULE_BLOCK_ACC_002",
   "executed": false,
-  "confidence": 0.95,
-  "timestamp": "2026-09-20T09:17:51.864245+00:00"
+  "confidence": 0.93,
+  "timestamp": "2026-09-20T09:33:35.694605+00:00"
 }

@@ -1,5 +1,5 @@
 {
-  "case_id": "CASE_1789895815_afb4dc",
+  "case_id": "CASE_1789896812_ad5e20",
   "sar_required": true,
   "filing_tier": "TIER_1_EXPEDITED",
   "suspect_information": {
@@ -21,9 +21,9 @@
   ],
   "total_suspicious_amount": 12500.0,
   "primary_fraud_type": "DEVICE_RING",
-  "risk_score": 0.95,
-  "sar_narrative": "Suspicious activity report filed regarding primary account ACC_88219 for DEVICE_RING. Topological graph analysis revealed 2 linked accounts across 1 shared hardware identifiers. Key evidentiary factors include: Account ACC_88219 and ACC_TXN_3882914_01 are connected via shared device DEV_TXN_3882914_01. A high-risk shared identifier (ACC_SHARED_ACC_88219) is linked to 3 shared devices, 12 total transactions, and 2 confirmed fraud transactions, indicating a pattern of device sharing across multiple accounts.; The current graph topology matches the 'Device Sharing Fraud Ring' (PAT_001_DEVICE_RING) with a high match score of 0.95 and 1.0 confidence, strongly indicating a known organized fraud pattern.; A highly similar historical case (CASE_2026_001) with a similarity score of 0.828 was a 'CONFIRMED_FRAUD_RING' involving 'DEVICE_COLLUSION' and 'Multi-card synthetic identity syndicate operating across shared device fingerprints', which strongly correlates with the current findings.. Total suspicious transaction volume under review is $12,500.00 USD. Agent recommendation: immediate risk mitigation and FinCEN regulatory notification.",
-  "filing_deadline": "2026-10-20T09:17:51.860735+00:00",
+  "risk_score": 0.93,
+  "sar_narrative": "Suspicious activity report filed regarding primary account ACC_88219 for DEVICE_RING. Topological graph analysis revealed 2 linked accounts across 1 shared hardware identifiers. Key evidentiary factors include: Multiple accounts linked across shared hardware fingerprint; High-velocity transaction burst matching bust-out typology. Total suspicious transaction volume under review is $12,500.00 USD. Agent recommendation: immediate risk mitigation and FinCEN regulatory notification.",
+  "filing_deadline": "2026-10-20T09:33:35.692087+00:00",
   "compliance_officer_signoff": "AUTONOMOUS_FRAUD_INVESTIGATION_AGENT",
-  "created_at": "2026-09-20T09:17:51.860735+00:00"
+  "created_at": "2026-09-20T09:33:35.692087+00:00"
 }

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}FraudSight — HHGOA Fraud Investigation Command Center{% endblock %}</title>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            fraud: {
+              DEFAULT: '#ef4444',
+              dark: '#991b1b',
+              light: '#f87171'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- HTMX CDN -->
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+  <!-- Cytoscape.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111827;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #374151;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4b5563;
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col antialiased selection:bg-red-500/30 selection:text-red-200">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo & Title -->
+        <div class="flex items-center space-x-4">
+          <a href="/" class="flex items-center space-x-3 group">
+            <div class="relative w-9 h-9 rounded-lg bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 flex items-center justify-center shadow-lg shadow-red-900/40 group-hover:scale-105 transition-transform">
+              <!-- Radar shield icon -->
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
+              <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+            </div>
+            <div>
+              <div class="flex items-center space-x-1.5">
+                <span class="text-xl font-bold tracking-tight text-white group-hover:text-red-400 transition-colors">Fraud<span class="text-red-500">Sight</span></span>
+                <span class="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-red-950/80 text-red-400 border border-red-800/60">AGY 2.0</span>
+              </div>
+              <p class="text-[11px] text-gray-400 font-medium leading-none">HHGOA Autonomous Graph Investigation</p>
+            </div>
+          </a>
+
+          <!-- Nav Links -->
+          <nav class="hidden md:flex items-center pl-6 space-x-1 border-l border-gray-800">
+            <a href="/" class="px-3 py-1.5 text-sm font-medium rounded-md {% if active_page == 'cases' %}bg-gray-800 text-white border border-gray-700{% else %}text-gray-400 hover:text-white hover:bg-gray-800/60{% endif %} transition-colors">
+              Cases
+            </a>
+            <a href="/analytics" class="px-3 py-1.5 text-sm font-medium rounded-md {% if active_page == 'analytics' %}bg-gray-800 text-white border border-gray-700{% else %}text-gray-400 hover:text-white hover:bg-gray-800/60{% endif %} transition-colors">
+              Analytics
+            </a>
+            <a href="/about" class="px-3 py-1.5 text-sm font-medium rounded-md {% if active_page == 'about' %}bg-gray-800 text-white border border-gray-700{% else %}text-gray-400 hover:text-white hover:bg-gray-800/60{% endif %} transition-colors">
+              About
+            </a>
+          </nav>
+        </div>
+
+        <!-- System Badges & Telemetry -->
+        <div class="flex items-center space-x-3">
+          <div class="hidden sm:flex items-center space-x-2 px-2.5 py-1 rounded-full bg-gray-800/80 border border-gray-700 text-xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-gray-300 font-medium">TigerGraph Engine</span>
+          </div>
+          <div class="hidden lg:flex items-center space-x-2 px-2.5 py-1 rounded-full bg-gray-800/80 border border-gray-700 text-xs">
+            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+            <span class="text-gray-300 font-medium">Gemini 2.5 + LangGraph</span>
+          </div>
+          <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-red-950/60 border border-red-800 text-xs text-red-300 font-medium">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <span>MDL Gate: ACTIVE</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- System Footer -->
+  <footer class="bg-gray-900/60 border-t border-gray-800 mt-auto py-4 text-xs text-gray-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="font-semibold text-gray-300">FraudSight</span>
+        <span>•</span>
+        <span>HHGOA Autonomous Fraud Investigation Agent</span>
+        <span>•</span>
+        <span class="text-red-400 font-medium">TigerGraph Hackathon</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="code-font text-[11px] text-gray-400">Audit-Ready Compliance SAR / FFIEC Standard</span>
+        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+      </div>
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

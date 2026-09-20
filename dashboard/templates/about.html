@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}About — FraudSight HHGOA Agent{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+  <!-- Hero -->
+  <div class="bg-gray-900/90 border border-gray-800 rounded-2xl p-6 sm:p-8 backdrop-blur shadow-lg relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="flex items-center gap-2 text-xs uppercase tracking-wider font-semibold text-red-400 mb-2">
+      <span>HHGOA Hackathon 2026</span>
+      <span>•</span>
+      <span>TigerGraph AI Track</span>
+    </div>
+    <h1 class="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
+      FraudSight: Autonomous Graph-Augmented Fraud Investigation
+    </h1>
+    <p class="mt-3 text-sm sm:text-base text-gray-300 leading-relaxed">
+      A high-performance agentic investigation system combining <strong class="text-white">TigerGraph</strong> native graph database, <strong class="text-white">LangGraph</strong> multi-hop DAG reasoning, <strong class="text-white">Google Gemini 2.5</strong>, and an information-theoretic <strong class="text-red-400">Minimum Description Length (MDL) Sufficiency Gate</strong> to detect syndicated financial crime rings.
+    </p>
+  </div>
+
+  <!-- Key Architectural Pillars -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-5">
+      <div class="w-8 h-8 rounded-lg bg-red-950 border border-red-800 flex items-center justify-center text-red-400 mb-3 font-bold font-mono">1</div>
+      <h3 class="text-base font-bold text-white mb-1.5">TigerGraph Core</h3>
+      <p class="text-xs text-gray-400 leading-relaxed">
+        Native graph storage over IEEE-CIS transaction and identity data. Deep BFS k-hop traversals uncover hidden multi-account collusion networks via derived <code class="text-red-300">SHARES_DEVICE</code> and <code class="text-yellow-300">SHARES_EMAIL_DOMAIN</code> edges.
+      </p>
+    </div>
+
+    <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-5">
+      <div class="w-8 h-8 rounded-lg bg-blue-950 border border-blue-800 flex items-center justify-center text-blue-400 mb-3 font-bold font-mono">2</div>
+      <h3 class="text-base font-bold text-white mb-1.5">LangGraph Workflow</h3>
+      <p class="text-xs text-gray-400 leading-relaxed">
+        An 8-node cyclic state machine coordinating alert ingestion, multi-hop topology expansion, tool-based evidence synthesis, institutional policy enforcement, and audit dossier creation.
+      </p>
+    </div>
+
+    <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-5">
+      <div class="w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 mb-3 font-bold font-mono">3</div>
+      <h3 class="text-base font-bold text-white mb-1.5">MDL Sufficiency Gate</h3>
+      <p class="text-xs text-gray-400 leading-relaxed">
+        Solves the AI "over-investigation" trap. Uses Minimum Description Length principles to balance evidence compression against query cost, preventing endless tool loops and optimizing latency.
+      </p>
+    </div>
+  </div>
+
+  <!-- 8-Node LangGraph ASCII Diagram -->
+  <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-6 backdrop-blur">
+    <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-3">Investigation Graph State Machine (LangGraph DAG)</h3>
+    <pre class="bg-gray-950 p-4 rounded-lg border border-gray-800 text-red-400 font-mono text-xs overflow-x-auto leading-relaxed">
+         [START]
+            │
+            ▼
+      [trigger_node]            (Ingests alert, parses transaction ID & risk score)
+            │
+            ▼
+     [investigate_node]         (Traverses 1-hop & 2-hop topological subgraph)
+            │
+            ▼
+   [gather_evidence_node]       (Synthesizes shared device & velocity evidence)
+            │
+            ▼
+  [assess_uncertainty_node] ◄───────────────┐
+            │                               │
+     (should_gather_more)                   │ (Loop if MDL sufficiency &lt; threshold)
+       /            \                       │
+   [proceed]    [gather_more]               │
+     │               │                      │
+     │               ▼                      │
+     │     [gather_more_evidence_node] ─────┘
+     ▼
+ [action_node]                  (Evaluates institutional policy rules & freezing)
+     │
+     ▼
+ [explain_node]                 (Generates FFIEC-compliant SAR & audit narratives)
+     │
+     ▼
+  [memory_node]                 (Indexes case findings into vector memory)
+     │
+     ▼
+   [END]
+    </pre>
+  </div>
+
+  <!-- Compliance & Regulatory Artifacts -->
+  <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-6 backdrop-blur space-y-3">
+    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Audit-Ready Compliance Standard</h3>
+    <p class="text-xs text-gray-300 leading-relaxed">
+      Every completed investigation produces 4 canonical forensic output artifacts saved under <code class="text-red-300">outputs/cases/case_XX/</code>:
+    </p>
+    <ul class="text-xs text-gray-400 space-y-1.5 list-disc list-inside">
+      <li><strong class="text-gray-200">case_record.json:</strong> Complete investigation ledger, evidence weights, MDL scores, and multi-turn decision log.</li>
+      <li><strong class="text-gray-200">sar.json:</strong> Suspicious Activity Report formatted to FFIEC / FinCEN regulatory specifications with full narrative summary.</li>
+      <li><strong class="text-gray-200">action_before.json:</strong> Pre-investigation baseline policy posture (e.g. Flag for Review).</li>
+      <li><strong class="text-gray-200">action_after.json:</strong> Post-investigation escalated posture (e.g. Freeze Account, Supervisor Tier).</li>
+    </ul>
+  </div>
+
+</div>
+{% endblock %}
