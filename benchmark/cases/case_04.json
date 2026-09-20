@@ -1,0 +1,11 @@
+{
+  "case_number": 4,
+  "case_id": "CASE_BENCHMARK_04",
+  "trigger_type": "ANALYST_REFERRAL",
+  "trigger_txn_ids": [
+    "TXN_5129401"
+  ],
+  "trigger_account_id": "ACC_33912",
+  "trigger_risk_score": 0.96,
+  "notes": "Tier-1 analyst flagged sudden $12,500 withdrawal following dormant account reactivation."
+}

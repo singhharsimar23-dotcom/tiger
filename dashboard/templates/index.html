@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HHGOA Fraud Investigation Agent | Intelligence Command Center</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Cytoscape for Graph Visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Top Navigation / Header -->
+        <header class="top-nav">
+            <div class="nav-brand">
+                <div class="brand-icon-pulse">
+                    <span class="pulse-dot"></span>
+                </div>
+                <div class="brand-text">
+                    <h1>HHGOA <span class="accent-text">FRAUD AGENT</span></h1>
+                    <span class="badge-sub">Autonomous Graph AI • TigerGraph Cloud</span>
+                </div>
+            </div>
+
+            <div class="system-status-pills">
+                <div class="status-pill" id="pill-tg">
+                    <span class="status-indicator active"></span>
+                    <span class="pill-label">TIGERGRAPH</span>
+                </div>
+                <div class="status-pill" id="pill-llm">
+                    <span class="status-indicator active"></span>
+                    <span class="pill-label">GEMINI 2.5</span>
+                </div>
+                <div class="status-pill" id="pill-mdl">
+                    <span class="status-indicator pulse"></span>
+                    <span class="pill-label">MDL GATE</span>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <button class="btn btn-outline" id="btn-run-benchmark">⚡ Run Benchmark (20 Cases)</button>
+                <button class="btn btn-primary" id="btn-new-investigation">+ New Alert</button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            <!-- Left Panel: Trigger & Live Telemetry -->
+            <aside class="panel panel-left glass-card">
+                <div class="panel-header">
+                    <h2>🎯 Alert Trigger</h2>
+                    <span class="badge">LIVE INGESTION</span>
+                </div>
+
+                <form id="investigate-form" class="trigger-form">
+                    <div class="form-group">
+                        <label for="input-txnid">Transaction ID</label>
+                        <div class="input-with-action">
+                            <input type="text" id="input-txnid" value="TXN_3882914" placeholder="e.g. TXN_3882914" required>
+                            <button type="button" class="btn-rnd" id="btn-random-txn" title="Pick high-risk benchmark transaction">🎲</button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="input-amount">Amount ($)</label>
+                            <input type="number" id="input-amount" value="4820.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-risk">Initial Risk</label>
+                            <input type="number" id="input-risk" value="0.94" step="0.01" min="0" max="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-trigger">Trigger Typology</label>
+                        <select id="input-trigger">
+                            <option value="DEVICE_COLLUSION">Device Collusion Syndicate</option>
+                            <option value="VELOCITY_SPIKE">High Velocity Smurfing</option>
+                            <option value="CREDENTIAL_STUFFING">Account Takeover Attempt</option>
+                            <option value="HIGH_VALUE_ANOMALY">High Value Outlier</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-accent full-width" id="btn-start">
+                        🚀 Launch Autonomous Investigation
+                    </button>
+                </form>
+
+                <!-- MDL Sufficiency Gate Widget -->
+                <div class="widget-mdl glass-inset">
+                    <div class="widget-header">
+                        <h3>📐 MDL Evidence Sufficiency Gate</h3>
+                        <span class="info-tag" title="Information-Theoretic Evidence Sufficiency Score">S09 Active</span>
+                    </div>
+                    <div class="gauge-container">
+                        <div class="gauge-meter">
+                            <div class="gauge-fill" id="mdl-gauge-bar" style="width: 28%;"></div>
+                        </div>
+                        <div class="gauge-metrics">
+                            <span class="metric-label">MDL Score: <strong id="mdl-score-val">0.280</strong></span>
+                            <span class="metric-action badge badge-act" id="mdl-action-badge">RECOMMENDED: ACT</span>
+                        </div>
+                        <p class="gauge-desc" id="mdl-desc">Evidence exceeds minimum description threshold. Graph structure validated.</p>
+                    </div>
+                </div>
+
+                <!-- Discovered Patterns Preview -->
+                <div class="widget-patterns glass-inset">
+                    <div class="widget-header">
+                        <h3>🧬 Pattern Discovery Engine</h3>
+                        <span class="badge badge-pulse" id="discovered-badge">S10 Engine</span>
+                    </div>
+                    <div class="pattern-list" id="pattern-container">
+                        <div class="pattern-item discovered">
+                            <span class="pat-tag">DISCOVERED #1</span>
+                            <span class="pat-name">Card Cycling Mule Ring</span>
+                        </div>
+                        <div class="pattern-item documented">
+                            <span class="pat-tag">DOCUMENTED</span>
+                            <span class="pat-name">Device Collusion Syndicate</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center Panel: Interactive Subgraph Topology -->
+            <section class="panel panel-center glass-card">
+                <div class="panel-header">
+                    <div class="header-title">
+                        <h2>🕸️ Interactive Fraud Subgraph</h2>
+                        <span class="subtitle" id="graph-subtitle">Visualizing multi-hop entity relationships and collusion loops</span>
+                    </div>
+                    <div class="graph-toolbar">
+                        <button class="btn-sm btn-outline" id="btn-relayout">🔄 Re-layout</button>
+                        <button class="btn-sm btn-outline" id="btn-fit-graph">🔍 Fit Screen</button>
+                    </div>
+                </div>
+
+                <div id="cy-container" class="graph-canvas"></div>
+
+                <div class="graph-legend">
+                    <div class="legend-item"><span class="node-dot txn"></span> Transaction</div>
+                    <div class="legend-item"><span class="node-dot acct"></span> Account</div>
+                    <div class="legend-item"><span class="node-dot dev"></span> Device</div>
+                    <div class="legend-item"><span class="node-dot ip"></span> IP Cluster</div>
+                    <div class="legend-item"><span class="node-dot rule"></span> Policy Rule</div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Agent Stream & Dossier Output -->
+            <aside class="panel panel-right glass-card">
+                <div class="panel-header">
+                    <h2>🤖 Agent Reasoning Stream</h2>
+                    <span class="badge badge-streaming" id="stream-indicator">READY</span>
+                </div>
+
+                <!-- Live Stream Feed -->
+                <div class="stream-feed" id="stream-feed">
+                    <div class="feed-placeholder">
+                        <div class="radar-pulse"></div>
+                        <p>Awaiting investigation launch...</p>
+                        <span>Real-time graph reasoning, tool invocations, and MDL calculations will stream here.</span>
+                    </div>
+                </div>
+
+                <!-- Final Decision & SAR Dossier Card -->
+                <div class="decision-card glass-inset" id="decision-card" style="display: none;">
+                    <div class="decision-header">
+                        <span class="verdict-tag" id="dossier-verdict">CONFIRMED FRAUD</span>
+                        <span class="dossier-risk" id="dossier-risk">Risk Score: 0.94</span>
+                    </div>
+                    <p class="dossier-summary" id="dossier-summary">Synthetic identity ring utilizing shared fingerprint devices.</p>
+                    
+                    <div class="action-buttons-row">
+                        <button class="btn btn-sm btn-accent" id="btn-view-sar">📄 View SAR.json</button>
+                        <button class="btn btn-sm btn-outline" id="btn-view-case">📋 Case Record</button>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Modal for SAR / Case Record Viewer -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-window glass-card">
+            <div class="modal-header">
+                <h3 id="modal-title">Compliance Dossier Viewer</h3>
+                <button class="modal-close" id="btn-close-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <pre><code id="modal-json-content"></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

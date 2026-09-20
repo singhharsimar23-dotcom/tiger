@@ -1,0 +1,11 @@
+{
+  "case_number": 17,
+  "case_id": "CASE_BENCHMARK_17",
+  "trigger_type": "GEO_ANOMALY",
+  "trigger_txn_ids": [
+    "TXN_9692018"
+  ],
+  "trigger_account_id": "ACC_44910",
+  "trigger_risk_score": 0.85,
+  "notes": "Known Tor exit node IP cluster utilized for e-commerce checkout."
+}

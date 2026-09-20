@@ -1,0 +1,11 @@
+{
+  "case_number": 18,
+  "case_id": "CASE_BENCHMARK_18",
+  "trigger_type": "CUSTOMER_REPORT",
+  "trigger_txn_ids": [
+    "TXN_1792019"
+  ],
+  "trigger_account_id": "ACC_66928",
+  "trigger_risk_score": 0.65,
+  "notes": "Customer dispute for subscription recurring charge (low initial suspicion)."
+}

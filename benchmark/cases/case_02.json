@@ -1,0 +1,11 @@
+{
+  "case_number": 2,
+  "case_id": "CASE_BENCHMARK_02",
+  "trigger_type": "VELOCITY_SPIKE",
+  "trigger_txn_ids": [
+    "TXN_2910482"
+  ],
+  "trigger_account_id": "ACC_19402",
+  "trigger_risk_score": 0.88,
+  "notes": "Rapid smurfing velocity loop detected. 5 transactions in under 90 seconds."
+}

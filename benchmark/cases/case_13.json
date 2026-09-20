@@ -1,0 +1,11 @@
+{
+  "case_number": 13,
+  "case_id": "CASE_BENCHMARK_13",
+  "trigger_type": "CUSTOMER_REPORT",
+  "trigger_txn_ids": [
+    "TXN_5291048"
+  ],
+  "trigger_account_id": "ACC_99302",
+  "trigger_risk_score": 0.92,
+  "notes": "Customer victim of SIM swap attack. Password and notification email reset prior to wire."
+}

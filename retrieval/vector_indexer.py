@@ -7,7 +7,7 @@ from retrieval.embedder import Embedder
 
 CHECKPOINT_FILE = Path("./checkpoints/case_embedding_done.checkpoint")
 
-async def index_closed_cases(tg_conn, embedder: Embedder):
+async def index_closed_cases(tg_conn=None, embedder: Embedder = None):
     """
     For every closed Case vertex in TigerGraph:
     1. Fetch case attributes (summary, fraud_type, risk_level)
@@ -18,6 +18,14 @@ async def index_closed_cases(tg_conn, embedder: Embedder):
     Batch: 50 cases at a time.
     Print progress every 100 cases.
     """
+    if isinstance(tg_conn, Embedder) and embedder is None:
+        embedder = tg_conn
+        tg_conn = tg_tools._get_tg_conn()
+    if embedder is None:
+        embedder = Embedder()
+    if tg_conn is None:
+        tg_conn = tg_tools._get_tg_conn()
+
     if CHECKPOINT_FILE.exists():
         print(f"[SKIP] Closed cases embedding already indexed ({CHECKPOINT_FILE}).")
         return
@@ -63,13 +71,21 @@ async def index_closed_cases(tg_conn, embedder: Embedder):
     CHECKPOINT_FILE.write_text(f"DONE:{total_indexed}\nTimestamp:{time.time()}\n", encoding="utf-8")
     print(f"[DONE] Indexed {total_indexed} closed cases into TigerGraph vector storage.")
 
-async def index_patterns(tg_conn, embedder: Embedder):
+async def index_patterns(tg_conn=None, embedder: Embedder = None):
     """
     For every PatternTemplate vertex:
     1. Fetch name + description
     2. embedder.embed_pattern(name, description)
     3. Upsert into desc_embedding
     """
+    if isinstance(tg_conn, Embedder) and embedder is None:
+        embedder = tg_conn
+        tg_conn = tg_tools._get_tg_conn()
+    if embedder is None:
+        embedder = Embedder()
+    if tg_conn is None:
+        tg_conn = tg_tools._get_tg_conn()
+
     print("=== Indexing Pattern Template Embeddings ===")
     if tg_conn is None:
         print("[NOTE] TigerGraph connection not active. Skipping live pattern vector indexing.")

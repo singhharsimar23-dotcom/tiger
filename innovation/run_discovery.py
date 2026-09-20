@@ -67,5 +67,10 @@ async def main() -> dict:
     return summary
 
 
+async def run_discovery_if_needed(embedder=None) -> dict:
+    """Wrapper ensuring discovery has run."""
+    return await main(embedder=embedder)
+
+
 if __name__ == "__main__":
     asyncio.run(main())

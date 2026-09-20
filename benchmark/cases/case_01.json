@@ -1,0 +1,11 @@
+{
+  "case_number": 1,
+  "case_id": "CASE_BENCHMARK_01",
+  "trigger_type": "RISK_SCORE",
+  "trigger_txn_ids": [
+    "TXN_3882914"
+  ],
+  "trigger_account_id": "ACC_88219",
+  "trigger_risk_score": 0.94,
+  "notes": "Automated ML scoring tripped high-risk threshold (0.94). Suspected device collusion syndicate."
+}

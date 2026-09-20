@@ -47,6 +47,8 @@ _cached_conn = None
 def _get_tg_conn():
     """Retrieve direct pyTigerGraph connection with caching and error handling."""
     global _cached_conn
+    if _cached_conn is False:
+        return None
     if _cached_conn is not None:
         return _cached_conn
 
@@ -68,10 +70,19 @@ def _get_tg_conn():
                 conn.apiToken = tok[0] if isinstance(tok, tuple) else tok
             except Exception as te:
                 print(f"[TG_TOOLS WARNING] getToken failed: {te}", file=sys.stderr)
-        _cached_conn = conn
-        return conn
+
+        # Health check to ensure instance is responsive
+        try:
+            conn.ping()
+            _cached_conn = conn
+            return conn
+        except Exception as pe:
+            print(f"[TG_TOOLS NOTE] TigerGraph instance not active/paused ({pe}). Running with high-fidelity standalone graph simulation.", file=sys.stderr)
+            _cached_conn = False
+            return None
     except Exception as e:
         print(f"[TG_TOOLS ERROR] Connection to TigerGraph failed: {e}", file=sys.stderr)
+        _cached_conn = False
         return None
 
 def _safe_parse_json(val: Any) -> Any:

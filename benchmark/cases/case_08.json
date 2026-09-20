@@ -1,0 +1,11 @@
+{
+  "case_number": 8,
+  "case_id": "CASE_BENCHMARK_08",
+  "trigger_type": "CUSTOMER_REPORT",
+  "trigger_txn_ids": [
+    "TXN_9018273"
+  ],
+  "trigger_account_id": "ACC_12049",
+  "trigger_risk_score": 0.86,
+  "notes": "Report of unauthorized wire transfer routed to offshore digital bank entity."
+}

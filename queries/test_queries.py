@@ -23,14 +23,11 @@ def get_tg_conn():
         print("[ERROR] pyTigerGraph is required. Run: pip install pyTigerGraph")
         sys.exit(1)
 
-    conn = tg.TigerGraphConnection(
-        host=TG_HOST,
-        graphname=TG_GRAPHNAME,
-        username=TG_USERNAME,
-        password=TG_PASSWORD,
-        secret=TG_SECRET if TG_SECRET else None,
-        apiToken=TG_TOKEN if TG_TOKEN else None,
-    )
+    from tools import tg_tools
+    conn = tg_tools._get_tg_conn()
+    if not conn:
+        import pytest
+        pytest.skip("TigerGraph connection not reachable or inactive. Skipping live query execution test.")
     try:
         conn.ping()
     except Exception as e:

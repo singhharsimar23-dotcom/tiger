@@ -1,0 +1,11 @@
+{
+  "case_number": 19,
+  "case_id": "CASE_BENCHMARK_19",
+  "trigger_type": "ANALYST_REFERRAL",
+  "trigger_txn_ids": [
+    "TXN_2893019"
+  ],
+  "trigger_account_id": "ACC_77819",
+  "trigger_risk_score": 0.91,
+  "notes": "Merchant collusion shell company. Transactions all routed through single unregistered terminal."
+}

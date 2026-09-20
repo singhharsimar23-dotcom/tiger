@@ -1,0 +1,11 @@
+{
+  "case_number": 5,
+  "case_id": "CASE_BENCHMARK_05",
+  "trigger_type": "RISK_SCORE",
+  "trigger_txn_ids": [
+    "TXN_6819203"
+  ],
+  "trigger_account_id": "ACC_77201",
+  "trigger_risk_score": 0.91,
+  "notes": "Bust-out risk model triggered. Line of credit maxed out within 48 hours of credit limit increase."
+}

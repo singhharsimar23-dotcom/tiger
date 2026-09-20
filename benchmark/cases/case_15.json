@@ -1,0 +1,11 @@
+{
+  "case_number": 15,
+  "case_id": "CASE_BENCHMARK_15",
+  "trigger_type": "RISK_SCORE",
+  "trigger_txn_ids": [
+    "TXN_7491028"
+  ],
+  "trigger_account_id": "ACC_33829",
+  "trigger_risk_score": 0.95,
+  "notes": "BIN attack pattern. High frequency sequential card numbers used at POS terminal."
+}

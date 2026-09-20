@@ -1,0 +1,11 @@
+{
+  "case_number": 11,
+  "case_id": "CASE_BENCHMARK_11",
+  "trigger_type": "RISK_SCORE",
+  "trigger_txn_ids": [
+    "TXN_3192840"
+  ],
+  "trigger_account_id": "ACC_22384",
+  "trigger_risk_score": 0.87,
+  "notes": "High-value Card-Not-Present transaction from unverified web proxy."
+}

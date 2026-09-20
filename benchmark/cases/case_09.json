@@ -1,0 +1,11 @@
+{
+  "case_number": 9,
+  "case_id": "CASE_BENCHMARK_09",
+  "trigger_type": "RISK_SCORE",
+  "trigger_txn_ids": [
+    "TXN_1092837"
+  ],
+  "trigger_account_id": "ACC_66391",
+  "trigger_risk_score": 0.93,
+  "notes": "Card cycling structuring anomaly detected. Repeated micro-charges testing CVV validity."
+}

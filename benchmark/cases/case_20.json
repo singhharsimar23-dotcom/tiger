@@ -1,0 +1,11 @@
+{
+  "case_number": 20,
+  "case_id": "CASE_BENCHMARK_20",
+  "trigger_type": "RISK_SCORE",
+  "trigger_txn_ids": [
+    "TXN_3994029"
+  ],
+  "trigger_account_id": "ACC_88920",
+  "trigger_risk_score": 0.98,
+  "notes": "Multi-hop syndicate ring with money mule dispersion and structuring behavior."
+}

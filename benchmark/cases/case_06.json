@@ -1,0 +1,11 @@
+{
+  "case_number": 6,
+  "case_id": "CASE_BENCHMARK_06",
+  "trigger_type": "GEO_ANOMALY",
+  "trigger_txn_ids": [
+    "TXN_7391024"
+  ],
+  "trigger_account_id": "ACC_44819",
+  "trigger_risk_score": 0.89,
+  "notes": "Impossible travel detected. Card swiped in Chicago 18 minutes after transaction in Frankfurt."
+}

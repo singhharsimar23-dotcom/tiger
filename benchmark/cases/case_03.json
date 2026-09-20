@@ -1,0 +1,11 @@
+{
+  "case_number": 3,
+  "case_id": "CASE_BENCHMARK_03",
+  "trigger_type": "CUSTOMER_REPORT",
+  "trigger_txn_ids": [
+    "TXN_4401823"
+  ],
+  "trigger_account_id": "ACC_55019",
+  "trigger_risk_score": 0.82,
+  "notes": "Customer reported unauthorized debit card transaction from unknown merchant."
+}

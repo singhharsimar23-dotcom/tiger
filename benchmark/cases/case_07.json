@@ -1,0 +1,11 @@
+{
+  "case_number": 7,
+  "case_id": "CASE_BENCHMARK_07",
+  "trigger_type": "SHARED_DEVICE_ALERT",
+  "trigger_txn_ids": [
+    "TXN_8192048"
+  ],
+  "trigger_account_id": "ACC_99210",
+  "trigger_risk_score": 0.95,
+  "notes": "Device fingerprint DEV_88192 previously associated with confirmed ATO ring."
+}

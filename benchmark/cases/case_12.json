@@ -1,0 +1,11 @@
+{
+  "case_number": 12,
+  "case_id": "CASE_BENCHMARK_12",
+  "trigger_type": "VELOCITY_SPIKE",
+  "trigger_txn_ids": [
+    "TXN_4192849"
+  ],
+  "trigger_account_id": "ACC_77491",
+  "trigger_risk_score": 0.84,
+  "notes": "Sudden spike of 8 peer-to-peer transfers just under mandatory reporting threshold."
+}

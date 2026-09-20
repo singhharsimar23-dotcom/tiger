@@ -1,0 +1,14 @@
+{
+  "case_id": "CASE_1789895912_6d3748",
+  "stage": "BEFORE_ADDITIONAL_EVIDENCE",
+  "action_type": "FREEZE_ACCOUNT",
+  "approval_tier": "FRAUD_OPS_LEAD",
+  "approval_route": [
+    "FRAUD_ANALYST_QUEUE"
+  ],
+  "reason": "Immediate account freeze per institutional policy rule RULE_BLOCK_ACC_002",
+  "policy_reference": "RULE_BLOCK_ACC_002",
+  "executed": false,
+  "confidence": 0.93,
+  "timestamp": "2026-09-20T09:18:34.219063+00:00"
+}

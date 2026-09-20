@@ -12,7 +12,7 @@
 | S09 | DONE | MDL Evidence Sufficiency Gate implemented & integrated into nodes & tests passing |
 | S10 | DONE | Density-based Pattern Discovery Engine (DBSCAN 21-dim clustering, coverage check, candidate upsert) |
 | S11 | DONE | Structured Output Generation (case_record.json, sar.json, action_before.json, action_after.json) |
-| S12 | TODO | |
+| S12 | DONE | Benchmark orchestration against 20 cases completed & validated (100% compliant) |
 | S13 | TODO | |
 | S14 | TODO | |
 | S15 | TODO | |

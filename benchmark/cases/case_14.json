@@ -1,0 +1,11 @@
+{
+  "case_number": 14,
+  "case_id": "CASE_BENCHMARK_14",
+  "trigger_type": "ANALYST_REFERRAL",
+  "trigger_txn_ids": [
+    "TXN_6391029"
+  ],
+  "trigger_account_id": "ACC_11492",
+  "trigger_risk_score": 0.89,
+  "notes": "Dormant account reactivation immediately followed by cryptocurrency exchange purchase."
+}

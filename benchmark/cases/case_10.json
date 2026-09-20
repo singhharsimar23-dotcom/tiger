@@ -1,0 +1,11 @@
+{
+  "case_number": 10,
+  "case_id": "CASE_BENCHMARK_10",
+  "trigger_type": "ANALYST_REFERRAL",
+  "trigger_txn_ids": [
+    "TXN_2093847"
+  ],
+  "trigger_account_id": "ACC_88192",
+  "trigger_risk_score": 0.9,
+  "notes": "Circular money flow detected between 3 accounts with shared residential address."
+}
