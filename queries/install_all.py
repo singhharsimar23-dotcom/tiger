@@ -20,14 +20,22 @@ def get_tg_conn():
         print("[ERROR] pyTigerGraph is required. Run: pip install pyTigerGraph")
         sys.exit(1)
 
+    is_cloud = "tgcloud.io" in TG_HOST
     conn = tg.TigerGraphConnection(
         host=TG_HOST,
         graphname=TG_GRAPHNAME,
         username=TG_USERNAME,
-        password=TG_PASSWORD,
-        secret=TG_SECRET if TG_SECRET else None,
-        apiToken=TG_TOKEN if TG_TOKEN else None,
+        password=TG_PASSWORD or "",
+        gsqlSecret=TG_SECRET if TG_SECRET else "",
+        apiToken=TG_TOKEN if TG_TOKEN else "",
+        tgCloud=is_cloud,
     )
+    if TG_SECRET and not conn.apiToken:
+        try:
+            tok = conn.getToken(secret=TG_SECRET)
+            conn.apiToken = tok[0] if isinstance(tok, tuple) else tok
+        except Exception as te:
+            print(f"[WARNING] getToken failed: {te}")
     conn.ping()
     return conn
 
