@@ -1,42 +1,60 @@
-USE GRAPH FraudGraph
+/*
+queries/get_money_flow.gsql — Ground Truth Corrected
 
-CREATE OR REPLACE QUERY get_money_flow(VERTEX<Account> account_id, INT depth) FOR GRAPH FraudGraph {
-    /* @timeout 30000 */
-    /*
-      Follow PERFORMED edges from account to transactions, then see what other
-      accounts those transactions connect to via shared devices/addresses.
-      Detect rings: account appearing as both source and reachable target.
-      Print as: {source_account, chains: [{hops: [...], is_ring: bool}]}
-    */
-    TYPEDEF TUPLE<STRING hop1_txn, STRING connected_account, STRING relation_type, BOOL is_ring> FlowChain;
+Traverses the NEXT edge chain from the anchor transaction forward (and back).
+NEXT edges connect consecutive transactions on the same card, ordered by ts.
+This replaces the old Account/PERFORMED-based money flow query.
 
-    ListAccum<FlowChain> @@chains;
-    STRING src_id;
+Input:
+  - txn_id    STRING  : anchor transaction
+  - max_steps INT     : how many NEXT hops to follow (default 10)
+*/
 
-    Start = {account_id};
-    Start = SELECT s FROM Start:s POST-ACCUM src_id = s.account_id;
+CREATE QUERY get_money_flow(STRING txn_id, INT max_steps = 10) FOR GRAPH FraudGraph {
 
-    // Hop 1: Account -> Transactions
-    Txns = SELECT t FROM Start:a -(PERFORMED)-> Transaction:t;
+  ListAccum<VERTEX<Transaction>> @@chain_forward;
+  ListAccum<VERTEX<Transaction>> @@chain_backward;
+  SumAccum<FLOAT>                @@total_forward_amt;
+  SumAccum<FLOAT>                @@total_backward_amt;
+  OrAccum                        @@found;
 
-    // Hop 2: Transactions -> Devices
-    Devs = SELECT d FROM Txns:t -(USED_DEVICE)-> Device:d;
+  -- Anchor
+  start_txn = {Transaction.*};
+  anchor = SELECT t FROM start_txn:t WHERE t.txn_id == txn_id;
 
-    // Hop 3: Devices -> Other Transactions -> Other Accounts
-    OtherTxns = SELECT t2 FROM Devs:d -(REVERSE_USED_DEVICE)-> Transaction:t2;
-    OtherAccounts = 
-        SELECT a2 
-        FROM OtherTxns:t2 -(REVERSE_PERFORMED)-> Account:a2
-        ACCUM 
-            BOOL ring = (a2.account_id == src_id),
-            @@chains += FlowChain(t2.txn_id, a2.account_id, "SHARED_DEVICE_TXN", ring);
+  IF anchor.size() == 0 THEN
+    PRINT "Transaction not found" AS error;
+    RETURN;
+  END;
+  @@found = TRUE;
 
-    // Direct SHARES_DEVICE connections
-    DirectRings = 
-        SELECT a2 
-        FROM Start:a1 -(SHARES_DEVICE:e)-> Account:a2
-        ACCUM 
-            @@chains += FlowChain("N/A", a2.account_id, "DIRECT_SHARED_DEVICE", FALSE);
+  -- Forward chain (NEXT edges from anchor)
+  current = anchor;
+  FOREACH i IN RANGE[1, max_steps] DO
+    next_txn = SELECT t2 FROM current:t -(NEXT:e)-> Transaction:t2
+      ACCUM @@chain_forward += t2, @@total_forward_amt += t2.transaction_amt;
+    IF next_txn.size() == 0 THEN
+      BREAK;
+    END;
+    current = next_txn;
+  END;
 
-    PRINT src_id AS source_account, @@chains AS chains;
+  -- Backward chain (REVERSE_NEXT edges from anchor)
+  current = anchor;
+  FOREACH i IN RANGE[1, max_steps] DO
+    prev_txn = SELECT t2 FROM current:t -(REVERSE_NEXT:e)-> Transaction:t2
+      ACCUM @@chain_backward += t2, @@total_backward_amt += t2.transaction_amt;
+    IF prev_txn.size() == 0 THEN
+      BREAK;
+    END;
+    current = prev_txn;
+  END;
+
+  -- Output
+  PRINT anchor                AS anchor_transaction;
+  PRINT @@chain_forward       AS chain_forward;
+  PRINT @@chain_backward      AS chain_backward;
+  PRINT @@total_forward_amt   AS total_forward_usd;
+  PRINT @@total_backward_amt  AS total_backward_usd;
+  PRINT (@@total_forward_amt + @@total_backward_amt + anchor.transaction_amt) AS total_chain_usd;
 }

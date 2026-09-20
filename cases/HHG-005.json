@@ -1,0 +1,116 @@
+{
+  "case_id": "HHG-005",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.05,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "T3523199",
+    "connected_card_ids": [
+      "C231-K1",
+      "C231-K2"
+    ],
+    "connected_device_profiles": [
+      "dp_23199"
+    ],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Transaction T3523199 triggered a risk score of 0.54, which is below the 0.70 threshold for immediate blocking.",
+        "source": "graph",
+        "ref": "Trigger Type: risk_score",
+        "entity_ids": [
+          "T3523199"
+        ]
+      },
+      {
+        "claim": "The device profile dp_23199 is linked to multiple cards (C_SHARED_23199) and shows shared activity across billing regions and email domains.",
+        "source": "graph",
+        "ref": "Graph Traversal Findings",
+        "entity_ids": [
+          "dp_23199",
+          "C_SHARED_23199"
+        ]
+      },
+      {
+        "claim": "The transaction chain shows a total forward and backward exposure of $287.50, which is below the $500 escalation threshold.",
+        "source": "graph",
+        "ref": "Money flow (NEXT chain)",
+        "entity_ids": [
+          "T3523199",
+          "T3523200",
+          "T3523201",
+          "T3523198"
+        ]
+      },
+      {
+        "claim": "Historical data indicates the customer has been involved in previous cases CC-0008, CC-0009, and CC-0001.",
+        "source": "document",
+        "ref": "Historical Closed Cases",
+        "entity_ids": [
+          "C02923"
+        ]
+      },
+      {
+        "claim": "Customer confirmed purchase upon verification outreach.",
+        "source": "customer",
+        "ref": "customer_inquiry_channel",
+        "entity_ids": [
+          "T3523199",
+          "C02923"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0008",
+      "CC-0009",
+      "CC-0001"
+    ],
+    "summary": "The investigation into Case HHG-005 regarding card C02923-K1 was initiated due to a risk score of 0.54 and shared device profile activity. Despite the presence of shared device identifiers, the customer confirmed the transaction during verification outreach. Given the low fraud probability of 0.05 and the customer's confirmation, the case is classified as legitimate. No further action is required as the exposure remains below the escalation threshold.",
+    "written_to_graph": true,
+    "graph_case_id": "HHG-005"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer confirms legitimate purchase."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Weak single signal with fraud probability < 0.70 requires customer verification before blocking."
+      },
+      {
+        "action": "STEP_UP_AUTH",
+        "route": "auto",
+        "reason": "R1: Step-up authentication requested prior to any card block."
+      }
+    ],
+    "final": [
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: Customer confirmed the transaction upon verification outreach, and the case is marked as legitimate."
+      }
+    ],
+    "what_changed": "Actions updated from [VERIFY_WITH_CUSTOMER, STEP_UP_AUTH] to [CLOSE_NO_FRAUD] following evidence intake and stopping rule."
+  },
+  "sar": {
+    "file": false,
+    "reason": "",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "A verification response settled the question.",
+  "tool_calls": 9,
+  "tokens": 0,
+  "latency_s": 19.328
+}

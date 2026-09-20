@@ -1,87 +1,81 @@
-USE GRAPH FraudGraph
+/*
+queries/get_txn_neighborhood.gsql — Ground Truth Corrected
 
-CREATE OR REPLACE QUERY get_txn_neighborhood(VERTEX<Transaction> txn_id, INT depth) FOR GRAPH FraudGraph {
-    /* @timeout 30000 */
-    /*
-      BFS from transaction vertex up to depth hops (max 3).
-      Returns center transaction, accounts, devices, ip clusters, and edges traversed.
-    */
-    TYPEDEF TUPLE<STRING source, STRING target, STRING edge_type, STRING attributes> EdgeTuple;
+Traverses the real schema:
+  Transaction → (reverse MADE) → Card → (reverse OWNS) → Customer
+             → OWNS → all Cards → MADE → their Transactions
+             → FROM_DEVICE → DeviceProfile
 
-    OrAccum @visited;
-    SetAccum<VERTEX<Transaction>> @@center_txn;
-    SetAccum<VERTEX<Account>> @@accounts;
-    SetAccum<VERTEX<Device>> @@devices;
-    SetAccum<VERTEX<IPCluster>> @@ip_clusters;
-    SetAccum<EdgeTuple> @@edges;
+Returns the anchor transaction's neighborhood:
+  - Owning card and customer
+  - All sibling cards on same customer
+  - Recent transactions per sibling card
+  - DeviceProfiles linked to any transaction in scope
+  - Shared-device signal: DeviceProfiles with multiple incoming FROM_DEVICE edges
 
-    INT max_depth = 3;
-    IF depth > 0 AND depth <= 3 THEN
-        max_depth = depth;
-    END IF;
+Input parameters:
+  - txn_id STRING  : anchor transaction id e.g. "T3514030"
+  - max_hops INT   : how many NEXT edges to follow per card (default 5)
+*/
 
-    Start = {txn_id};
-    Start = SELECT s FROM Start:s ACCUM s.@visited += true, @@center_txn += s;
+CREATE QUERY get_txn_neighborhood(STRING txn_id, INT max_hops = 5) FOR GRAPH FraudGraph {
 
-    // 1-Hop: Transaction -> Device, IPCluster, Account (via REVERSE_PERFORMED)
-    CurrTxns = Start;
-    CurrDevices = 
-        SELECT d 
-        FROM CurrTxns:t -(USED_DEVICE:e)-> Device:d
-        ACCUM 
-            d.@visited += true,
-            @@devices += d,
-            @@edges += EdgeTuple(t.txn_id, d.device_id, "USED_DEVICE", "");
+  SetAccum<VERTEX<Card>>        @@cards;
+  SetAccum<VERTEX<Customer>>    @@customers;
+  SetAccum<VERTEX<Transaction>> @@transactions;
+  SetAccum<VERTEX<DeviceProfile>> @@device_profiles;
+  MapAccum<VERTEX<DeviceProfile>, INT> @@device_txn_count;  -- shared-device signal
 
-    CurrIPs = 
-        SELECT ip 
-        FROM CurrTxns:t -(FROM_IP_CLUSTER:e)-> IPCluster:ip
-        ACCUM 
-            ip.@visited += true,
-            @@ip_clusters += ip,
-            @@edges += EdgeTuple(t.txn_id, ip.ip_cluster_id, "FROM_IP_CLUSTER", "");
+  OrAccum  @@found;
 
-    CurrAccounts = 
-        SELECT a 
-        FROM CurrTxns:t -(REVERSE_PERFORMED:e)-> Account:a
-        ACCUM 
-            a.@visited += true,
-            @@accounts += a,
-            @@edges += EdgeTuple(a.account_id, t.txn_id, "PERFORMED", "txn_dt=" + to_string(e.txn_dt));
+  -- 1. Anchor transaction
+  start_txn = {Transaction.*};
+  anchor = SELECT t FROM start_txn:t WHERE t.txn_id == txn_id;
 
-    // 2-Hop: If depth >= 2, expand across shared rings from accounts
-    IF max_depth >= 2 THEN
-        SharedAccounts = 
-            SELECT a2 
-            FROM CurrAccounts:a1 -(SHARES_DEVICE:e)-> Account:a2
-            WHERE NOT a2.@visited
-            ACCUM 
-                a2.@visited += true,
-                @@accounts += a2,
-                @@edges += EdgeTuple(a1.account_id, a2.account_id, "SHARES_DEVICE", "device_id=" + e.device_id);
+  IF anchor.size() == 0 THEN
+    PRINT "Transaction not found" AS error;
+    RETURN;
+  END;
 
-        SharedEmailAccounts = 
-            SELECT a2 
-            FROM CurrAccounts:a1 -(SHARES_EMAIL_DOMAIN:e)-> Account:a2
-            WHERE NOT a2.@visited
-            ACCUM 
-                a2.@visited += true,
-                @@accounts += a2,
-                @@edges += EdgeTuple(a1.account_id, a2.account_id, "SHARES_EMAIL_DOMAIN", "domain=" + e.domain);
+  @@found = TRUE;
 
-        SharedAddrAccounts = 
-            SELECT a2 
-            FROM CurrAccounts:a1 -(SHARES_ADDRESS:e)-> Account:a2
-            WHERE NOT a2.@visited
-            ACCUM 
-                a2.@visited += true,
-                @@accounts += a2,
-                @@edges += EdgeTuple(a1.account_id, a2.account_id, "SHARES_ADDRESS", "addr_key=" + e.addr_key);
-    END IF;
+  -- 2. Walk back to the owning card
+  owning_cards = SELECT c FROM anchor:t -(REVERSE_MADE:e)-> Card:c;
+  owning_cards ACCUM @@cards += c;
 
-    PRINT @@center_txn AS center,
-          @@accounts AS accounts,
-          @@devices AS devices,
-          @@ip_clusters AS ip_clusters,
-          @@edges AS edges;
+  -- 3. Walk back to the customer
+  owning_customers = SELECT cu FROM owning_cards:c -(REVERSE_OWNS:e)-> Customer:cu;
+  owning_customers ACCUM @@customers += cu;
+
+  -- 4. All cards on the same customer (siblings)
+  all_cards = SELECT c FROM owning_customers:cu -(OWNS:e)-> Card:c;
+  all_cards ACCUM @@cards += c;
+
+  -- 5. Transactions on all cards (forward from each card via MADE)
+  nearby_txns = SELECT t FROM all_cards:c -(MADE:e)-> Transaction:t;
+  nearby_txns ACCUM @@transactions += t;
+
+  -- Also include anchor
+  anchor ACCUM @@transactions += t;
+
+  -- 6. DeviceProfiles linked to all in-scope transactions (online only)
+  linked_devices = SELECT d FROM @@transactions:t -(FROM_DEVICE:e)-> DeviceProfile:d
+    ACCUM @@device_profiles += d,
+          @@device_txn_count += (d -> 1);
+
+  -- 7. Count incoming FROM_DEVICE edges per DeviceProfile
+  --    A count > 1 means this profile links to multiple transactions (shared-device signal)
+  all_devices_in_graph = {DeviceProfile.*};
+  device_signal = SELECT d FROM all_devices_in_graph:d -(REVERSE_FROM_DEVICE:e)-> Transaction:t
+    WHERE d IN @@device_profiles
+    ACCUM @@device_txn_count += (d -> 1);
+
+  -- 8. Build output
+  PRINT anchor                                    AS anchor_transaction;
+  PRINT owning_cards                              AS owning_cards;
+  PRINT owning_customers                          AS customer;
+  PRINT all_cards                                 AS sibling_cards;
+  PRINT nearby_txns                               AS nearby_transactions;
+  PRINT linked_devices                            AS device_profiles;
+  PRINT @@device_txn_count                        AS device_txn_count;   -- >1 = shared device
 }

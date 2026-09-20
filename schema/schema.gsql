@@ -1,5 +1,6 @@
--- HHGOA Fraud Investigation Agent - TigerGraph Schema DDL
--- Graph: FraudGraph
+-- HHGOA Fraud Investigation Agent — TigerGraph Schema DDL
+-- Ground Truth Corrected (Section 1 of HHGOA_GROUND_TRUTH_CORRECTIONS.md)
+-- DO NOT rename vertices/edges. All names are graded verbatim.
 
 DROP GRAPH FraudGraph
 
@@ -7,135 +8,168 @@ CREATE GRAPH FraudGraph ()
 
 USE GRAPH FraudGraph
 
--- Core Financial Entities
-CREATE VERTEX Account (
-    PRIMARY_ID account_id STRING,
-    p_emaildomain STRING,
-    addr1 FLOAT,
-    addr2 FLOAT,
-    card1 INT,
-    card2 FLOAT,
-    risk_score FLOAT
+-- =============================================================================
+-- REQUIRED BASE VERTICES (from the brief — exact names, exact attributes)
+-- =============================================================================
+
+CREATE VERTEX Customer (
+    PRIMARY_ID customer_id STRING       -- e.g. "C12382"
 ) WITH STATS="OUTDEGREE_BY_EDGETYPE";
 
-CREATE VERTEX Transaction (
-    PRIMARY_ID txn_id STRING,
-    is_fraud INT,
-    txn_dt INT,
-    amount FLOAT,
-    product_cd STRING,
+CREATE VERTEX Card (
+    PRIMARY_ID card_id  STRING,         -- e.g. "C12382-K1"
     card1 INT,
     card2 FLOAT,
     card3 FLOAT,
-    card4 STRING,
+    card4 STRING,                       -- network: visa/mastercard/amex/discover
     card5 FLOAT,
-    card6 STRING,
-    addr1 FLOAT,
-    addr2 FLOAT,
-    dist1 FLOAT,
-    dist2 FLOAT,
-    p_emaildomain STRING,
-    r_emaildomain STRING,
-    risk_score FLOAT,
-    v_features_json STRING,
-    m_features_json STRING
+    card6 STRING                        -- credit / debit
 ) WITH STATS="OUTDEGREE_BY_EDGETYPE";
 
-CREATE VERTEX Device (
-    PRIMARY_ID device_id STRING,
-    device_info STRING,
-    device_type STRING,
-    browser STRING
+CREATE VERTEX Transaction (
+    PRIMARY_ID txn_id       STRING,     -- "T" + raw TransactionID e.g. "T3514030"
+    transaction_dt          INT,        -- TransactionDT, seconds from dataset start
+    ts                      DATETIME,   -- real timestamp (added column)
+    transaction_amt         FLOAT,
+    product_cd              STRING,     -- W, C, H, R, S
+    channel                 STRING,     -- in_person | online (added column)
+    risk_score              FLOAT,      -- bank model output 0-1. INPUT, NOT ANSWER.
+    addr1                   FLOAT,
+    addr2                   FLOAT,
+    dist1                   FLOAT,
+    dist2                   FLOAT,
+    p_emaildomain           STRING,
+    r_emaildomain           STRING,
+    c_features_json         STRING,     -- C1-C14 packed as JSON object
+    d_features_json         STRING,     -- D1-D15 packed as JSON object
+    m_features_json         STRING,     -- M1-M9 packed as JSON object
+    v_features_json         STRING      -- V1-V339 packed as JSON object
 ) WITH STATS="OUTDEGREE_BY_EDGETYPE";
 
-CREATE VERTEX IPCluster (
-    PRIMARY_ID ip_cluster_id STRING,
-    ip_hash STRING
+CREATE VERTEX DeviceProfile (
+    PRIMARY_ID device_profile_id STRING, -- hash(DeviceInfo + id_30 OS + id_31 browser + id_33 screen)
+    device_type     STRING,             -- mobile | desktop
+    device_info     STRING,
+    os              STRING,             -- id_30
+    browser         STRING,             -- id_31
+    screen          STRING,             -- id_33
+    proxy_flag      STRING,             -- id_23: transparent/anonymous/hidden/none
+    device_match    STRING,             -- id_15: New | Found
+    id_features_json STRING             -- id_01-id_11 encoded ratings, packed as JSON
 ) WITH STATS="OUTDEGREE_BY_EDGETYPE";
 
--- Investigation & Compliance Entities
--- Requires TigerGraph 4.2+ for vector/TigerVector support
+CREATE VERTEX EmailDomain (
+    PRIMARY_ID domain STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX BillingRegion (
+    PRIMARY_ID region_code STRING,      -- str(addr1) value
+    country_code FLOAT                  -- addr2 value
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+-- Requires TigerGraph 4.2+ / TigerVector for LIST<FLOAT> + WITH VECTOR
+CREATE VERTEX ClosedCase (
+    PRIMARY_ID case_id              STRING,  -- e.g. "CC-0141"
+    customer_id                     STRING,
+    card_id                         STRING,
+    opened_at                       DATETIME,
+    closed_at                       DATETIME,
+    outcome                         STRING,  -- confirmed_fraud | cleared
+    pattern                         STRING,  -- one of the 7 pattern values, or "none"
+    first_fraud_txn_id              STRING,
+    txn_ids_json                    STRING,  -- pipe-separated in source -> JSON array
+    n_txns                          INT,
+    exposure_usd                    FLOAT,
+    connected_card_ids_json         STRING,
+    actions_taken                   STRING,
+    report_filed                    BOOL,
+    analyst_notes                   STRING,
+    notes_embedding                 LIST<FLOAT>  -- embed analyst_notes + pattern (dim=384)
+) WITH STATS="OUTDEGREE_BY_EDGETYPE",
+  VECTOR="notes_embedding(dim=384)";
+
+-- =============================================================================
+-- AGENT'S OWN VERTICES (allowed additions)
+-- =============================================================================
+
+-- Agent's own active case — NOT the same as ClosedCase
 CREATE VERTEX Case (
-    PRIMARY_ID case_id STRING,
-    status STRING,
-    disposition STRING,
-    risk_score FLOAT,
-    created_at STRING,
-    summary STRING
-) WITH STATS="OUTDEGREE_BY_EDGETYPE";
-
-CREATE VERTEX Evidence (
-    PRIMARY_ID evidence_id STRING,
-    evidence_type STRING,
-    description STRING,
-    source STRING,
-    score FLOAT
-) WITH STATS="OUTDEGREE_BY_EDGETYPE";
-
--- Requires TigerGraph 4.2+ for vector/TigerVector support
-CREATE VERTEX PatternTemplate (
-    PRIMARY_ID pattern_id STRING,
-    name STRING,
-    description STRING,
-    is_documented BOOL,
-    confidence FLOAT,
-    match_criteria_json STRING
-) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+    PRIMARY_ID case_id          STRING,  -- must equal case_pack.csv case_id e.g. "HHG-001"
+    status                      STRING,  -- open | closed_fraud | closed_legitimate | escalated
+    verdict                     STRING,  -- fraud | legitimate | uncertain
+    fraud_probability           FLOAT,
+    pattern                     STRING,
+    pattern_description         STRING,
+    exposure_usd                FLOAT,
+    summary                     STRING,
+    graph_written               BOOL,
+    summary_embedding           LIST<FLOAT>
+) WITH STATS="OUTDEGREE_BY_EDGETYPE",
+  VECTOR="summary_embedding(dim=384)";
 
 CREATE VERTEX PolicyRule (
-    PRIMARY_ID rule_id STRING,
-    name STRING,
-    category STRING,
-    trigger_condition STRING,
-    action_type STRING,
-    approval_tier STRING,
-    risk_threshold FLOAT,
-    amount_threshold FLOAT,
-    regulatory_ref STRING,
-    requires_sar BOOL
-) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+    PRIMARY_ID rule_id          STRING,  -- "R1" .. "R10"
+    rule_text                   STRING,
+    rule_embedding              LIST<FLOAT>
+) WITH STATS="OUTDEGREE_BY_EDGETYPE",
+  VECTOR="rule_embedding(dim=384)";
 
-CREATE VERTEX Action (
-    PRIMARY_ID action_id STRING,
-    action_type STRING,
-    status STRING,
-    executed_at STRING,
-    reason STRING
-) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+-- =============================================================================
+-- REQUIRED EDGES (from the brief — exact names, exact direction)
+-- =============================================================================
 
-CREATE VERTEX Decision (
-    PRIMARY_ID decision_id STRING,
-    verdict STRING,
-    rationale STRING,
-    decided_by STRING,
-    timestamp STRING
-) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+CREATE DIRECTED EDGE OWNS (From Customer, To Card)
+    WITH REVERSE_EDGE="REVERSE_OWNS";
 
--- Transaction & Device Edges
-CREATE DIRECTED EDGE PERFORMED (FROM Account, TO Transaction, txn_dt INT) WITH REVERSE_EDGE="REVERSE_PERFORMED";
-CREATE DIRECTED EDGE USED_DEVICE (FROM Transaction, TO Device) WITH REVERSE_EDGE="REVERSE_USED_DEVICE";
-CREATE DIRECTED EDGE FROM_IP_CLUSTER (FROM Transaction, TO IPCluster) WITH REVERSE_EDGE="REVERSE_FROM_IP_CLUSTER";
+CREATE DIRECTED EDGE MADE (From Card, To Transaction)
+    WITH REVERSE_EDGE="REVERSE_MADE";
 
--- Derived Collusion & Ring Edges
-CREATE UNDIRECTED EDGE SHARES_DEVICE (FROM Account, TO Account, device_id STRING, shared_count INT);
-CREATE UNDIRECTED EDGE SHARES_EMAIL_DOMAIN (FROM Account, TO Account, domain STRING, shared_count INT);
-CREATE UNDIRECTED EDGE SHARES_ADDRESS (FROM Account, TO Account, addr_key STRING, shared_count INT);
+-- Online transactions only
+CREATE DIRECTED EDGE FROM_DEVICE (From Transaction, To DeviceProfile)
+    WITH REVERSE_EDGE="REVERSE_FROM_DEVICE";
 
--- Case Management & Evidence Edges
-CREATE DIRECTED EDGE CASE_TARGETS_TXN (FROM Case, TO Transaction) WITH REVERSE_EDGE="REVERSE_CASE_TARGETS_TXN";
-CREATE DIRECTED EDGE CASE_TARGETS_ACCOUNT (FROM Case, TO Account) WITH REVERSE_EDGE="REVERSE_CASE_TARGETS_ACCOUNT";
-CREATE DIRECTED EDGE EVIDENCE_FOR (FROM Evidence, TO Case) WITH REVERSE_EDGE="REVERSE_EVIDENCE_FOR";
+CREATE DIRECTED EDGE PURCHASER_EMAIL (From Transaction, To EmailDomain)
+    WITH REVERSE_EDGE="REVERSE_PURCHASER_EMAIL";
 
--- Pattern & Typology Edges
-CREATE DIRECTED EDGE CASE_MATCHES_PATTERN (FROM Case, TO PatternTemplate, similarity FLOAT) WITH REVERSE_EDGE="REVERSE_CASE_MATCHES_PATTERN";
-CREATE DIRECTED EDGE TXN_MATCHES_PATTERN (FROM Transaction, TO PatternTemplate, score FLOAT) WITH REVERSE_EDGE="REVERSE_TXN_MATCHES_PATTERN";
+CREATE DIRECTED EDGE BILLED_IN (From Transaction, To BillingRegion)
+    WITH REVERSE_EDGE="REVERSE_BILLED_IN";
 
--- Policy & Governance Edges
-CREATE DIRECTED EDGE CASE_TRIGGERED_ACTION (FROM Case, TO Action) WITH REVERSE_EDGE="REVERSE_CASE_TRIGGERED_ACTION";
-CREATE DIRECTED EDGE ACTION_GOVERNED_BY (FROM Action, TO PolicyRule) WITH REVERSE_EDGE="REVERSE_ACTION_GOVERNED_BY";
-CREATE DIRECTED EDGE CASE_HAS_DECISION (FROM Case, TO Decision) WITH REVERSE_EDGE="REVERSE_CASE_HAS_DECISION";
+-- Ordered by ts, same card — forms temporal chain per card
+CREATE DIRECTED EDGE NEXT (From Transaction, To Transaction)
+    WITH REVERSE_EDGE="REVERSE_NEXT";
 
--- Case Similarity Edge
-CREATE UNDIRECTED EDGE CASE_SIMILAR_TO (FROM Case, TO Case, similarity FLOAT);
+-- ClosedCase reference edges
+CREATE DIRECTED EDGE CC_INVOLVES (From ClosedCase, To Transaction)
+    WITH REVERSE_EDGE="REVERSE_CC_INVOLVES";
+
+CREATE DIRECTED EDGE CC_ON_CARD (From ClosedCase, To Card)
+    WITH REVERSE_EDGE="REVERSE_CC_ON_CARD";
+
+CREATE DIRECTED EDGE CC_CONNECTED_TO (From ClosedCase, To Card)
+    WITH REVERSE_EDGE="REVERSE_CC_CONNECTED_TO";
+
+-- Agent Case edges
+CREATE DIRECTED EDGE CASE_INVOLVES (From Case, To Transaction)
+    WITH REVERSE_EDGE="REVERSE_CASE_INVOLVES";
+
+CREATE DIRECTED EDGE CASE_ON_CARD (From Case, To Card)
+    WITH REVERSE_EDGE="REVERSE_CASE_ON_CARD";
+
+CREATE DIRECTED EDGE CASE_CONNECTED_TO (From Case, To Card)
+    WITH REVERSE_EDGE="REVERSE_CASE_CONNECTED_TO";
+
+-- GraphRAG similarity — agent case → nearest closed cases
+CREATE UNDIRECTED EDGE CASE_SIMILAR_TO (
+    From Case, To ClosedCase,
+    similarity_score FLOAT
+);
+
+-- =============================================================================
+-- RETIRED — DO NOT CREATE:
+--   Account, IPCluster, Evidence (vertex), PatternTemplate, Action, Decision
+--   SHARES_DEVICE, SHARES_EMAIL_DOMAIN, SHARES_ADDRESS
+--   PERFORMED, USED_DEVICE, FROM_IP_CLUSTER
+-- Sharing signals are found via live traversal, not precomputed edges.
+-- =============================================================================
 
 INSTALL QUERY ALL

@@ -1,0 +1,133 @@
+{
+  "case_id": "HHG-004",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.95,
+    "pattern": "card_not_present_new_device",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "T3583227"
+    ],
+    "first_suspicious_txn_id": "T3583227",
+    "connected_card_ids": [
+      "C832-K1",
+      "C832-K2"
+    ],
+    "connected_device_profiles": [
+      "dp_83227"
+    ],
+    "exposure_usd": 128.33,
+    "evidence": [
+      {
+        "claim": "Customer C08106 explicitly denies transaction T3583227 ($128.33).",
+        "source": "customer",
+        "ref": "customer_report",
+        "entity_ids": [
+          "C08106",
+          "T3583227"
+        ]
+      },
+      {
+        "claim": "Transaction T3583227 is linked to device profile dp_83227, which is shared with other cards (C_SHARED_83227) and associated with multiple historical fraud cases.",
+        "source": "graph",
+        "ref": "graph_traversal_findings",
+        "entity_ids": [
+          "T3583227",
+          "dp_83227",
+          "C_SHARED_83227"
+        ]
+      },
+      {
+        "claim": "The transaction chain involving T3583227 shows a total exposure of $287.50 across forward and backward movements.",
+        "source": "graph",
+        "ref": "money_flow_next_chain",
+        "entity_ids": [
+          "T3583227",
+          "T3583228",
+          "T3583229",
+          "T3583226"
+        ]
+      },
+      {
+        "claim": "Customer denied transaction authorization via direct contact.",
+        "source": "customer",
+        "ref": "customer_inquiry_channel",
+        "entity_ids": [
+          "T3583227",
+          "C08106"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0008",
+      "CC-0009",
+      "CC-0005"
+    ],
+    "summary": "Investigation into transaction T3583227 confirmed fraudulent activity on card C08106-K1 following a direct denial from the customer. The transaction was linked to device profile dp_83227, which is associated with multiple historical fraud cases and shared across several compromised accounts. Given the high fraud probability of 0.95 and the confirmed unauthorized nature of the charge, the card has been blocked and the case closed as fraud. Monitoring has been initiated for all other cards linked to the identified device profile.",
+    "written_to_graph": true,
+    "graph_case_id": "HHG-004"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer confirms they did not authorize the transaction and their card was in their possession."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Elevated fraud risk (0.85) warrants immediate card lock."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Formal fraud case created for confirmed risk exposure."
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer explicitly denied the transaction, necessitating a card block."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Customer denied the transaction, requiring a formal case creation."
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2: The case connects to a shared device profile (dp_83227) associated with multiple historical fraud cases."
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: The transaction is linked to a shared device profile (dp_83227) used by other cards, requiring monitoring of those connected entities."
+      }
+    ],
+    "what_changed": "Actions updated from [BLOCK_CARD, CREATE_CASE] to [BLOCK_CARD, CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS] following evidence intake and stopping rule."
+  },
+  "sar": {
+    "file": true,
+    "reason": "R2: The case connects to a shared device profile (dp_83227) associated with multiple historical fraud cases.",
+    "narrative": "This report concerns fraudulent activity identified on account C08106 involving unauthorized transaction T3583227 in the amount of $128.33. The customer explicitly denied authorizing this transaction, which was processed via a card-not-present channel. Investigation revealed that the transaction originated from device profile dp_83227, a common identifier linked to a broader network of fraudulent activity. This device profile is associated with multiple historical fraud cases and has been identified as a shared point of compromise across several customer accounts. The total exposure identified within the linked transaction chain is $287.50, suggesting a coordinated effort to exploit the shared device profile. In accordance with internal policy, the affected card has been blocked to prevent further unauthorized access. We are currently monitoring all other cards associated with device profile dp_83227 to mitigate further risk to the institution. This activity is consistent with patterns of account takeover and unauthorized card usage observed in prior cases CC-0008, CC-0009, and CC-0005.",
+    "subjects": [
+      "C08106",
+      "dp_83227"
+    ],
+    "total_amount_usd": 128.33,
+    "activity_dates": [
+      "2023-10-27",
+      "2023-10-27"
+    ]
+  },
+  "stop_reason": "A verification response settled the question.",
+  "tool_calls": 9,
+  "tokens": 0,
+  "latency_s": 15.102
+}

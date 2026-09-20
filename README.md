@@ -1,183 +1,171 @@
-# FraudSight: Autonomous Graph-Augmented Fraud Investigation Agent
+# TigerGraph Agentic Fraud Investigation (HHGOA)
 
-[![TigerGraph HHGOA](https://img.shields.io/badge/TigerGraph-HHGOA%20Hackathon%202026-orange.svg)](https://devpost.com)
-[![LangGraph](https://img.shields.io/badge/Agent-LangGraph%20%2F%20DAG-blue.svg)](https://langchain-ai.github.io/langgraph/)
-[![Google Gemini](https://img.shields.io/badge/LLM-Gemini%202.5%20Flash-green.svg)](https://ai.google.dev/)
-[![Compliance](https://img.shields.io/badge/Audit--Ready-FFIEC%20%2F%20FinCEN%20SAR-red.svg)](outputs/cases/)
+> **Autonomous AI Agent for Multi-Hop Financial Crime Investigation, Graph Reasoning, and Next-Best Action**  
+> Built for the TigerGraph Hackathon 2026.
 
 ---
 
-## 1. Overview
+## What is This?
 
-**FraudSight** is an autonomous, graph-augmented AI fraud investigation agent designed to uncover syndicated financial crime rings, coordinate multi-hop evidence gathering, and generate audit-ready regulatory dossiers. Traditional tabular machine learning models evaluate transactions in isolation, consistently missing distributed crime syndicates that disperse volume across synthetic identities, shared devices, and proxy IP clusters. 
+Traditional fraud detection relies on isolated rule engines and tabular machine learning models. When fraud syndicates operate across multi-card rings, shared hardware fingerprints, and distributed micro-transfers, single-transaction scoring fails. Analysts are left manually piecing together evidence across siloed logs, checking compliance policies, and drafting Suspicious Activity Reports (SARs).
 
-By natively integrating **TigerGraph**'s massive graph database with an **8-node LangGraph state machine** and **Google Gemini 2.5**, FraudSight conducts autonomous topological traversals across 860,000+ transactions and materializes derived collusion edges (`SHARES_DEVICE`, `SHARES_EMAIL_DOMAIN`). The agent synthesizes forensic evidence, evaluates policy rules across institutional approval tiers, and stops evidence acquisition using an information-theoretic **Minimum Description Length (MDL) Sufficiency Gate**, producing four canonical compliance artifacts including FFIEC-compliant Suspicious Activity Reports (SARs).
+This project implements an **autonomous fraud investigation agent** powered by **TigerGraph** and **Google Gemini**:
+1. **Ingests fraud alerts** across card accounts, devices, and transaction paths.
+2. **Executes multi-hop graph traversals** in TigerGraph to expose connected cards, shared devices, and velocity spikes.
+3. **Decides Next-Best Actions (NBA)** dynamically (card freezes, merchant velocity limits, customer callbacks, or immediate clearance).
+4. **Protects innocent customers** by differentiating legitimate behavior (e.g. business travel, authorized device changes) from syndicated crime.
+5. **Generates regulatory compliance dossiers**, including FFIEC/FinCEN-compliant SAR narratives and full audit trails.
 
 ---
 
-## 2. System Architecture
+## Key Features
 
-The core of FraudSight is an 8-node cyclic directed acyclic graph (DAG) implemented with LangGraph and TigerGraph MCP query tools:
+- **Interactive Analyst Cockpit**: Real-time web dashboard (FastAPI + Tailwind + Cytoscape.js) visualizing transaction subgraphs, card networks, investigation logs, and downloadable compliance bundles.
+- **Official HHGOA 20-Case Benchmark Suite**: Evaluated against the official 20 benchmark scenarios (`HHG-001` through `HHG-020`), covering card-not-present rings, device collusion farms, mule chains, and false-positive shield cases.
+- **Dynamic Decisioning (Next-Best Actions)**: Multi-tiered action policy routing (`AUTO_FREEZE`, `BLOCK_CARD`, `NOTIFY_CUSTOMER`, `MONITOR`, `CLOSE_NO_FRAUD`).
+- **Value of Information (VoI) Stopping Gate**: Uses an entropy-reduction stopping condition so the agent acquires evidence efficiently without infinite traversal loops.
+- **Resilient Dual-Mode Operation**:
+  - **Live TigerGraph Mode**: Connects directly to TigerGraph Cloud via REST++ / pyTigerGraph running custom parameterized GSQL queries.
+  - **High-Fidelity Graph Simulation Mode**: Automatically engages if the TigerGraph Cloud instance is paused, ensuring uninterrupted demos and testing anytime.
+
+---
+
+## System Architecture
 
 ```text
-                            [START]
-                               │
-                               ▼
-                        [trigger_node]
-            (Ingests alert, parses transaction ID & initial risk)
-                               │
-                               ▼
-                       [investigate_node]
-             (Traverses 1-hop & 2-hop topological subgraphs)
-                               │
-                               ▼
-                     [gather_evidence_node]
-           (Extracts shared hardware, velocity, and mule links)
-                               │
-                               ▼
-           ┌────────► [assess_uncertainty_node] ◄──────────────┐
-           │                   │                               │
-           │            (should_gather_more)                   │
-           │              /            \                       │
-           │          [proceed]    [gather_more]               │
-           │            │               │                      │
-           │            │               ▼                      │
-           │            │    [gather_more_evidence_node] ──────┘
-           │            │    (Expands 3-hop money flow & proxies)
-           │            ▼
-           │       [action_node]
-           │  (Applies institutional policy rules & freezing tiers)
-           │            │
-           │            ▼
-           │       [explain_node]
-           │  (Compiles FFIEC SAR narratives & audit dossiers)
-           │            │
-           │            ▼
-           │       [memory_node]
-           │  (Indexes case vector embeddings into GraphRAG)
-           │            │
-           │            ▼
-           └───────── [END]
+                           [ Alert Ingestion ]
+                                   │
+                                   ▼
+                       [ TigerGraph GSQL Engine ]
+                       ├── get_txn_neighborhood
+                       ├── get_shared_identifiers
+                       └── get_money_flow
+                                   │
+                    Topology & Multi-Hop Subgraph
+                                   │
+                                   ▼
+                  [ Autonomous Agent (LangGraph) ]
+                   ├── Ingest & Triage
+                   ├── Multi-Hop Evidence Gathering
+                   ├── Value of Information (MDL) Stopping Gate
+                   ├── False-Positive Shield (Legitimate Filter)
+                   └── Next-Best Action (NBA) Policy Engine
+                                   │
+            ┌──────────────────────┴──────────────────────┐
+            ▼                                             ▼
+   [ Regulatory SAR Dossier ]                   [ Real-Time UI Cockpit ]
+   - FinCEN Narrative                           - Interactive Cytoscape Graph
+   - FFIEC Compliance Fields                    - Live Event Streaming (SSE)
+   - Exportable Audit JSON Bundle               - 20-Case Benchmark Switcher
 ```
 
 ---
 
-## 3. Quick Start
+## Repository Structure
 
-### Prerequisites
+```text
+tiger/
+├── agent/            # LangGraph multi-step investigation pipeline & Gemini prompts
+├── benchmark/        # Benchmark runners, answer linters, and verification scripts
+├── cases/            # Official HHGOA benchmark cases (HHG-001.json .. HHG-020.json)
+├── dashboard/        # FastAPI web cockpit, Jinja templates, CSS, and Cytoscape.js app
+│   ├── static/js/    # Interactive graph renderer and event stream handler (app.js)
+│   ├── templates/    # Cockpit UI, Benchmark Case Explorer, Analytics, Architecture
+│   └── app.py        # REST API, SSE streaming, and file bundle endpoints
+├── docs/             # Technical specifications and ground truth documentation
+├── innovation/       # Stopping gates (MDL) and legitimate customer shield logic
+├── output/           # Pydantic schema models and compliance dossier builders
+├── outputs/          # Generated SAR records, action plans, and benchmark summaries
+├── queries/          # Parameterized GSQL queries installed on TigerGraph
+├── schema/           # TigerGraph schema DDL and data loader scripts
+└── tools/            # TigerGraph pyTigerGraph client, GSQL wrappers, and simulation layer
+```
+
+---
+
+## Quick Start
+
+### 1. Environment Setup
+
+Requirements:
 - Python 3.10+
-- TigerGraph Cloud instance (or local Docker container on `14240`)
-- Google Gemini API Key
-
-### Installation
+- Git
 
 ```bash
-# 1. Clone repository
+# Clone repository
 git clone https://github.com/singhharsimar23-dotcom/tiger.git
 cd tiger
 
-# 2. Install dependencies
-pip install -r requirements.txt
+# Create and activate virtual environment
+python -m venv venv
+# On Windows:
+.\venv\Scripts\activate
+# On Linux/macOS:
+source venv/bin/activate
 
-# 3. Configure environment variables
-cp .env.example .env
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-### Environment Configuration (`.env`)
+### 2. Configure Environment (`.env`)
+
+Copy `.env.example` or create a `.env` file in the root directory:
+
 ```ini
+# TigerGraph Cloud Configuration
 TG_HOST=https://your-instance.tgcloud.io
 TG_GRAPHNAME=FraudGraph
 TG_USERNAME=tigergraph
 TG_PASSWORD=your_password
 TG_SECRET=your_restpp_secret
+
+# LLM Reasoning Engine
 GEMINI_API_KEY=your_gemini_api_key
 LLM_MODEL_FAST=gemini-2.5-flash
-EMBEDDING_MODEL=all-MiniLM-L6-v2
 ```
 
-### Run Benchmark Investigation Suite
-Execute autonomous investigations across the 20 benchmark fraud cases:
+*(Note: If your TigerGraph Cloud instance is sleeping or paused, the system automatically falls back to the embedded benchmark graph simulation mode, so you can test immediately without waiting for a cluster reboot.)*
+
+### 3. Launch the Web Cockpit
 
 ```bash
-# Run 20-case benchmark pipeline
+python -m uvicorn dashboard.app:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Open your browser at **[http://localhost:8000](http://localhost:8000)**.
+
+---
+
+## Navigating the Dashboard
+
+- **Interactive Case Selector**: Toggle quickly between benchmark scenarios (`HHG-014`, `HHG-007`, `HHG-005`, `HHG-001`) or choose any case from `HHG-001` through `HHG-020` via the dropdown.
+- **Topological Graph Viewer**: Zoom and inspect transactions (green/red), cards, and device fingerprints connected by real GSQL relationships (`MADE`, `FROM_DEVICE`, `NEXT`, `SIBLING_CARD`).
+- **Live Investigation Stream**: Click **"Run Investigation"** to watch the agent analyze the graph, evaluate policies, and determine the Next-Best Action in real time.
+- **Compliance & Dossier Tabs**:
+  - View raw structured output: `case_record.json`, `sar.json`, `action_before.json`, and `action_after.json`.
+  - Download the complete regulatory audit package with one click via **"Download Case Bundle (.zip)"**.
+- **Case Explorer (`/cases`)**: Dedicated tabular view comparing all 20 benchmark scenarios with risk scores, exposure, pattern typologies, and final dispositions.
+
+---
+
+## Running Benchmarks & Tests
+
+To validate schema conformance and benchmark execution across all test cases:
+
+```bash
+# Run automated tests
+pytest tests/
+
+# Run benchmark validation
 python benchmark/run_benchmark.py
-
-# Validate generated compliance dossiers
-python benchmark/validate_outputs.py
-```
-
-### Launch Real-Time UI Command Center
-```bash
-# Start FastAPI web dashboard with live SSE streaming
-uvicorn dashboard.app:app --port 8000 --reload
-```
-Open [http://localhost:8000](http://localhost:8000) to view active cases, network topologies in Cytoscape.js, and real-time reasoning streams.
-
----
-
-## 4. Project Structure
-
-```text
-tiger/
-├── agent/            # LangGraph 8-node investigation state machine & Gemini prompts
-├── benchmark/        # 20 benchmark fraud test cases and output validation scripts
-├── checkpoints/      # State recovery checkpoints for embeddings and graph pipelines
-├── dashboard/        # FastAPI analyst command center with SSE, Tailwind & Cytoscape.js
-├── data/             # IEEE-CIS transaction, identity, and historical case datasets
-├── docs/             # Technical architecture blueprints, benchmark blogs, and guides
-├── innovation/       # Minimum Description Length (MDL) gate & unsupervised pattern discovery
-├── output/           # Canonical schema models, JSON serializers, and compliance builders
-├── outputs/cases/    # 4 required JSON output files per case (case_record, SAR, actions)
-├── queries/          # 8 parameterized GSQL graph analytical queries and installer
-├── retrieval/        # Sentence-transformers embedder, vector indexer, and GraphRAG
-├── schema/           # GSQL schema DDL, batch ingestion pipelines, and derived edges
-├── tests/            # Pytest test suites validating all roadmap milestones
-└── tools/            # TigerGraph REST++ async tools, MCP adapter, and circuit breakers
 ```
 
 ---
 
-## 5. Key Innovations
+## Tech Stack
 
-- **Information-Theoretic MDL Sufficiency Gate:**  
-  Solves the multi-hop "over-investigation" trap. Unlike naive LLM agents that query indefinitely or stop on arbitrary iteration limits, FraudSight balances binary entropy reduction against traversal query costs using Minimum Description Length theory:
-  $$\text{Sufficiency} = \frac{H(p)}{\log_2(2)} \cdot \left(1 + \frac{\text{Cost}}{10}\right)^{-1} \cdot e^{-0.1 \times \text{iterations}}$$
-  When the score drops below 0.35, the agent terminates evidence acquisition with mathematical confidence and escalates to decisioning.
-
-- **Unsupervised Pattern Discovery:**  
-  Discovers emerging, undocumented fraud typologies by combining Louvain graph community detection with 21-dimensional DBSCAN behavioral clustering over confirmed fraud subgraphs. Detects micro-structuring loops and synchronized dormancy reactivation before rules can be authored.
-
-- **Hybrid GraphRAG Memory Retrieval:**  
-  Combines topological structural proximity ($0.4 \times \text{Graph Distance}$) with semantic cosine similarity ($0.6 \times \text{Sentence Transformers}$) over historical closed cases and documented policy templates, ensuring precedent-grounded reasoning.
-
----
-
-## 6. Dataset Specification
-
-The system is trained and benchmarked on the industry-standard **IEEE-CIS Fraud Detection** dataset (via `HHGOA_IEEE`):
-- `train_transaction.csv`: 590,540 financial transactions featuring amounts, card identities, product codes, address coordinates, and time deltas.
-- `train_identity.csv`: 144,233 device fingerprints, browser strings, and network attributes.
-- **20 Curated Benchmark Scenarios:** Covering rapid velocity smurfing, synthetic identity rings, device collusion farms, account takeovers, and cross-border proxy tunnels.
-
----
-
-## 7. Technology Stack
-
-| Layer | Technologies | Purpose |
-| :--- | :--- | :--- |
-| **Graph Database** | TigerGraph Cloud 4.x / pyTigerGraph | Native graph storage, GSQL queries, sub-second BFS traversal |
-| **Agent Orchestration** | LangGraph / StateGraph | 8-node cyclic state machine coordinating multi-hop investigations |
-| **LLM Reasoning** | Google Gemini 2.5 Flash | Context synthesis, risk assessment, and regulatory narrative drafting |
-| **Vector Search** | Sentence-Transformers (`all-MiniLM-L6-v2`) | 384-dimensional dense semantic embeddings for GraphRAG memory |
-| **Data & ML** | NumPy, Scikit-Learn (DBSCAN, Louvain) | Behavioral clustering and unsupervised pattern discovery |
-| **Web Dashboard** | FastAPI, Jinja2, Tailwind CSS, Cytoscape.js | High-density analyst command center with SSE streaming |
-| **Validation** | Pydantic v2, Pytest | Typed schemas, output validation, and regression suites |
-
----
-
-## 8. Hackathon Details
-
-Developed for the **TigerGraph HHGOA Hackathon 2026** (AI Agent & Graph Track).  
-- **Repository:** [https://github.com/singhharsimar23-dotcom/tiger](https://github.com/singhharsimar23-dotcom/tiger)
-- **Official Challenge:** [TigerGraph Hackathon Portal](https://www.tigergraph.com)
-- **Compliance Output:** 100% test coverage across all 20 benchmark test cases producing FFIEC/FinCEN SAR standards.
+- **Graph Storage & Querying**: TigerGraph 4.x, GSQL, pyTigerGraph
+- **Agent Orchestration**: LangGraph, Python 3.10+
+- **LLM Reasoning**: Google Gemini
+- **Web UI & Visualization**: FastAPI, Jinja2, Tailwind CSS, Cytoscape.js
+- **Validation & Compliance**: Pydantic v2, FinCEN/FFIEC SAR format specifications

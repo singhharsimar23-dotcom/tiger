@@ -1,0 +1,463 @@
+{
+  "generated_at": "2026-09-20T16:02:58Z",
+  "elapsed_seconds": 0.17,
+  "summary": {
+    "hard_failures": 0,
+    "total_warnings": 22,
+    "action_changed_before_after": 0,
+    "check_totals": {
+      "A_SCHEMA": {
+        "PASS": 20,
+        "FAIL": 0,
+        "WARN": 0,
+        "SKIP": 0
+      },
+      "B_ENUM": {
+        "PASS": 20,
+        "FAIL": 0,
+        "WARN": 0,
+        "SKIP": 0
+      },
+      "C_REFERENTIAL": {
+        "PASS": 20,
+        "FAIL": 0,
+        "WARN": 0,
+        "SKIP": 0
+      },
+      "D_SAR": {
+        "PASS": 20,
+        "FAIL": 0,
+        "WARN": 0,
+        "SKIP": 0
+      },
+      "E_EXPOSURE": {
+        "PASS": 20,
+        "FAIL": 0,
+        "WARN": 0,
+        "SKIP": 0
+      },
+      "F_ROUTE": {
+        "PASS": 19,
+        "FAIL": 0,
+        "WARN": 1,
+        "SKIP": 0
+      },
+      "G_BEFORE_AFTER": {
+        "PASS": 20,
+        "FAIL": 0,
+        "WARN": 0,
+        "SKIP": 0
+      },
+      "H_GRAPH_WRITE": {
+        "PASS": 0,
+        "FAIL": 0,
+        "WARN": 0,
+        "SKIP": 20
+      }
+    }
+  },
+  "cases": [
+    {
+      "case": "case_01",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789896812_ad5e20"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_02",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "WARN",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[ROUTE] action_before.json: approval_tier='AUTOMATED_SYSTEM' but decide(0.94) yields 'SUPERVISOR' (fraud_prob=0.94)",
+        "[ROUTE] action_after.json: approval_tier='AUTOMATED_SYSTEM' but decide(0.94) yields 'SUPERVISOR' (fraud_prob=0.94)",
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895873_1b0259"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_03",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895912_6d3748"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_04",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895916_061d57"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_05",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895919_13fbf8"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_06",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895923_1a0385"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_07",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895927_285e18"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_08",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895931_c832c4"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_09",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895934_a47111"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_10",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895938_df9b4f"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_11",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895942_9f4a06"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_12",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895945_3e65ed"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_13",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895949_ed0858"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_14",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895953_29ec7f"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_15",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895956_879531"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_16",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895960_543512"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_17",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895964_de957f"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_18",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895967_c9c28c"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_19",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895971_ea6c9d"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    },
+    {
+      "case": "case_20",
+      "checks": {
+        "A_SCHEMA": "PASS",
+        "B_ENUM": "PASS",
+        "C_REFERENTIAL": "PASS",
+        "D_SAR": "PASS",
+        "E_EXPOSURE": "PASS",
+        "F_ROUTE": "PASS",
+        "G_BEFORE_AFTER": "PASS",
+        "H_GRAPH_WRITE": "SKIP (offline: module 'tools.tg_tools' has no attribute 'get_case')"
+      },
+      "errors": [],
+      "warnings": [
+        "[GRAPH_WRITE] TigerGraph offline \u2014 skipping Case vertex check for CASE_1789895975_789f57"
+      ],
+      "hard_fail": false,
+      "action_changed": false,
+      "iter_count": 1
+    }
+  ]
+}

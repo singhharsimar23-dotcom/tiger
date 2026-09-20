@@ -69,3 +69,12 @@ def test_investigation_state_defaults():
     assert isinstance(state.evidence_list, list)
     assert isinstance(state.tool_calls, list)
     assert isinstance(state.decision_log, list)
+
+
+def test_model_resolution():
+    from agent.llm import resolve_model
+    strong = resolve_model("strong")
+    fast = resolve_model("fast")
+    assert strong and fast
+    print(f"Resolved: strong={strong} fast={fast}")
+

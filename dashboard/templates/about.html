@@ -1,102 +1,107 @@
 {% extends "base.html" %}
 
-{% block title %}About — FraudSight HHGOA Agent{% endblock %}
+{% block title %}Architecture Blueprint — FraudSight{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto space-y-8">
+<div class="max-w-4xl mx-auto space-y-6">
 
-  <!-- Hero -->
-  <div class="bg-gray-900/90 border border-gray-800 rounded-2xl p-6 sm:p-8 backdrop-blur shadow-lg relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="flex items-center gap-2 text-xs uppercase tracking-wider font-semibold text-red-400 mb-2">
-      <span>HHGOA Hackathon 2026</span>
+  <!-- Hero Header -->
+  <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-5 sm:p-6 shadow-sm">
+    <div class="flex items-center gap-2 text-[10px] uppercase tracking-wider font-semibold text-primary-container mb-1.5 font-mono">
+      <span>Autonomous Fraud Investigation Architecture</span>
       <span>•</span>
-      <span>TigerGraph AI Track</span>
+      <span>TigerGraph + Gemini 2.5</span>
     </div>
-    <h1 class="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
-      FraudSight: Autonomous Graph-Augmented Fraud Investigation
+    <h1 class="text-2xl font-bold text-on-surface tracking-tight">
+      FraudSight: Autonomous Graph AI Investigation System
     </h1>
-    <p class="mt-3 text-sm sm:text-base text-gray-300 leading-relaxed">
-      A high-performance agentic investigation system combining <strong class="text-white">TigerGraph</strong> native graph database, <strong class="text-white">LangGraph</strong> multi-hop DAG reasoning, <strong class="text-white">Google Gemini 2.5</strong>, and an information-theoretic <strong class="text-red-400">Minimum Description Length (MDL) Sufficiency Gate</strong> to detect syndicated financial crime rings.
+    <p class="mt-2 text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+      An enterprise-grade forensic investigation platform integrating <strong class="text-on-surface">TigerGraph</strong> native GSQL multi-hop graph traversals, <strong class="text-on-surface">Gemini 2.5</strong> forensic reasoning, an information-theoretic <strong class="text-primary-container">Optimal Stopping Gate</strong>, and an <strong class="text-primary-container">Anti-Overblocking Customer Protection Filter</strong> to detect syndicated financial crime rings without penalizing legitimate customers.
     </p>
   </div>
 
   <!-- Key Architectural Pillars -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-5">
-      <div class="w-8 h-8 rounded-lg bg-red-950 border border-red-800 flex items-center justify-center text-red-400 mb-3 font-bold font-mono">1</div>
-      <h3 class="text-base font-bold text-white mb-1.5">TigerGraph Core</h3>
-      <p class="text-xs text-gray-400 leading-relaxed">
-        Native graph storage over IEEE-CIS transaction and identity data. Deep BFS k-hop traversals uncover hidden multi-account collusion networks via derived <code class="text-red-300">SHARES_DEVICE</code> and <code class="text-yellow-300">SHARES_EMAIL_DOMAIN</code> edges.
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-4">
+      <div class="w-7 h-7 rounded-lg bg-surface-container-high border border-primary-container/30 flex items-center justify-center text-primary-container mb-2.5 font-bold font-mono text-xs">1</div>
+      <h3 class="text-xs font-bold text-on-surface mb-1">TigerGraph Core</h3>
+      <p class="text-[11px] text-on-surface-variant leading-relaxed">
+        Native graph storage over transactions, devices, accounts, and IP gateways. Sub-second multi-hop GSQL queries uncover hidden collusion networks via derived <code class="text-primary-container">SHARES_DEVICE</code> and <code class="text-primary-fixed-dim">CO_LOCATED_IP</code> edges.
       </p>
     </div>
 
-    <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-5">
-      <div class="w-8 h-8 rounded-lg bg-blue-950 border border-blue-800 flex items-center justify-center text-blue-400 mb-3 font-bold font-mono">2</div>
-      <h3 class="text-base font-bold text-white mb-1.5">LangGraph Workflow</h3>
-      <p class="text-xs text-gray-400 leading-relaxed">
-        An 8-node cyclic state machine coordinating alert ingestion, multi-hop topology expansion, tool-based evidence synthesis, institutional policy enforcement, and audit dossier creation.
+    <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-4">
+      <div class="w-7 h-7 rounded-lg bg-surface-container-high border border-primary-container/30 flex items-center justify-center text-primary-container mb-2.5 font-bold font-mono text-xs">2</div>
+      <h3 class="text-xs font-bold text-on-surface mb-1">Optimal Stopping Gate</h3>
+      <p class="text-[11px] text-on-surface-variant leading-relaxed">
+        Prevents open-ended AI looping using Value of Information (VOI) and Minimum Description Length (MDL) principles. Halts investigation when marginal evidence gain is insufficient to alter the final risk decision.
       </p>
     </div>
 
-    <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-5">
-      <div class="w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 mb-3 font-bold font-mono">3</div>
-      <h3 class="text-base font-bold text-white mb-1.5">MDL Sufficiency Gate</h3>
-      <p class="text-xs text-gray-400 leading-relaxed">
-        Solves the AI "over-investigation" trap. Uses Minimum Description Length principles to balance evidence compression against query cost, preventing endless tool loops and optimizing latency.
+    <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-4">
+      <div class="w-7 h-7 rounded-lg bg-surface-container-high border border-primary-container/30 flex items-center justify-center text-primary-container mb-2.5 font-bold font-mono text-xs">3</div>
+      <h3 class="text-xs font-bold text-on-surface mb-1">Customer Protection Filter</h3>
+      <p class="text-[11px] text-on-surface-variant leading-relaxed">
+        Protects legitimate customers by symmetrically checking innocence archetypes (recurring subscriptions, airline flight velocity corridors, registered hardware) before executing account blocks.
       </p>
     </div>
   </div>
 
-  <!-- 8-Node LangGraph ASCII Diagram -->
-  <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-6 backdrop-blur">
-    <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-3">Investigation Graph State Machine (LangGraph DAG)</h3>
-    <pre class="bg-gray-950 p-4 rounded-lg border border-gray-800 text-red-400 font-mono text-xs overflow-x-auto leading-relaxed">
-         [START]
-            │
-            ▼
-      [trigger_node]            (Ingests alert, parses transaction ID & risk score)
-            │
-            ▼
-     [investigate_node]         (Traverses 1-hop & 2-hop topological subgraph)
-            │
-            ▼
-   [gather_evidence_node]       (Synthesizes shared device & velocity evidence)
-            │
-            ▼
-  [assess_uncertainty_node] ◄───────────────┐
-            │                               │
-     (should_gather_more)                   │ (Loop if MDL sufficiency &lt; threshold)
-       /            \                       │
-   [proceed]    [gather_more]               │
-     │               │                      │
-     │               ▼                      │
-     │     [gather_more_evidence_node] ─────┘
-     ▼
- [action_node]                  (Evaluates institutional policy rules & freezing)
-     │
-     ▼
- [explain_node]                 (Generates FFIEC-compliant SAR & audit narratives)
-     │
-     ▼
-  [memory_node]                 (Indexes case findings into vector memory)
-     │
-     ▼
-   [END]
+  <!-- State Machine Diagram -->
+  <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-4 shadow-sm">
+    <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider mb-2.5 flex items-center gap-2">
+      <span class="material-symbols-outlined text-[16px] text-primary-container">account_tree</span>
+      <span>Autonomous Graph Investigation State Machine</span>
+    </h3>
+    <pre class="bg-surface-container-lowest p-3.5 rounded-lg border border-surface-container-highest text-primary-container font-mono text-[11px] overflow-x-auto leading-relaxed">
+         [START ALERT INGESTION]
+                    │
+                    ▼
+          [Alert Ingest Node]            Ingests transaction alert, parses entity metadata
+                    │
+                    ▼
+         [GSQL Subgraph Traversal]       Traverses 1-hop &amp; 2-hop topological neighborhood on TigerGraph
+                    │
+                    ▼
+         [Evidence Synthesis Node]       Correlates shared devices, co-located IPs &amp; mule accounts
+                    │
+                    ▼
+       [Optimal Stopping Evaluator] ◄────────────────┐
+                    │                                │
+         (Is Evidence Sufficient?)                   │ (Gather additional hop if VOI &gt; threshold)
+            /               \                        │
+     [Sufficient]      [Uncertain]                   │
+          │                 │                        │
+          │                 ▼                        │
+          │        [Deep Query Expansion] ───────────┘
+          ▼
+   [Customer Protection Filter]          Symmetrically tests subscription, flight, and trusted device
+          │
+          ▼
+  [Policy &amp; Chain of Command]            Evaluates institutional matrix &amp; supervisor escalation tier
+          │
+          ▼
+  [Audit Dossier &amp; SAR Generation]       Compiles FinCEN Form 111 SAR &amp; benchmark output files
+          │
+          ▼
+        [END]
     </pre>
   </div>
 
-  <!-- Compliance & Regulatory Artifacts -->
-  <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-6 backdrop-blur space-y-3">
-    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Audit-Ready Compliance Standard</h3>
-    <p class="text-xs text-gray-300 leading-relaxed">
-      Every completed investigation produces 4 canonical forensic output artifacts saved under <code class="text-red-300">outputs/cases/case_XX/</code>:
+  <!-- Canonical Dossier Output Standard -->
+  <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-4 shadow-sm space-y-2">
+    <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-2">
+      <span class="material-symbols-outlined text-[16px] text-primary-container">folder_zip</span>
+      <span>Institutional Output Dossier Standard</span>
+    </h3>
+    <p class="text-xs text-on-surface-variant leading-relaxed">
+      Every completed benchmark investigation produces 4 canonical forensic output artifacts saved under <code class="text-primary-container font-mono">outputs/cases/case_XX/</code>:
     </p>
-    <ul class="text-xs text-gray-400 space-y-1.5 list-disc list-inside">
-      <li><strong class="text-gray-200">case_record.json:</strong> Complete investigation ledger, evidence weights, MDL scores, and multi-turn decision log.</li>
-      <li><strong class="text-gray-200">sar.json:</strong> Suspicious Activity Report formatted to FFIEC / FinCEN regulatory specifications with full narrative summary.</li>
-      <li><strong class="text-gray-200">action_before.json:</strong> Pre-investigation baseline policy posture (e.g. Flag for Review).</li>
-      <li><strong class="text-gray-200">action_after.json:</strong> Post-investigation escalated posture (e.g. Freeze Account, Supervisor Tier).</li>
+    <ul class="text-xs text-on-surface space-y-1 font-mono">
+      <li><strong class="text-primary-fixed-dim">case_record.json:</strong> Complete investigation ledger, evidence weights, MDL scores, and multi-turn decision log.</li>
+      <li><strong class="text-primary-fixed-dim">sar.json:</strong> Suspicious Activity Report formatted to FinCEN Form 111 / FFIEC regulatory specifications.</li>
+      <li><strong class="text-primary-fixed-dim">action_before.json:</strong> Pre-investigation baseline policy posture (initial triage status).</li>
+      <li><strong class="text-primary-fixed-dim">action_after.json:</strong> Post-investigation institutional action, approval queue, and supervisor signoff.</li>
     </ul>
   </div>
 

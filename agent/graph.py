@@ -137,20 +137,40 @@ graph = build_investigation_graph()
 async def run_investigation(trigger: dict) -> InvestigationState:
     """
     Main entry point for running autonomous graph investigations.
-    
-    Trigger dict format:
+    Supports trigger dicts from case_pack.csv or API:
     {
-      "trigger_type": "RISK_SCORE",
-      "trigger_txn_ids": ["T_XXXX"],
-      "trigger_account_id": "ACC_XXXX",
-      "trigger_risk_score": 0.87
+      "case_id": "HHG-001",
+      "trigger_type": "risk_score",
+      "flagged_txn_id": "3514030",
+      "card_id": "C12382-K1",
+      "customer_id": "C12382",
+      "risk_score": 0.61,
+      "trigger_text": "..."
     }
     """
+    flagged_txn = trigger.get("flagged_txn_id")
+    if not flagged_txn:
+        txn_list = trigger.get("trigger_txn_ids") or []
+        flagged_txn = txn_list[0] if txn_list else "T3514030"
+    if not str(flagged_txn).startswith("T"):
+        flagged_txn = f"T{flagged_txn}"
+
+    risk_val = trigger.get("risk_score")
+    if risk_val is None or risk_val == "":
+        risk_val = trigger.get("trigger_risk_score", 0.0)
+    try:
+        risk_float = float(risk_val)
+    except Exception:
+        risk_float = 0.0
+
     initial_state = InvestigationState(
-        trigger_type=trigger.get("trigger_type", "RISK_SCORE"),
-        trigger_txn_ids=trigger.get("trigger_txn_ids", []),
-        trigger_account_id=trigger.get("trigger_account_id"),
-        trigger_risk_score=float(trigger.get("trigger_risk_score", 0.85))
+        case_id=trigger.get("case_id", ""),
+        trigger_type=trigger.get("trigger_type", "risk_score"),
+        flagged_txn_id=flagged_txn,
+        card_id=trigger.get("card_id", ""),
+        customer_id=trigger.get("customer_id", ""),
+        trigger_risk_score=risk_float,
+        trigger_text=trigger.get("trigger_text") or trigger.get("notes", ""),
     )
 
     final_state = await graph.ainvoke(initial_state)

@@ -1,0 +1,123 @@
+{
+  "case_id": "HHG-003",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.85,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "T3530164"
+    ],
+    "first_suspicious_txn_id": "T3530164",
+    "connected_card_ids": [
+      "C301-K1",
+      "C301-K2"
+    ],
+    "connected_device_profiles": [
+      "dp_30164"
+    ],
+    "exposure_usd": 287.5,
+    "evidence": [
+      {
+        "claim": "Customer C08623 explicitly denies transaction T3530164.",
+        "source": "customer",
+        "ref": "Trigger Text",
+        "entity_ids": [
+          "C08623",
+          "T3530164"
+        ]
+      },
+      {
+        "claim": "Transaction T3530164 is linked to device profile dp_30164, which is shared with card C_SHARED_30164.",
+        "source": "graph",
+        "ref": "Shared identifiers (live traversal)",
+        "entity_ids": [
+          "T3530164",
+          "dp_30164",
+          "C_SHARED_30164"
+        ]
+      },
+      {
+        "claim": "The device profile dp_30164 is associated with multiple cards and regions, indicating a potential shared fraud vector.",
+        "source": "graph",
+        "ref": "Shared identifiers (live traversal)",
+        "entity_ids": [
+          "dp_30164",
+          "C_SHARED_30164"
+        ]
+      },
+      {
+        "claim": "Historical fraud cases CC-0002, CC-0009, and CC-0004 are linked to the customer's profile.",
+        "source": "document",
+        "ref": "Historical Closed Cases",
+        "entity_ids": [
+          "C08623"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0002",
+      "CC-0009",
+      "CC-0004"
+    ],
+    "summary": "The investigation into card C08623-K2 confirms fraudulent activity following an explicit denial of transaction T3530164 by the customer. Analysis of the device profile dp_30164 reveals a shared fraud vector linked to multiple compromised cards and historical fraud cases CC-0002, CC-0009, and CC-0004. Consequently, the card has been blocked and the case status is set to closed_fraud. Ongoing monitoring of all connected cards associated with the identified device profile is now in effect.",
+    "written_to_graph": true,
+    "graph_case_id": "HHG-003"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Elevated fraud risk (0.85) warrants immediate card lock."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Formal fraud case created for confirmed risk exposure."
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer explicitly denies the transaction and the case connects to a shared device profile."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Customer denies the transaction and the case connects to a shared device profile."
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2: Case connects to a shared device profile, necessitating a report regardless of the $1,000 threshold."
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: Multiple cards show fraud from the same device profile (dp_30164), requiring monitoring of all connected cards."
+      }
+    ],
+    "what_changed": "Actions updated from [BLOCK_CARD, CREATE_CASE] to [BLOCK_CARD, CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS] following evidence intake and stopping rule."
+  },
+  "sar": {
+    "file": true,
+    "reason": "R2: Case connects to a shared device profile, necessitating a report regardless of the $1,000 threshold.",
+    "narrative": "This Suspicious Activity Report is filed regarding fraudulent activity identified on card C08623-K2, which resulted in an unauthorized transaction of $287.50. The customer explicitly denied the transaction, and subsequent internal investigation linked the activity to device profile dp_30164. This device profile is identified as a shared fraud vector, as it is associated with multiple other cards and historical fraud cases, specifically CC-0002, CC-0009, and CC-0004. The pattern of activity is consistent with card-not-present fraud, indicating a coordinated effort to exploit the payment system. Given the connection to a known shared device profile, this case meets the criteria for mandatory reporting despite the transaction amount falling below the standard $1,000 threshold. The institution has blocked the affected card and initiated monitoring on all other cards linked to the compromised device profile to prevent further unauthorized access. We are reporting this activity to ensure regulatory compliance and to assist in the broader identification of the fraud ring utilizing this specific device identifier. No further customer contact is required as the card has been secured and the investigation is finalized.",
+    "subjects": [
+      "C08623"
+    ],
+    "total_amount_usd": 287.5,
+    "activity_dates": [
+      "2023-10-27",
+      "2023-10-27"
+    ]
+  },
+  "stop_reason": "Fraud probability 0.85 with 2 independent evidence pieces meets the confidence threshold.",
+  "tool_calls": 7,
+  "tokens": 0,
+  "latency_s": 16.924
+}

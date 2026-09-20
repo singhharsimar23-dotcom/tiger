@@ -1,240 +1,181 @@
 """
-Output Formatter for HHGOA Fraud Investigation Agent.
-Serializes InvestigationState into standardized compliance JSON artifacts:
-- case_record.json
-- sar.json
-- action_before.json
-- action_after.json
+output/formatter.py — Ground Truth Corrected Output Formatter (Section 4)
+
+Writes ONE file per case: cases/{case_id}.json
+Old 4-file-per-case format (case_record.json / sar.json / action_before.json /
+action_after.json) is retired.
+
+Validates internal consistency before writing.
 """
 
 import json
 import time
 from pathlib import Path
-from datetime import datetime, timedelta, timezone
-from typing import Dict, Any, Optional
+from typing import Optional
 
-from agent.state import InvestigationState, RecommendedAction
-from output.schema_models import CaseRecordOutput, SAROutput, ActionOutput
-
-
-def _dump(obj: Any) -> Any:
-    if hasattr(obj, "model_dump"):
-        return obj.model_dump()
-    if hasattr(obj, "dict"):
-        return obj.dict()
-    return obj
+from agent.state import InvestigationState, approval_route, ActionType
+from output.schema_models import (
+    CaseAnswer, Case, SAR, NextBestActions, ActionRec,
+    Evidence, EvidenceRequest,
+)
 
 
 class OutputFormatter:
-    """Formats and serializes InvestigationState into audit-ready JSON files."""
+    """
+    Serialises InvestigationState → CaseAnswer → cases/{case_id}.json.
 
-    def __init__(self, output_dir: str = "outputs/cases"):
+    Usage:
+        formatter = OutputFormatter()
+        path = formatter.format_and_save(state)
+    """
+
+    def __init__(self, output_dir: str = "cases"):
         self.output_dir = Path(output_dir)
 
-    def format_and_save(self, state: InvestigationState, case_number: int) -> Path:
-        """
-        Format InvestigationState into all 4 required files.
-        Save to outputs/cases/case_{case_number:02d}/
-        Returns directory path.
-        """
-        case_dir = self.output_dir / f"case_{case_number:02d}"
-        case_dir.mkdir(parents=True, exist_ok=True)
+    def format_and_save(self, state: InvestigationState) -> Path:
+        """Build CaseAnswer, validate, write single JSON file. Returns file path."""
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        answer = self._build_case_answer(state)
+        self._validate(answer)
 
-        # 1. case_record.json
-        case_record = self._build_case_record(state, case_number)
-        self._save(case_dir / "case_record.json", case_record)
+        out_path = self.output_dir / f"{answer.case_id}.json"
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(answer.model_dump(), f, indent=2, default=str)
 
-        # 2. sar.json
-        sar = self._build_sar(state)
-        self._save(case_dir / "sar.json", sar)
+        return out_path
 
-        # 3. action_before.json
-        action_before_obj = state.action_before_additional_evidence
-        if action_before_obj is None and state.recommended_actions:
-            action_before_obj = state.recommended_actions[0]
+    # ------------------------------------------------------------------
+    # Internal builders
+    # ------------------------------------------------------------------
 
-        action_before = self._build_action(
-            state,
-            stage="BEFORE_ADDITIONAL_EVIDENCE",
-            action=action_before_obj
-        )
-        self._save(case_dir / "action_before.json", action_before)
+    def _build_case_answer(self, state: InvestigationState) -> CaseAnswer:
+        latency = round(max(0.01, time.time() - (state.started_at or time.time())), 3)
 
-        # 4. action_after.json
-        # Constraint: If additional evidence was NOT gathered (iterations <= 1 or 0),
-        # action_after = action_before (same content, different stage label)
-        if state.iteration_count <= 1:
-            action_after_obj = action_before_obj
-        else:
-            action_after_obj = (
-                state.action_after_additional_evidence
-                or (state.recommended_actions[-1] if state.recommended_actions else action_before_obj)
+        # Evidence list
+        evidence_out = [
+            Evidence(
+                claim=e.claim,
+                source=e.source if e.source in ("graph", "document", "customer", "external") else "graph",
+                ref=e.ref,
+                entity_ids=e.entity_ids,
             )
+            for e in state.evidence_list
+        ]
 
-        action_after = self._build_action(
-            state,
-            stage="AFTER_ADDITIONAL_EVIDENCE",
-            action=action_after_obj
+        # Evidence requests
+        ev_requests_out = [
+            EvidenceRequest(
+                type=er.type if er.type in ("customer_validation", "step_up_auth", "analyst_info") else "customer_validation",
+                asked_after_step=er.asked_after_step,
+                assumed_response=er.assumed_response,
+            )
+            for er in state.evidence_requests
+        ]
+
+        # Actions — ensure route is computed from the approval_route() function
+        def _to_action_rec(ar) -> ActionRec:
+            if isinstance(ar, ActionRec):
+                return ar
+            if isinstance(ar, dict):
+                return ActionRec(**ar)
+            # From state.ActionRec dataclass
+            action_str = ar.action if isinstance(ar.action, str) else ar.action.value
+            return ActionRec(action=action_str, route=ar.route, reason=ar.reason)
+
+        initial_out = [_to_action_rec(a) for a in state.initial_actions]
+        final_out   = [_to_action_rec(a) for a in state.final_actions] if state.final_actions else initial_out
+
+        nba = NextBestActions(
+            initial=initial_out,
+            final=final_out,
+            what_changed=state.what_changed or "nothing",
         )
-        self._save(case_dir / "action_after.json", action_after)
 
-        return case_dir
-
-    def _build_case_record(self, state: InvestigationState, case_number: int = 1) -> dict:
-        """Build case_record.json from state."""
-        duration = round(max(0.05, time.time() - (state.started_at or time.time())), 2)
-
-        # Format evidence list (exclude raw_data to maintain compact file size)
-        compact_evidence = []
-        for e in state.evidence_list:
-            e_dict = dict(_dump(e))
-            e_dict.pop("raw_data", None)
-            e_dict.pop("metadata", None)
-            compact_evidence.append(e_dict)
-
-        decision_data = _dump(state.decision) if state.decision else None
-        actions_data = [_dump(a) for a in state.recommended_actions]
-
-        record = CaseRecordOutput(
-            case_id=state.case_id or f"CASE_{case_number:03d}",
-            case_number=case_number,
-            timestamp=datetime.now(timezone.utc).isoformat(),
-            investigation_duration_seconds=duration,
-            status=state.status.value if hasattr(state.status, "value") else str(state.status),
-            trigger_type=state.trigger_type,
-            trigger_txn_ids=state.trigger_txn_ids,
-            trigger_account_id=state.trigger_account_id,
-            trigger_risk_score=round(float(state.trigger_risk_score), 4),
-            accounts_discovered=list(state.accounts),
-            devices_discovered=list(state.devices),
-            ip_clusters_discovered=list(state.ip_clusters),
-            matched_patterns=state.matched_patterns,
-            matched_policies=state.matched_policies,
+        # Case
+        case_out = Case(
+            status=state.status,
+            verdict=state.verdict,
+            fraud_probability=round(float(state.fraud_probability), 4),
+            pattern=state.pattern,
+            pattern_description=state.pattern_description or "",
+            affected_txn_ids=state.affected_txn_ids,
+            first_suspicious_txn_id=state.first_suspicious_txn_id or "",
+            connected_card_ids=state.connected_card_ids,
+            connected_device_profiles=state.connected_device_profiles,
+            exposure_usd=round(float(state.exposure_usd), 2),
+            evidence=evidence_out,
             similar_prior_cases=state.similar_cases,
-            evidence_list=compact_evidence,
-            evidence_count=len(compact_evidence),
-            uncertainty_score=round(float(state.uncertainty_score), 4),
-            mdl_sufficiency_score=round(float(state.evidence_sufficiency_score), 4),
-            iteration_count=int(state.iteration_count),
-            decision=decision_data,
-            recommended_actions=actions_data,
-            case_summary=state.case_summary or "Autonomous investigation completed.",
-            decision_log=state.decision_log,
-            tool_calls_executed=state.tool_calls
+            summary=state.summary or "",
+            written_to_graph=state.written_to_graph,
+            graph_case_id=state.graph_case_id or "",
         )
-        return _dump(record)
 
-    def _build_sar(self, state: InvestigationState) -> dict:
-        """Build sar.json regulatory suspicious activity filing."""
-        now = datetime.now(timezone.utc)
-        deadline = (now + timedelta(days=30)).isoformat()
-
-        # Determine SAR necessity from policies, decision verdict, and risk score
-        decision_verdict = state.decision.verdict if state.decision else "SUSPICIOUS"
-        risk_val = state.decision.confidence if state.decision else state.trigger_risk_score
-        has_sar_rule = any(
-            "SAR" in str(p.get("action_type", "")).upper()
-            or str(p.get("v_id", "")).startswith("RULE_SAR")
-            for p in state.matched_policies
+        # SAR
+        sar_out = SAR(
+            file=state.sar_file,
+            reason=state.sar_reason or "",
+            narrative=state.sar_narrative or "",
+            subjects=state.sar_subjects,
+            total_amount_usd=round(float(state.sar_total_amount_usd), 2),
+            activity_dates=state.sar_activity_dates,
         )
-        sar_required = state.sar_required or decision_verdict == "CONFIRMED_FRAUD" or risk_val >= 0.85 or has_sar_rule
 
-        # Compute total amount from money flow chains or fallback
-        total_amt = 0.0
-        if state.money_flow and "chains" in state.money_flow:
-            for ch in state.money_flow.get("chains", []):
-                total_amt += float(ch.get("amount", 0.0) or 0.0)
-        if total_amt == 0.0:
-            total_amt = 12500.0 if sar_required else 0.0
+        return CaseAnswer(
+            case_id=state.case_id,
+            case=case_out,
+            evidence_requests=ev_requests_out,
+            next_best_actions=nba,
+            sar=sar_out,
+            stop_reason=state.stop_reason or "",
+            tool_calls=len(state.tool_calls),
+            tokens=state.tokens_used,
+            latency_s=latency,
+        )
 
-        # Construct actual narrative without placeholders
-        if state.sar_narrative:
-            narrative = state.sar_narrative
-        else:
-            primary_acc = state.trigger_account_id or (state.accounts[0] if state.accounts else "UNKNOWN_ACCOUNT")
-            fraud_type_str = state.decision.fraud_type.value if state.decision else "SUSPECTED_FRAUD_RING"
-            ev_points = "; ".join(e.description for e in state.evidence_list[:3]) or "Identified correlated multi-hop graph anomalies"
-            narrative = (
-                f"Suspicious activity report filed regarding primary account {primary_acc} for {fraud_type_str}. "
-                f"Topological graph analysis revealed {len(state.accounts)} linked accounts across {len(state.devices)} "
-                f"shared hardware identifiers. Key evidentiary factors include: {ev_points}. "
-                f"Total suspicious transaction volume under review is ${total_amt:,.2f} USD. "
-                f"Agent recommendation: immediate risk mitigation and FinCEN regulatory notification."
+    # ------------------------------------------------------------------
+    # Internal validation (mirrors output/validator.py full checks)
+    # ------------------------------------------------------------------
+
+    def _validate(self, answer: CaseAnswer) -> None:
+        """Raise ValueError on internal consistency violations before writing."""
+        c = answer.case
+
+        # sar.file must agree with FILE_REPORT in final actions
+        final_action_names = {a.action for a in answer.next_best_actions.final}
+        if answer.sar.file and "FILE_REPORT" not in final_action_names:
+            raise ValueError(
+                f"[{answer.case_id}] sar.file=True but FILE_REPORT not in next_best_actions.final"
+            )
+        if not answer.sar.file and "FILE_REPORT" in final_action_names:
+            raise ValueError(
+                f"[{answer.case_id}] FILE_REPORT in final actions but sar.file=False"
             )
 
-        sar = SAROutput(
-            case_id=state.case_id or "CASE_UNKNOWN",
-            sar_required=sar_required,
-            filing_tier="TIER_1_EXPEDITED" if risk_val >= 0.90 else ("STANDARD_30_DAY" if sar_required else "NONE"),
-            suspect_information={
-                "primary_account": state.trigger_account_id or (state.accounts[0] if state.accounts else None),
-                "collusive_accounts": state.accounts,
-                "devices": state.devices,
-                "ip_clusters": state.ip_clusters
-            },
-            suspicious_activity_summary=state.case_summary or f"Automated SAR trigger for {state.case_id}",
-            transaction_ids=state.trigger_txn_ids or state.transactions,
-            total_suspicious_amount=float(total_amt),
-            primary_fraud_type=state.decision.fraud_type.value if state.decision else "UNKNOWN",
-            risk_score=round(float(risk_val), 4),
-            sar_narrative=narrative,
-            filing_deadline=deadline,
-            compliance_officer_signoff="AUTONOMOUS_FRAUD_INVESTIGATION_AGENT",
-            created_at=now.isoformat()
-        )
-        return _dump(sar)
+        # legitimate verdict constraints
+        if c.verdict == "legitimate":
+            if c.affected_txn_ids:
+                raise ValueError(
+                    f"[{answer.case_id}] verdict=legitimate but affected_txn_ids is non-empty"
+                )
+            if c.exposure_usd != 0.0:
+                raise ValueError(
+                    f"[{answer.case_id}] verdict=legitimate but exposure_usd={c.exposure_usd}"
+                )
+            if answer.sar.file:
+                raise ValueError(
+                    f"[{answer.case_id}] verdict=legitimate but sar.file=True"
+                )
 
-    def _build_action(self, state: InvestigationState, stage: str, action: Optional[Any]) -> dict:
-        """Build action_before.json or action_after.json."""
-        if action is not None:
-            act_dict = dict(_dump(action))
-            action_type = act_dict.get("action_type", "FLAG_FOR_REVIEW")
-            approval_tier = act_dict.get("approval_tier", "ANALYST_TIER_1")
-            reason = act_dict.get("reason", "Institutional risk threshold reached")
-            policy_ref = act_dict.get("policy_reference") or act_dict.get("policy_ref")
-            executed = bool(act_dict.get("executed", False))
-        else:
-            action_type = "FLAG_FOR_REVIEW"
-            approval_tier = "ANALYST_TIER_1"
-            reason = "Initial preliminary screening assessment"
-            policy_ref = "RULE_MONITOR_001"
-            executed = False
+        # undocumented pattern requires description
+        if c.pattern == "undocumented" and not c.pattern_description:
+            raise ValueError(
+                f"[{answer.case_id}] pattern=undocumented but pattern_description is empty"
+            )
 
-        if hasattr(action_type, "value"):
-            action_type = action_type.value
-        if hasattr(approval_tier, "value"):
-            approval_tier = approval_tier.value
-
-        tier_str = str(approval_tier).upper()
-
-        # Derive approval route based on approval tier
-        if "SUPERVISOR" in tier_str:
-            approval_route = ["FRAUD_ANALYST_QUEUE", "SUPERVISOR_REVIEW"]
-        elif "LEGAL" in tier_str:
-            approval_route = ["FRAUD_ANALYST_QUEUE", "SUPERVISOR_REVIEW", "LEGAL_COMPLIANCE"]
-        elif "AUTO" in tier_str:
-            approval_route = []
-        else:
-            # Default ANALYST tiers
-            approval_route = ["FRAUD_ANALYST_QUEUE"]
-
-        conf = state.decision.confidence if state.decision else 0.85
-
-        action_output = ActionOutput(
-            case_id=state.case_id or "CASE_UNKNOWN",
-            stage=stage,
-            action_type=str(action_type),
-            approval_tier=str(approval_tier),
-            approval_route=approval_route,
-            reason=str(reason),
-            policy_reference=str(policy_ref) if policy_ref else None,
-            executed=executed,
-            confidence=round(float(conf), 4),
-            timestamp=datetime.now(timezone.utc).isoformat()
-        )
-        return _dump(action_output)
-
-    def _save(self, path: Path, data: dict):
-        """Saves dictionary data to json file with formatted indentation."""
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, default=str)
+        # All action strings must be valid
+        valid_actions = {at.value for at in ActionType}
+        for ar in answer.next_best_actions.final:
+            if ar.action not in valid_actions:
+                raise ValueError(
+                    f"[{answer.case_id}] Unknown action '{ar.action}'. Must be one of {sorted(valid_actions)}"
+                )

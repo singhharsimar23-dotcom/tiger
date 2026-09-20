@@ -55,6 +55,26 @@ def test_dashboard():
     assert res.status_code in (200, 404), f"GET /case/case_01/sar unexpected: {res.status_code}"
     print(f"GET /case/case_01/sar OK (status {res.status_code})")
 
+    res = client.get('/cases')
+    assert res.status_code == 200, f"GET /cases failed: {res.status_code}"
+    print("GET /cases OK")
+
+    res = client.get('/cockpit')
+    assert res.status_code == 200, f"GET /cockpit failed: {res.status_code}"
+    print("GET /cockpit OK")
+
+    res = client.get('/api/graph/sample')
+    assert res.status_code == 200, f"GET /api/graph/sample failed: {res.status_code}"
+    sample_data = res.json()
+    assert "elements" in sample_data and len(sample_data["elements"]) > 0
+    print(f"GET /api/graph/sample OK -> {len(sample_data['elements'])} elements")
+
+    res = client.post('/api/ask_agent', json={"query": "Explain the device collusion loop", "case_id": "case_01"})
+    assert res.status_code == 200, f"POST /api/ask_agent failed: {res.status_code}"
+    ans_data = res.json()
+    assert "answer" in ans_data and len(ans_data["answer"]) > 10
+    print("POST /api/ask_agent OK ->", ans_data["answer"][:60], "...")
+
     print("\n==========================================")
     print("ALL DASHBOARD ROUTES VERIFIED SUCCESSFULLY")
     print("==========================================")

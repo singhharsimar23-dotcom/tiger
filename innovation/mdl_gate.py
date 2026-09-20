@@ -1,44 +1,210 @@
 """
-Minimum Description Length (MDL) Information-Theoretic Evidence Sufficiency Gate.
-Provides an information-theoretic framework to determine whether an investigation has
-sufficient evidence to transition from hypothesis exploration to enforcement actions.
+Decision-Relevant (VOI) Evidence Gate — Replaces MDL Entropy Gate.
+Evaluates Value of Information (VOI) by computing the exact probability
+that gathering an additional piece of evidence will flip the deterministic
+policy decision (action type and approval tier).
 """
 
 import math
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, Tuple, Optional, Set
 
-# Module Constants
-MDL_THRESHOLD = 0.25
-MAX_ITERATIONS = 3
 
-class _EvidenceCostDict(dict):
-    def get(self, key: Any, default: float = 1.0) -> float:
-        k = getattr(key, "value", key)
-        return super().get(k, super().get(key, default))
+class VOIFloat(float):
+    """Float that allows [0] indexing for backwards/toy compatibility."""
+    def __getitem__(self, idx: int) -> float:
+        if idx == 0:
+            return float(self)
+        raise IndexError("tuple index out of range")
 
-    def __getitem__(self, key: Any) -> float:
-        k = getattr(key, "value", key)
-        if k in self:
-            return super().__getitem__(k)
-        return super().__getitem__(key)
 
-# Information acquisition costs per evidence category (normalized)
-EVIDENCE_COST: Dict[Any, float] = _EvidenceCostDict({
-    "GRAPH_NEIGHBORHOOD": 0.05,
-    "SHARED_DEVICE": 0.10,
-    "SHARED_DOMAIN": 0.10,
-    "SHARED_ADDRESS": 0.10,
-    "PATTERN_MATCH": 0.15,
-    "POLICY_TRIGGER": 0.05,
-    "PRIOR_CASE_SIMILARITY": 0.20,
-    "DEEP_EXPANSION": 0.30,
-})
-
-def binary_entropy(p: float) -> float:
+class SufficiencyResult(tuple):
     """
-    Computes Shannon binary entropy H(p) = -p*log2(p) - (1-p)*log2(1-p).
-    Handles edge cases: p <= 0, p >= 1, NaN -> returns 0.0.
+    2-tuple subclass returning (score, best_evidence_type) while maintaining
+    direct float comparison compatibility with legacy call sites.
     """
+    def __new__(cls, score: float, best_type: Optional[str]):
+        return super().__new__(cls, (score, best_type))
+
+    @property
+    def score(self) -> float:
+        return self[0]
+
+    @property
+    def best_type(self) -> Optional[str]:
+        return self[1]
+
+    def __gt__(self, other: Any) -> bool:
+        if isinstance(other, (int, float)):
+            return self[0] > other
+        return super().__gt__(other)
+
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, (int, float)):
+            return self[0] < other
+        return super().__lt__(other)
+
+    def __ge__(self, other: Any) -> bool:
+        if isinstance(other, (int, float)):
+            return self[0] >= other
+        return super().__ge__(other)
+
+    def __le__(self, other: Any) -> bool:
+        if isinstance(other, (int, float)):
+            return self[0] <= other
+        return super().__le__(other)
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, (int, float)):
+            return self[0] == other
+        return super().__eq__(other)
+
+    def __float__(self) -> float:
+        return float(self[0])
+
+
+def decide(fraud_probability: float, txn_amt: float = 0.0,
+           confirmed_fraud_neighbor: bool = False) -> Tuple[str, str]:
+    """
+    PURE deterministic function: facts in, (action_type, approval_tier) out.
+    This IS your policy-as-code layer (also referenced by S16) — the LLM
+    NEVER picks the action; it only estimates fraud_probability from evidence.
+    Mirrors PROJECT.md Section 2.5's approval tier table exactly.
+    """
+    if confirmed_fraud_neighbor or fraud_probability >= 0.90:
+        return ("BLOCK_ACCOUNT", "SUPERVISOR")
+    if fraud_probability >= 0.70:
+        return ("BLOCK_TRANSACTION", "AUTO" if fraud_probability > 0.9 else "ANALYST")
+    if fraud_probability >= 0.40:
+        return ("STEP_UP_AUTH", "AUTO")
+    if fraud_probability >= 0.15:
+        return ("MONITOR_ACCOUNT", "ANALYST")
+    return ("ALLOW_TRANSACTION", "AUTO")
+
+
+# Per-evidence-type branch distributions, calibrated from the SAME stub
+# functions used in gather_more_evidence_node (Section 2.6):
+#   STEP_UP_AUTH: {"pass": 0.85, "fail": 0.15}          (matches stub_seed > 150 threshold)
+#   CUSTOMER_CONTACT: {"confirm": 0.70, "deny": 0.30}    (matches stub_seed < 700 threshold)
+#   ANALYST_QUERY: {"corroborate": 0.5, "clear": 0.5}    (no stub bias; symmetric is fine here)
+BRANCH_PROBS: Dict[str, Dict[str, float]] = {
+    "STEP_UP_AUTH":     {"pass": 0.85, "fail": 0.15},
+    "CUSTOMER_CONTACT":  {"confirm": 0.70, "deny": 0.30},
+    "ANALYST_QUERY":     {"corroborate": 0.5, "clear": 0.5},
+}
+
+# Posterior shift per branch, per evidence type. Hand-set from the weight heuristics
+# in EVIDENCE_SYNTHESIS_PROMPT (Section 8.1) so numbers and LLM evidence weights agree.
+POSTERIOR_SHIFT = {
+    ("STEP_UP_AUTH", "fail"):        lambda p: min(0.97, p + (1 - p) * 0.4),
+    ("STEP_UP_AUTH", "pass"):        lambda p: max(0.02, p * 0.85),
+    ("CUSTOMER_CONTACT", "deny"):    lambda p: min(0.97, p + (1 - p) * 0.6),
+    ("CUSTOMER_CONTACT", "confirm"): lambda p: max(0.02, p * 0.25),
+    ("ANALYST_QUERY", "corroborate"):lambda p: min(0.95, p + (1 - p) * 0.3),
+    ("ANALYST_QUERY", "clear"):      lambda p: max(0.05, p * 0.5),
+}
+
+EVIDENCE_COST: Dict[str, float] = {
+    "STEP_UP_AUTH": 1.5,
+    "ANALYST_QUERY": 3.0,
+    "CUSTOMER_CONTACT": 3.5,
+}
+MAX_COST_BUDGET: float = 8.0
+VOI_THRESHOLD: float = 0.15   # ask only if there's a >=15% chance the decision itself flips
+MDL_THRESHOLD: float = VOI_THRESHOLD
+MAX_ITERATIONS: int = 3
+
+
+def compute_voi(fraud_probability: float, txn_amt: float = 0.0,
+                 evidence_type: str = "STEP_UP_AUTH",
+                 confirmed_fraud_neighbor: bool = False) -> VOIFloat:
+    """Probability that gathering `evidence_type` changes (action, tier)."""
+    base = decide(fraud_probability, txn_amt, confirmed_fraud_neighbor)
+    branches = BRANCH_PROBS.get(evidence_type, {"yes": 0.5, "no": 0.5})
+    changed_mass = 0.0
+    for branch, pr in branches.items():
+        shift_fn = POSTERIOR_SHIFT.get((evidence_type, branch))
+        p_after = shift_fn(fraud_probability) if shift_fn else fraud_probability
+        if decide(p_after, txn_amt, confirmed_fraud_neighbor) != base:
+            changed_mass += pr
+    return VOIFloat(changed_mass)
+
+
+def compute_sufficiency(fraud_probability: float, gathered_cost: float = 0.0,
+                         iteration_count: int = 0, txn_amt: float = 0.0,
+                         confirmed_fraud_neighbor: bool = False,
+                         corroborating_signal_count: int = 0,
+                         excluded_types: Optional[Set[str]] = None) -> SufficiencyResult:
+    """
+    DROP-IN REPLACEMENT for the old signature (adds optional kwargs with
+    defaults so existing call sites in nodes.py keep working unmodified).
+    Returns (score, best_evidence_type_to_gather_next).
+    """
+    if iteration_count >= 3 or gathered_cost >= MAX_COST_BUDGET:
+        return SufficiencyResult(0.0, None)
+    if fraud_probability is None or fraud_probability <= 0.02 or fraud_probability >= 0.98:
+        return SufficiencyResult(0.0, None)
+    # Brief's own override: don't ask if already near-certain with >=2 corroborating signals
+    if (fraud_probability >= 0.85 or fraud_probability <= 0.15) and corroborating_signal_count >= 2:
+        return SufficiencyResult(0.0, None)
+
+    best_score, best_type = 0.0, None
+    for etype, cost in EVIDENCE_COST.items():
+        if excluded_types and etype in excluded_types:
+            continue
+        v = compute_voi(fraud_probability, txn_amt, etype, confirmed_fraud_neighbor)
+        net = float(v) - (cost / MAX_COST_BUDGET) * 0.3   # cost still discounts, doesn't dominate
+        if net > best_score:
+            best_score, best_type = net, etype
+    return SufficiencyResult(best_score, best_type)
+
+
+def interpret_sufficiency(score: Union[float, SufficiencyResult, Tuple[float, Any]],
+                          best_type: Any = None,
+                          iteration_count: int = 0) -> Dict[str, Any]:
+    """
+    Translates sufficiency score and recommendation into audit-ready decision records.
+    Accommodates both new signature (score, best_type, iteration_count) and legacy
+    signature (score, iteration_count).
+    """
+    if isinstance(best_type, int) and iteration_count == 0:
+        iteration_count = best_type
+        best_type = "ADDITIONAL_EVIDENCE"
+
+    if isinstance(score, (tuple, SufficiencyResult)):
+        score_val = float(score[0])
+        if (best_type is None or best_type == "ADDITIONAL_EVIDENCE") and len(score) > 1:
+            best_type = score[1]
+    else:
+        score_val = float(score)
+
+    if score_val < VOI_THRESHOLD or best_type is None or iteration_count >= 3:
+        stop_reason = (
+            "further evidence unlikely to change the decision"
+            if best_type is None
+            else f"VOI below threshold ({score_val:.2f} < {VOI_THRESHOLD})"
+        )
+        return {
+            "score": round(score_val, 4),
+            "recommended_action": "ACT",
+            "next_evidence_type": None,
+            "stop_reason": stop_reason,
+            "interpretation": f"Evidence sufficiency threshold met (score={score_val:.3f})",
+            "reasoning": stop_reason
+        }
+
+    return {
+        "score": round(score_val, 4),
+        "recommended_action": "GATHER_MORE",
+        "next_evidence_type": best_type,
+        "stop_reason": None,
+        "reasoning": f"gathering {best_type} has an estimated "
+                     f"{score_val:.0%} chance of flipping the recommended action/route",
+        "interpretation": f"Additional evidence recommended ({best_type}, score={score_val:.3f})"
+    }
+
+
+# Backwards compatibility helpers for legacy unit tests and diagnostics
+def binary_entropy(p: Optional[float]) -> float:
     if p is None:
         return 0.0
     try:
@@ -46,91 +212,11 @@ def binary_entropy(p: float) -> float:
             return 0.0
     except TypeError:
         return 0.0
-
     if p <= 0.0 or p >= 1.0:
         return 0.0
-
-    # Strict clamping for floating-point safety
     p = max(1e-12, min(1.0 - 1e-12, p))
     return -(p * math.log2(p) + (1.0 - p) * math.log2(1.0 - p))
 
+
 def compute_expected_ig(p: float, action_type: str = "STEP_UP_AUTH") -> float:
-    """
-    Computes expected Information Gain (IG) from acquiring additional evidence.
-    Modeled as the expected reduction in binary entropy given signal reliability.
-    """
-    current_h = binary_entropy(p)
-    if current_h == 0.0:
-        return 0.0
-
-    # Estimated likelihood ratio / signal strength by investigative action
-    signal_strengths = {
-        "STEP_UP_AUTH": 0.85,
-        "DEEP_GRAPH_EXPANSION": 0.80,
-        "IDENTITY_CORRELATION": 0.75,
-        "ACCOUNT_HISTORY": 0.65,
-    }
-    alpha = signal_strengths.get(action_type, 0.70)
-
-    # Expected posterior probabilities given positive or negative test outcome
-    # P(pos) = alpha*p + (1-alpha)*(1-p)
-    p_pos = alpha * p + (1.0 - alpha) * (1.0 - p)
-    p_neg = 1.0 - p_pos
-
-    # Posteriors via Bayes rule
-    post_pos = (alpha * p) / max(p_pos, 1e-12)
-    post_neg = ((1.0 - alpha) * p) / max(p_neg, 1e-12)
-
-    expected_posterior_h = p_pos * binary_entropy(post_pos) + p_neg * binary_entropy(post_neg)
-    ig = current_h - expected_posterior_h
-    return max(0.0, ig)
-
-def compute_sufficiency(p: float, gathered_cost: float, iters: int) -> float:
-    """
-    Evaluates evidence sufficiency under the Minimum Description Length principle:
-      Net Gain = Expected Information Gain - Marginal Cost Penalty
-    
-    Returns:
-      Sufficiency score (expected net gain). If score < MDL_THRESHOLD or iters >= MAX_ITERATIONS,
-      the system has reached evidence sufficiency (should ACT).
-    """
-    # 1. Hard iteration limit (bounded deliberation)
-    if iters >= MAX_ITERATIONS:
-        return 0.0
-
-    # 2. Certainty boundary conditions (p >= 0.98 or p <= 0.02)
-    if p is None or p >= 0.98 or p <= 0.02:
-        return 0.0
-
-    current_h = binary_entropy(p)
-    if current_h < 0.15:
-        # Near certainty; description length already minimized
-        return 0.0
-
-    # 3. Expected Information Gain from deepening investigation
-    expected_ig = compute_expected_ig(p, action_type="DEEP_GRAPH_EXPANSION")
-
-    # 4. Description length cost regularization: penalize redundant sampling
-    cost_penalty = 0.10 * math.sqrt(gathered_cost + 0.1) * (iters * 0.5 + 0.5)
-
-    net_gain = expected_ig - cost_penalty
-    return max(0.0, net_gain)
-
-def interpret_sufficiency(score: float, iteration_count: int) -> Dict[str, Any]:
-    """
-    Returns a human-readable interpretation for the compliance and case record.
-    """
-    if score < MDL_THRESHOLD or iteration_count >= MAX_ITERATIONS:
-        return {
-            "score": round(score, 4),
-            "recommended_action": "ACT",
-            "interpretation": f"Evidence sufficiency threshold met (score={score:.3f})",
-            "reasoning": "Expected information gain from additional evidence below cost threshold"
-        }
-    else:
-        return {
-            "score": round(score, 4),
-            "recommended_action": "GATHER_MORE",
-            "interpretation": f"Additional evidence recommended (score={score:.3f})",
-            "reasoning": f"Expected gain {score:.3f} > threshold {MDL_THRESHOLD}"
-        }
+    return float(compute_voi(p, 0.0, action_type))

@@ -1,76 +1,75 @@
-USE GRAPH FraudGraph
+/*
+queries/get_shared_identifiers.gsql — Ground Truth Corrected
 
-CREATE OR REPLACE QUERY get_shared_identifiers(VERTEX<Account> account_id) FOR GRAPH FraudGraph {
-    /* @timeout 30000 */
-    /*
-      Traverse SHARES_DEVICE, SHARES_EMAIL_DOMAIN, SHARES_ADDRESS from account.
-      For each neighbor: collect (account_id, sharing_type, shared_count, 
-      total_txn_count, fraud_txn_count, is_high_risk=(fraud_txn_count>0)).
-      OrderBy total_txn_count DESC.
-      Print as JSON array.
-    */
-    TYPEDEF TUPLE<
-        STRING account_id,
-        STRING sharing_type,
-        INT shared_count,
-        INT total_txn_count,
-        INT fraud_txn_count,
-        BOOL is_high_risk
-    > SharedNeighbor;
+Finds cards/transactions that share the same DeviceProfile, BillingRegion,
+or EmailDomain as the anchor transaction.
 
-    SumAccum<INT> @total_txns;
-    SumAccum<INT> @fraud_txns;
-    MapAccum<VERTEX<Account>, STRING> @@sharing_type;
-    MapAccum<VERTEX<Account>, INT> @@shared_count;
-    ListAccum<SharedNeighbor> @@results;
+This replaces ALL precomputed SHARES_DEVICE / SHARES_EMAIL_DOMAIN / SHARES_ADDRESS
+edges with a single live traversal. No derived edge job needed.
 
-    Start = {account_id};
+Input: txn_id STRING  — anchor transaction (e.g. "T3514030")
+*/
 
-    // 1. Gather neighbors via derived edges
-    NeighborsDevice = 
-        SELECT a2 
-        FROM Start:a1 -(SHARES_DEVICE:e)-> Account:a2
-        ACCUM 
-            @@sharing_type += (a2 -> "SHARES_DEVICE"),
-            @@shared_count += (a2 -> e.shared_count);
+CREATE QUERY get_shared_identifiers(STRING txn_id) FOR GRAPH FraudGraph {
 
-    NeighborsEmail = 
-        SELECT a2 
-        FROM Start:a1 -(SHARES_EMAIL_DOMAIN:e)-> Account:a2
-        ACCUM 
-            @@sharing_type += (a2 -> "SHARES_EMAIL_DOMAIN"),
-            @@shared_count += (a2 -> e.shared_count);
+  SetAccum<VERTEX<DeviceProfile>>  @@anchor_devices;
+  SetAccum<VERTEX<BillingRegion>>  @@anchor_regions;
+  SetAccum<VERTEX<EmailDomain>>    @@anchor_emails;
+  SetAccum<VERTEX<Transaction>>    @@other_txns;
+  SetAccum<VERTEX<Card>>           @@other_cards;
+  MapAccum<STRING, INT>            @@shared_device_card_count;
+  MapAccum<STRING, INT>            @@shared_region_card_count;
+  MapAccum<STRING, INT>            @@shared_email_card_count;
 
-    NeighborsAddr = 
-        SELECT a2 
-        FROM Start:a1 -(SHARES_ADDRESS:e)-> Account:a2
-        ACCUM 
-            @@sharing_type += (a2 -> "SHARES_ADDRESS"),
-            @@shared_count += (a2 -> e.shared_count);
+  -- 1. Anchor transaction
+  start_txn = {Transaction.*};
+  anchor = SELECT t FROM start_txn:t WHERE t.txn_id == txn_id;
 
-    AllNeighbors = NeighborsDevice UNION NeighborsEmail UNION NeighborsAddr;
+  -- 2. Identifiers on anchor
+  anchor_devices = SELECT d FROM anchor:t -(FROM_DEVICE:e)-> DeviceProfile:d
+    ACCUM @@anchor_devices += d;
 
-    // 2. Count transactions and fraud transactions on neighbors
-    NeighborTxns = 
-        SELECT t 
-        FROM AllNeighbors:a -(PERFORMED)-> Transaction:t
-        ACCUM 
-            a.@total_txns += 1,
-            IF t.is_fraud == 1 THEN a.@fraud_txns += 1 END;
+  anchor_regions = SELECT r FROM anchor:t -(BILLED_IN:e)-> BillingRegion:r
+    ACCUM @@anchor_regions += r;
 
-    // 3. Assemble results tuple list
-    Res = 
-        SELECT a 
-        FROM AllNeighbors:a
-        ACCUM 
-            @@results += SharedNeighbor(
-                a.account_id,
-                @@sharing_type.get(a),
-                @@shared_count.get(a),
-                a.@total_txns,
-                a.@fraud_txns,
-                (a.@fraud_txns > 0)
-            );
+  anchor_emails = SELECT em FROM anchor:t -(PURCHASER_EMAIL:e)-> EmailDomain:em
+    ACCUM @@anchor_emails += em;
 
-    PRINT @@results AS shared_identifiers;
+  -- 3a. Other transactions sharing the same DeviceProfile
+  other_by_device = SELECT t2 FROM @@anchor_devices:d -(REVERSE_FROM_DEVICE:e)-> Transaction:t2
+    WHERE t2.txn_id != txn_id
+    ACCUM @@other_txns += t2;
+
+  -- Walk back from those transactions to their cards
+  SELECT c FROM @@other_txns:t -(REVERSE_MADE:e)-> Card:c
+    ACCUM @@other_cards += c,
+          @@shared_device_card_count += (c.card_id -> 1);
+
+  -- 3b. Other transactions sharing the same BillingRegion
+  other_by_region = SELECT t2 FROM @@anchor_regions:r -(REVERSE_BILLED_IN:e)-> Transaction:t2
+    WHERE t2.txn_id != txn_id
+    ACCUM @@other_txns += t2;
+
+  SELECT c FROM other_by_region:t -(REVERSE_MADE:e)-> Card:c
+    ACCUM @@other_cards += c,
+          @@shared_region_card_count += (c.card_id -> 1);
+
+  -- 3c. Other transactions sharing the same P_emaildomain
+  other_by_email = SELECT t2 FROM @@anchor_emails:em -(REVERSE_PURCHASER_EMAIL:e)-> Transaction:t2
+    WHERE t2.txn_id != txn_id
+    ACCUM @@other_txns += t2;
+
+  SELECT c FROM other_by_email:t -(REVERSE_MADE:e)-> Card:c
+    ACCUM @@other_cards += c,
+          @@shared_email_card_count += (c.card_id -> 1);
+
+  -- 4. Output
+  PRINT @@anchor_devices        AS anchor_device_profiles;
+  PRINT @@anchor_regions        AS anchor_billing_regions;
+  PRINT @@anchor_emails         AS anchor_email_domains;
+  PRINT @@other_txns            AS other_transactions_sharing_identifier;
+  PRINT @@other_cards           AS other_cards_sharing_identifier;
+  PRINT @@shared_device_card_count  AS shared_device_card_counts;
+  PRINT @@shared_region_card_count  AS shared_region_card_counts;
+  PRINT @@shared_email_card_count   AS shared_email_card_counts;
 }

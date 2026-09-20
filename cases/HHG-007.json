@@ -1,0 +1,116 @@
+{
+  "case_id": "HHG-007",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.05,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "T3514948",
+    "connected_card_ids": [
+      "C149-K1",
+      "C149-K2"
+    ],
+    "connected_device_profiles": [
+      "dp_14948"
+    ],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Transaction T3514948 triggered a high risk score of 0.87, indicating potential unauthorized activity.",
+        "source": "graph",
+        "ref": "Trigger Type: risk_score",
+        "entity_ids": [
+          "T3514948",
+          "C09933"
+        ]
+      },
+      {
+        "claim": "The device profile dp_14948 is linked to multiple cards (C_SHARED_14948) and transactions, suggesting a shared origin for potential fraud.",
+        "source": "graph",
+        "ref": "Graph Traversal Findings",
+        "entity_ids": [
+          "dp_14948",
+          "C_SHARED_14948"
+        ]
+      },
+      {
+        "claim": "Historical data shows previous closed cases CC-0009, CC-0003, and CC-0007 associated with this customer or entity cluster.",
+        "source": "document",
+        "ref": "Historical Closed Cases",
+        "entity_ids": [
+          "C09933"
+        ]
+      },
+      {
+        "claim": "The transaction chain shows a total exposure of $287.50, with $77.00 in forward-linked transactions.",
+        "source": "graph",
+        "ref": "Money flow (NEXT chain)",
+        "entity_ids": [
+          "T3514948",
+          "T3514949",
+          "T3514950"
+        ]
+      },
+      {
+        "claim": "Customer confirmed purchase upon verification outreach.",
+        "source": "customer",
+        "ref": "customer_inquiry_channel",
+        "entity_ids": [
+          "T3514948",
+          "C09933"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0009",
+      "CC-0003",
+      "CC-0007"
+    ],
+    "summary": "Autonomous graph fraud investigation concluded with comprehensive regulatory review and policy enforcement.",
+    "written_to_graph": true,
+    "graph_case_id": "HHG-007"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer confirms legitimate purchase."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Elevated fraud risk (0.75) warrants immediate card lock."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Formal fraud case created for confirmed risk exposure."
+      }
+    ],
+    "final": [
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: The customer confirmed the purchase upon verification outreach, and the verdict is legitimate with a low fraud probability of 0.05."
+      }
+    ],
+    "what_changed": "Actions updated from [BLOCK_CARD, CREATE_CASE] to [CLOSE_NO_FRAUD] following evidence intake and stopping rule."
+  },
+  "sar": {
+    "file": false,
+    "reason": "",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "A verification response settled the question.",
+  "tool_calls": 9,
+  "tokens": 0,
+  "latency_s": 22.775
+}

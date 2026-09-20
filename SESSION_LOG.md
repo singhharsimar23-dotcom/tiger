@@ -725,3 +725,225 @@ Validation Score: 20/20 (100.0%)
 
 ### 6. Submission Status:
 - **SUBMISSION STATUS: READY**
+
+---
+
+## S06-PATCH — MCP Tool Contract Verification
+- Date: 2026-09-20
+- Status: DONE
+- Files created:
+  - `tools/introspect_mcp.py` (228 lines, live MCP session + canonical introspection with verbatim checks)
+  - `tools/MCP_TOOL_CONTRACT.md` (canonical 69-tool contract table with input/output schemas)
+  - `tests/test_s06_patch.py` (contract presence, literal tool grep check, mandatory verbatim tool asserts)
+- Files modified:
+  - `tools/tg_tools.py` (bound verified MCP constants & dispatcher to contract table)
+  - `SESSION_LOG.md` (appended verified tool contract)
+
+### 1. Verified Tool Contract Table (Source of Truth)
+
+| tool name | inputs | outputs | notes |
+| --- | --- | --- | --- |
+| `tigergraph__run_installed_query` | query_name: str (required), params: dict (optional, default={}), graph_name: str (optional), profile: str (optional) | ToolResponse (JSON: success, data, summary, error) | Executes a pre-compiled, installed GSQL query with parameters. Primary analytical engine for fraud graph traversals. |
+| `tigergraph__search_top_k_similarity` | vertex_type: str (required), vector_attribute: str (required), query_vector: list[float] (required), top_k: int (optional, default=10), ef: int (optional), return_vectors: bool (optional, default=False), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.result with nearest vertices & similarity scores, summary) | Vector similarity search using TigerGraph vectorSearch(). Retrieves top-k nearest cases or patterns by cosine similarity. |
+| `tigergraph__upsert_vectors` | vertex_type: str (required), vector_attribute: str (required), vectors: list[dict] (required: id & vector), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.accepted_vertices, summary) | Upserts dense embedding vectors into TigerGraph vertices. Used to store case embeddings and investigation dossiers. |
+| `tigergraph__run_query` | query_text: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data, summary, error) | Interprets and executes ad-hoc GSQL or Cypher queries without requiring pre-compilation. |
+| `tigergraph__install_query` | query_text: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary, error) | Compiles and installs a GSQL query into the database engine for high-speed repeated invocation. |
+| `tigergraph__drop_query` | query_name: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Drops a previously installed GSQL query. |
+| `tigergraph__show_query` | query_name: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data with query GSQL definition) | Retrieves the GSQL source code definition of an installed query. |
+| `tigergraph__get_query_metadata` | query_name: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.parameters, data.return_types) | Returns parameter names, types, and return signature of an installed query. |
+| `tigergraph__update_query_description` | query_name: str (required), description: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Updates the description/docstring of an installed query. |
+| `tigergraph__get_query_description` | query_name: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.description) | Fetches the description and purpose documentation of an installed query. |
+| `tigergraph__is_query_installed` | query_name: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.installed: bool) | Checks whether a query has already been compiled and installed. |
+| `tigergraph__get_neighbors` | vertex_type: str (required), vertex_id: str (required), edge_types: list[str] (optional), target_types: list[str] (optional), limit: int (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.neighbors, summary) | 1-hop topological neighbor traversal directly from a given source vertex. |
+| `tigergraph__add_node` | vertex_type: str (required), vertex_id: str (required), attributes: dict (optional, default={}), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data, summary) | Adds or updates a single vertex (e.g. Case, Evidence, Decision, Action, Transaction). |
+| `tigergraph__add_nodes` | vertex_type: str (required), vertices: list[dict] (required: id & attributes), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.count, summary) | Batch adds or updates multiple vertices in a single transaction. |
+| `tigergraph__get_node` | vertex_type: str (required), vertex_id: str (required), select_attributes: list[str] (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.vertex with attributes) | Retrieves attributes and metadata for a specific vertex. |
+| `tigergraph__get_nodes` | vertex_type: str (required), filter_expr: str (optional), limit: int (optional, default=100), select_attributes: list[str] (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.vertices: list[dict]) | Queries vertices of a given type with optional filtering and attribute selection. |
+| `tigergraph__delete_node` | vertex_type: str (required), vertex_id: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Deletes a single vertex from the graph. |
+| `tigergraph__delete_nodes` | vertex_type: str (required), vertex_ids: list[str] (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.deleted_count) | Batch deletes vertices by ID. |
+| `tigergraph__has_node` | vertex_type: str (required), vertex_id: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.exists: bool) | Checks whether a vertex exists in the graph. |
+| `tigergraph__get_node_edges` | vertex_type: str (required), vertex_id: str (required), edge_type: str (optional), target_vertex_type: str (optional), direction: str (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.edges: list[dict]) | Fetches outgoing or incoming edges connected to a vertex. |
+| `tigergraph__add_edge` | source_type: str (required), source_id: str (required), edge_type: str (required), target_type: str (required), target_id: str (required), attributes: dict (optional, default={}), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Inserts or updates a directed or undirected edge between two vertices. |
+| `tigergraph__add_edges` | edges: list[dict] (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.count) | Batch inserts multiple edges across graph entity relationships. |
+| `tigergraph__get_edge` | source_type: str (required), source_id: str (required), edge_type: str (required), target_type: str (required), target_id: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.edge) | Retrieves edge attributes for a specific relationship instance. |
+| `tigergraph__get_edges` | source_type: str (required), source_id: str (required), edge_type: str (optional), target_type: str (optional), limit: int (optional, default=100), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.edges) | Retrieves all edges originating from a source vertex. |
+| `tigergraph__delete_edge` | source_type: str (required), source_id: str (required), edge_type: str (required), target_type: str (required), target_id: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Deletes a specific edge from the graph. |
+| `tigergraph__delete_edges` | edges: list[dict] (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.deleted_count) | Batch deletes edges. |
+| `tigergraph__has_edge` | source_type: str (required), source_id: str (required), edge_type: str (required), target_type: str (required), target_id: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.exists: bool) | Checks whether an edge exists between two vertices. |
+| `tigergraph__get_global_schema` | profile: str (optional) | ToolResponse (JSON: success, data.global_schema) | Retrieves the database-level global schema definition. |
+| `tigergraph__list_graphs` | profile: str (optional) | ToolResponse (JSON: success, data.graphs: list[str]) | Lists all graph names provisioned on the TigerGraph database. |
+| `tigergraph__get_graph_schema` | graph_name: str (optional), profile: str (optional) | ToolResponse (JSON: success, data.schema with vertex_types & edge_types) | Retrieves the schema definition (vertices, edges, attributes) for a specific graph. |
+| `tigergraph__show_graph_details` | graph_name: str (optional), profile: str (optional) | ToolResponse (JSON: success, data.details) | Full graph details including schema, installed queries, and loading jobs. |
+| `tigergraph__update_schema` | schema_change_gsql: str (required), graph_name: str (optional), profile: str (optional) | ToolResponse (JSON: success, summary) | Applies a schema change job via GSQL DDL. |
+| `tigergraph__validate_schema_names` | names: list[str] (required), profile: str (optional) | ToolResponse (JSON: success, data.validations) | Validates schema identifiers against TigerGraph naming conventions and reserved keywords. |
+| `tigergraph__create_graph` | graph_name: str (required), vertex_types: list[str] (optional), edge_types: list[str] (optional), profile: str (optional) | ToolResponse (JSON: success, summary) | Creates a new graph container. |
+| `tigergraph__drop_graph` | graph_name: str (required), profile: str (optional) | ToolResponse (JSON: success, summary) | Drops an existing graph. |
+| `tigergraph__clear_graph_data` | graph_name: str (optional), profile: str (optional) | ToolResponse (JSON: success, summary) | Clears all vertex and edge data from a graph while preserving the schema. |
+| `tigergraph__get_vertex_count` | vertex_type: str (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.count: int) | Returns the number of vertices for a vertex type or entire graph. |
+| `tigergraph__get_edge_count` | edge_type: str (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.count: int) | Returns the number of edges for an edge type or entire graph. |
+| `tigergraph__get_node_degree` | vertex_type: str (required), vertex_id: str (required), edge_types: list[str] (optional), direction: str (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.degree: int) | Computes node degree (in-degree, out-degree, or total) for topological connectivity analysis. |
+| `tigergraph__gsql` | query: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.output: str) | Executes arbitrary raw GSQL command via the GSQL administrative shell. |
+| `tigergraph__generate_gsql` | prompt: str (required), graph_name: str (optional), profile: str (optional) | ToolResponse (JSON: success, data.gsql: str) | Generates GSQL queries from natural language prompts using graph schema grounding. |
+| `tigergraph__generate_cypher` | prompt: str (required), graph_name: str (optional), profile: str (optional) | ToolResponse (JSON: success, data.cypher: str) | Generates openCypher queries from natural language prompts. |
+| `tigergraph__add_vector_attribute` | vertex_type: str (required), vector_name: str (required), dimension: int (required), metric: str (optional, default='COSINE'), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Alters vertex type to attach a dense vector attribute for vector index queries. |
+| `tigergraph__drop_vector_attribute` | vertex_type: str (required), vector_name: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Drops a vector attribute from a vertex type. |
+| `tigergraph__list_vector_attributes` | vertex_type: str (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.vector_attributes: list[dict]) | Lists all vector attributes, dimensions, and distance metrics configured on graph vertices. |
+| `tigergraph__get_vector_index_status` | vertex_type: str (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.status: Ready_for_query \| Rebuild_processing) | Checks index build status for HNSW vector indexes. |
+| `tigergraph__load_vectors_from_csv` | vertex_type: str (required), vector_attribute: str (required), file_path: str (required), id_column: int/str (optional, default=0), vector_column: int/str (optional, default=1), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Bulk loads vector embeddings from a delimited CSV file. |
+| `tigergraph__load_vectors_from_json` | vertex_type: str (required), vector_attribute: str (required), file_path: str (required), id_key: str (optional, default='id'), vector_key: str (optional, default='vector'), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Bulk loads vector embeddings from a JSON Lines (.jsonl) file. |
+| `tigergraph__fetch_vector` | vertex_type: str (required), vertex_ids: list[str] (required), vector_attribute: str (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.vertices_with_vectors) | Fetches vertices and their raw vector floats using GSQL PRINT WITH VECTOR. |
+| `tigergraph__create_loading_job` | job_name: str (required), files: list[dict] (required), run_job: bool (optional, default=False), drop_after_run: bool (optional, default=False), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Defines a high-throughput GSQL data loading job. |
+| `tigergraph__run_loading_job_with_file` | file_path: str (required), file_tag: str (required), job_name: str (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.job_id) | Executes a loading job against a specified data file. |
+| `tigergraph__run_loading_job_with_data` | data: str (required), file_tag: str (required), job_name: str (optional), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.job_id) | Streams raw text lines directly into a GSQL loading job. |
+| `tigergraph__get_loading_jobs` | profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.jobs: list[str]) | Lists all defined loading jobs in the graph. |
+| `tigergraph__get_loading_job_status` | job_id: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, data.status, data.statistics) | Monitors progress and record counts of an active or completed loading job. |
+| `tigergraph__drop_loading_job` | job_name: str (required), profile: str (optional), graph_name: str (optional) | ToolResponse (JSON: success, summary) | Drops a defined loading job. |
+| `tigergraph__create_data_source` | data_source_name: str (required), data_source_type: str (required), config: dict (required), profile: str (optional) | ToolResponse (JSON: success, summary) | Configures an external data connector (e.g. S3, Kafka, GCS). |
+| `tigergraph__update_data_source` | data_source_name: str (required), config: dict (required), profile: str (optional) | ToolResponse (JSON: success, summary) | Updates configuration for an existing external data source. |
+| `tigergraph__get_data_source` | data_source_name: str (required), profile: str (optional) | ToolResponse (JSON: success, data.data_source) | Retrieves configuration details of a data source. |
+| `tigergraph__drop_data_source` | data_source_name: str (required), profile: str (optional) | ToolResponse (JSON: success, summary) | Drops an external data source. |
+| `tigergraph__get_all_data_sources` | profile: str (optional) | ToolResponse (JSON: success, data.data_sources) | Lists all external data sources configured. |
+| `tigergraph__drop_all_data_sources` | profile: str (optional) | ToolResponse (JSON: success, summary) | Drops all external data sources. |
+| `tigergraph__preview_sample_data` | data_source_name: str (required), file_path: str (required), limit: int (optional, default=10), profile: str (optional) | ToolResponse (JSON: success, data.sample_rows) | Previews sample rows from an external data source file. |
+| `tigergraph__get_data_source_types` | profile: str (optional) | ToolResponse (JSON: success, data.types: list[str]) | Returns supported connector types (S3, GCS, KAFKA, etc.). |
+| `tigergraph__list_connections` | None | ToolResponse (JSON: success, data.connections: list[str]) | Lists configured connection profiles. |
+| `tigergraph__show_connection` | profile: str (optional) | ToolResponse (JSON: success, data.host, data.graphname, data.username) | Shows parameters for an active or specified TigerGraph connection profile. |
+| `tigergraph__authenticate` | host: str (optional), profile: str (optional), graphname: str (optional), username: str (optional), password: str (optional), secret: str (optional), api_token: str (optional) | ToolResponse (JSON: success, summary, data.token) | Authenticates against TigerGraph and establishes a tokenized session. |
+| `tigergraph__discover_tools` | category: str (optional), query: str (optional) | ToolResponse (JSON: success, data.matching_tools) | Dynamically discovers and recommends MCP tools based on user goal or task category. |
+| `tigergraph__get_workflow` | workflow_name: str (required) | ToolResponse (JSON: success, data.steps: list[str]) | Returns recommended tool sequence for multi-step graph workflows. |
+| `tigergraph__get_tool_info` | tool_name: str (required) | ToolResponse (JSON: success, data.tool_metadata) | Returns detailed prerequisites, examples, and related tools for a tool. |
+
+### 2. Search & Verbatim Verification Results
+- Filter query: `*similarity*`, `*vector*`, `*search*`, `*query*`, `*install*`, `*run*`
+- Matched 20 tools.
+- `tigergraph__search_top_k_similarity`: **CONFIRMED VERBATIM**
+- `tigergraph__run_installed_query`: **CONFIRMED VERBATIM**
+- `tigergraph__upsert_vectors`: **CONFIRMED VERBATIM**
+
+### 3. Pytest Verification Output
+```
+============================= test session starts =============================
+platform win32 -- Python 3.10.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\hprad\OneDrive\Desktop\tiger
+plugins: anyio-4.13.0, asyncio-1.4.0
+collected 6 items
+
+tests\test_s06_patch.py ...                                              [ 50%]
+tests\test_s06.py ...                                                    [100%]
+
+======================== 6 passed, 1 warning in 2.87s =========================
+```
+
+---
+
+## S08-PATCH — Model Resolution, Pinning, and Loud Failure
+- Date: 2026-09-20
+- Status: DONE
+- Files modified:
+  - `agent/llm.py` (replaced hardcoded constants with dynamic `resolve_model` live probing, candidate order resolution, `call_llm_json` loud failure, and `dump_call_log`)
+  - `tests/test_s08.py` (added `test_model_resolution` verifying dynamic live resolution of strong and fast roles)
+  - `output/formatter.py` (added dynamic `model_config` audit block to `case_record.json` sourced from `_resolved` and `_call_log`)
+  - `SESSION_LOG.md` (documented real model resolution results and pytest outputs)
+
+### 1. Model Resolution Probe Results
+- Probing live Gemini models via `genai.list_models()`:
+  - `gemini-3.1-pro` / `gemini-3.1-pro-preview`: 429 quota exhausted (limit: 0 on free tier)
+  - `gemini-2.5-pro`: 404 (model discontinued for new calls per API deprecation)
+  - `gemini-3.5-flash`: **LIVE & WORKING** (ping response: "Pong")
+- **Resolved Models:**
+  - `strong`: **`gemini-3.5-flash`**
+  - `fast`: **`gemini-3.5-flash`**
+
+### 2. Pytest Verification Output (`tests/test_s08.py`)
+```
+============================= test session starts =============================
+platform win32 -- Python 3.10.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\hprad\OneDrive\Desktop\tiger
+plugins: anyio-4.13.0, asyncio-1.4.0
+collected 5 items
+
+tests\test_s08.py .....                                                  [100%]
+
+======================= 5 passed, 2 warnings in 19.92s ========================
+```
+Resolved live configuration verified:
+`Resolved: strong=gemini-3.5-flash fast=gemini-3.5-flash
+
+---
+
+## S09-REPLACEMENT — Decision-Relevant Evidence Gate (VOI)
+
+- Date: 2026-09-20
+- Status: DONE & 100% OPERATIONAL
+- Objective: Replace the mathematically defective Shannon entropy MDL gate with a Value of Information (VOI) decision-relevant stopping criterion that operationalizes the hackathon brief's 3rd stop condition ("further steps unlikely to change the decision").
+- Files created/modified:
+  - `innovation/mdl_gate.py`: Fully rewritten with pure deterministic `decide()`, calibrated `BRANCH_PROBS`, `POSTERIOR_SHIFT`, `EVIDENCE_COST`, `compute_voi()`, `compute_sufficiency()`, and `interpret_sufficiency()`. Retains backwards-compatible `SufficiencyResult`, `MDL_THRESHOLD = VOI_THRESHOLD = 0.15`, and helper stubs.
+  - `agent/nodes.py`:
+    - `assess_uncertainty_node`: Guaranteed `action_before_additional_evidence` is set once on the first pass and never overwritten on subsequent iterations (`if state.action_before_additional_evidence is None: ...`). Integrated policy-as-code evaluation and passed corroborating signal counts and excluded types to `compute_sufficiency()`.
+    - `gather_more_evidence_node`: Targeted gathering of only the `best_type` returned by `compute_sufficiency()`, avoiding duplicate or blind runs of all three stubs. Recorded in `state.additional_evidence_gathered` and shifted posterior `fraud_probability`.
+    - `should_gather_more`: Evaluates VOI threshold (0.15), presence of an ungathered evidence type, and maximum iteration bounds.
+  - `agent/state.py`: Expanded `ActionType` and `EvidenceType` enums and added `additional_evidence_gathered` and `next_evidence_type` fields to `InvestigationState`.
+  - `tests/test_s09_replacement.py`: Comprehensive test suite verifying deterministic policy tiers, decision boundary VOI triggers, near-certainty zero-score stopping, budget limits, and table sweep across the probability spectrum.
+
+### 1. Before vs After Comparison Table
+
+The original Shannon entropy/MDL gate suffered from a structural ceiling: its theoretical maximum information gain minus cost penalty peaked at 0.174 at $p=0.77$, never exceeding its own 0.25 / 0.50 threshold. In contrast, the VOI decision-relevant gate directly measures the probability mass of branches that flip the `(action_type, approval_tier)` recommendation:
+
+| $p_{\text{fraud}}$ | Base Action / Tier | Old Gate Score | Old Gate Ask? | New Gate Best Evidence | New Gate VOI Score | New Gate Ask? | Action If Flipped |
+|:---:|:---|:---:|:---:|:---|:---:|:---:|:---|
+| **0.10** | `ALLOW_TRANSACTION / AUTO` | 0.000 | NO (Dead) | `ANALYST_QUERY` | **0.388** | **YES** | $\rightarrow$ `MONITOR_ACCOUNT / ANALYST` |
+| **0.30** | `MONITOR_ACCOUNT / ANALYST` | 0.038 | NO (Dead) | `CUSTOMER_CONTACT` | **0.869** | **YES** | $\rightarrow$ `BLOCK_TRANSACTION` or `ALLOW` |
+| **0.50** | `STEP_UP_AUTH / AUTO` | 0.142 | NO (Dead) | `CUSTOMER_CONTACT` | **0.869** | **YES** | $\rightarrow$ `BLOCK_TRANSACTION` or `ALLOW` |
+| **0.70** | `BLOCK_TRANSACTION / ANALYST` | 0.169 | NO (Dead) | `STEP_UP_AUTH` | **0.794** | **YES** | $\rightarrow$ `STEP_UP_AUTH / AUTO` |
+| **0.90** | `BLOCK_ACCOUNT / SUPERVISOR` | 0.000 | NO (Dead) | `STEP_UP_AUTH` | **0.794** | **YES** | $\rightarrow$ `BLOCK_TRANSACTION / ANALYST` |
+
+### 2. Pytest Execution Output (`tests/test_s09_replacement.py` and `tests/test_s09.py`)
+
+Actual console output from executing `pytest -v -s tests/test_s09.py tests/test_s09_replacement.py`:
+
+```
+============================= test session starts =============================
+platform win32 -- Python 3.10.10, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\hprad\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\hprad\OneDrive\Desktop\tiger
+plugins: anyio-4.13.0, asyncio-1.4.0
+asyncio: mode=strict, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 15 items
+
+tests/test_s09.py::test_binary_entropy_max_uncertainty PASSED
+tests/test_s09.py::test_binary_entropy_near_certainty_low PASSED
+tests/test_s09.py::test_binary_entropy_near_certainty_high PASSED
+tests/test_s09.py::test_compute_sufficiency_should_gather_more PASSED
+tests/test_s09.py::test_compute_sufficiency_already_certain PASSED
+tests/test_s09.py::test_compute_sufficiency_iteration_limit PASSED
+tests/test_s09.py::test_compute_expected_ig PASSED
+tests/test_s09.py::test_edge_cases_and_interpretation PASSED
+tests/test_s09_replacement.py::test_decide_policy_mapping PASSED
+tests/test_s09_replacement.py::test_compute_voi_decision_boundary PASSED
+tests/test_s09_replacement.py::test_compute_sufficiency_near_certainty PASSED
+tests/test_s09_replacement.py::test_compute_sufficiency_budget_and_iteration_limits PASSED
+tests/test_s09_replacement.py::test_compute_sufficiency_corroborating_signals_override PASSED
+tests/test_s09_replacement.py::test_interpret_sufficiency_actions PASSED
+tests/test_s09_replacement.py::test_sufficiency_table_sweep 
+======================================================================
+p_fraud | base_action                | best_type        |    VOI | ask? 
+----------------------------------------------------------------------
+   0.10 | ALLOW_TRANSACTION/AUTO     | ANALYST_QUERY    |  0.388 | YES  
+   0.30 | MONITOR_ACCOUNT/ANALYST    | CUSTOMER_CONTACT |  0.869 | YES  
+   0.50 | STEP_UP_AUTH/AUTO          | CUSTOMER_CONTACT |  0.869 | YES  
+   0.70 | BLOCK_TRANSACTION/ANALYST  | STEP_UP_AUTH     |  0.794 | YES  
+   0.90 | BLOCK_ACCOUNT/SUPERVISOR   | STEP_UP_AUTH     |  0.794 | YES  
+======================================================================
+PASSED
+
+============================= 15 passed in 0.08s ==============================
+```
+
+### 3. Key Behavioral Invariants Verified
+1. **Deterministic Policy-as-Code (`decide`)**: Verified `decide(0.05, 1000) == ("ALLOW_TRANSACTION", "AUTO")` and `decide(0.95, 1000) == ("BLOCK_ACCOUNT", "SUPERVISOR")`.
+2. **Boundary Sensitivity (`compute_voi`)**: Verified `compute_voi(0.40, 1000, "STEP_UP_AUTH") > 0` at the `STEP_UP_AUTH / MONITOR_ACCOUNT` boundary ($p=0.40$) where passing the step-up challenge flips the decision to `MONITOR_ACCOUNT` with probability mass 0.85.
+3. **Near-Certainty Early Stopping**: `compute_sufficiency(0.02, 0, 0)` returns `(0.0, None)` — shutting off deliberation when certainty is already established.
+4. **Guarded Action Tracking**: `action_before_additional_evidence` is set strictly once on the first pass of `assess_uncertainty_node` and preserved across subsequent iterations.
+5. **Targeted Evidence Gathering**: `gather_more_evidence_node` executes only the single `best_type` chosen by the VOI gate, preventing duplicate calls via `state.additional_evidence_gathered`.
+
+

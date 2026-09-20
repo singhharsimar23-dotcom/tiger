@@ -14,34 +14,32 @@ TG_PASSWORD = os.getenv("TG_PASSWORD", "tigergraph")
 TG_SECRET = os.getenv("TG_SECRET", "")
 TG_TOKEN = os.getenv("TG_TOKEN", "")
 
+# Ground Truth Corrected — vertex and edge names match schema.gsql exactly
 EXPECTED_VERTICES = {
+    "Customer",
+    "Card",
     "Transaction",
-    "Account",
-    "Device",
-    "IPCluster",
+    "DeviceProfile",
+    "EmailDomain",
+    "BillingRegion",
+    "ClosedCase",
     "Case",
-    "Evidence",
-    "PatternTemplate",
     "PolicyRule",
-    "Action",
-    "Decision",
 }
 
 EXPECTED_EDGES = {
-    "PERFORMED",
-    "USED_DEVICE",
-    "FROM_IP_CLUSTER",
-    "SHARES_DEVICE",
-    "SHARES_EMAIL_DOMAIN",
-    "SHARES_ADDRESS",
-    "CASE_TARGETS_TXN",
-    "CASE_TARGETS_ACCOUNT",
-    "EVIDENCE_FOR",
-    "CASE_MATCHES_PATTERN",
-    "TXN_MATCHES_PATTERN",
-    "CASE_TRIGGERED_ACTION",
-    "ACTION_GOVERNED_BY",
-    "CASE_HAS_DECISION",
+    "OWNS",
+    "MADE",
+    "FROM_DEVICE",
+    "PURCHASER_EMAIL",
+    "BILLED_IN",
+    "NEXT",
+    "CC_INVOLVES",
+    "CC_ON_CARD",
+    "CC_CONNECTED_TO",
+    "CASE_INVOLVES",
+    "CASE_ON_CARD",
+    "CASE_CONNECTED_TO",
     "CASE_SIMILAR_TO",
 }
 
@@ -102,18 +100,8 @@ def apply_schema():
     res = conn.gsql(gsql_content)
     print("GSQL Execution Output:\n", res)
 
-    # Attempt to add vector attributes for TigerGraph 4.2+ if supported
-    print("Attempting to add vector attributes for TigerVector (TigerGraph 4.2+)...")
-    vector_commands = [
-        "USE GRAPH FraudGraph\nALTER VERTEX Case ADD VECTOR ATTRIBUTE (summary_embedding FLOAT[384])",
-        "USE GRAPH FraudGraph\nALTER VERTEX PatternTemplate ADD VECTOR ATTRIBUTE (desc_embedding FLOAT[384])",
-    ]
-    for cmd in vector_commands:
-        try:
-            vec_res = conn.gsql(cmd)
-            print(f"[VECTOR DDL RESULT] {vec_res.strip()}")
-        except Exception as ve:
-            print(f"[NOTE] Vector attribute command skipped or not supported on this TG version: {ve}")
+    # Vectors are declared inline in schema.gsql WITH VECTOR=...
+    # No separate ALTER VERTEX commands needed.
 
     # Verification
     print("\n--- Schema Verification ---")

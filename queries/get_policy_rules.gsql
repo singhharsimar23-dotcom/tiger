@@ -1,20 +1,20 @@
-USE GRAPH FraudGraph
+/*
+queries/get_policy_rules.gsql — Ground Truth Corrected
 
-CREATE OR REPLACE QUERY get_policy_rules(FLOAT txn_amt, FLOAT risk_score) FOR GRAPH FraudGraph {
-    /* @timeout 30000 */
-    /*
-      Return all PolicyRule vertices where
-      (amount_threshold == 0 OR txn_amt >= amount_threshold)
-      AND (risk_threshold == 0 OR risk_score >= risk_threshold)
-      OrderBy risk_threshold DESC.
-      Print as JSON array.
-    */
-    Rules = 
-        SELECT r 
-        FROM PolicyRule:r
-        WHERE (r.amount_threshold == 0 OR txn_amt >= r.amount_threshold)
-          AND (r.risk_threshold == 0 OR risk_score >= r.risk_threshold)
-        ORDER BY r.risk_threshold DESC;
+Fetches PolicyRule vertices by rule_id (R1-R10).
+Returns rule_text for LLM prompt injection and rule_embedding for GraphRAG.
 
-    PRINT Rules AS matching_rules;
+Input: rule_ids SET<STRING>  — e.g. {"R1", "R5", "R8"} — or empty for all 10
+*/
+
+CREATE QUERY get_policy_rules(SET<STRING> rule_ids) FOR GRAPH FraudGraph {
+
+  all_rules = {PolicyRule.*};
+
+  results =
+    SELECT r FROM all_rules:r
+    WHERE rule_ids.size() == 0 OR r.rule_id IN rule_ids
+    ORDER BY r.rule_id ASC;
+
+  PRINT results;
 }

@@ -20,19 +20,19 @@
 <div class="space-y-6">
 
   <!-- Breadcrumb & Back -->
-  <div class="flex items-center justify-between text-xs text-gray-400">
+  <div class="flex items-center justify-between text-xs text-outline">
     <div class="flex items-center gap-2">
-      <a href="/" class="hover:text-white transition flex items-center gap-1">
+      <a href="/" class="hover:text-on-surface transition flex items-center gap-1">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
         <span>Back to Cases</span>
       </a>
       <span>/</span>
-      <span class="font-mono text-gray-200">{{ case.case_id }}</span>
+      <span class="font-mono text-on-surface">{{ case.case_id }}</span>
     </div>
     <div class="flex items-center gap-2">
-      <button onclick="triggerInvestigation()" id="reInvestigateBtn" class="px-3 py-1 rounded bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-800 font-medium transition flex items-center gap-1.5">
+      <button onclick="triggerInvestigation()" id="reInvestigateBtn" class="px-3 py-1 rounded bg-error-container/40 hover:bg-red-900 text-error border border-red-800 font-medium transition flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -43,23 +43,23 @@
   </div>
 
   <!-- Header Section: Case ID, status badge, risk badge, opened timestamp -->
-  <div class="bg-gray-900/90 border border-gray-800 rounded-xl p-5 shadow-sm backdrop-blur flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+  <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-5 shadow-sm backdrop-blur flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div class="space-y-1.5">
       <div class="flex items-center gap-3 flex-wrap">
-        <h1 class="text-2xl font-bold font-mono text-white tracking-tight">{{ case.case_id }}</h1>
+        <h1 class="text-2xl font-bold font-mono text-on-surface tracking-tight">{{ case.case_id }}</h1>
         
         <!-- Status Badge -->
         {% if case.status == 'RESOLVED' %}
-          <span class="px-2.5 py-0.5 rounded-full font-semibold text-xs bg-emerald-950/80 text-emerald-300 border border-emerald-700">RESOLVED</span>
+          <span class="px-2.5 py-0.5 rounded-full font-semibold text-xs bg-surface-container-high text-primary-container border border-emerald-700">RESOLVED</span>
         {% elif case.status == 'INVESTIGATING' %}
-          <span id="headerStatusBadge" class="px-2.5 py-0.5 rounded-full font-semibold text-xs bg-blue-950/80 text-blue-300 border border-blue-700 animate-pulse">INVESTIGATING</span>
+          <span id="headerStatusBadge" class="px-2.5 py-0.5 rounded-full font-semibold text-xs bg-surface-container-high text-primary-fixed-dim border border-blue-700 animate-pulse">INVESTIGATING</span>
         {% else %}
-          <span id="headerStatusBadge" class="px-2.5 py-0.5 rounded-full font-semibold text-xs bg-gray-800 text-gray-300 border border-gray-700">OPEN</span>
+          <span id="headerStatusBadge" class="px-2.5 py-0.5 rounded-full font-semibold text-xs bg-surface-container text-on-surface-variant border border-surface-container-highest">OPEN</span>
         {% endif %}
 
         <!-- Risk Badge (LOW=green, MEDIUM=yellow, HIGH=orange, CRITICAL=red) -->
         {% if case.risk_level == 'CRITICAL' %}
-          <span class="px-2.5 py-0.5 rounded-full font-semibold text-xs bg-red-950/90 text-red-300 border border-red-700 shadow-md shadow-red-950">CRITICAL RISK</span>
+          <span class="px-2.5 py-0.5 rounded-full font-semibold text-xs bg-red-950/90 text-error border border-red-700 shadow-md shadow-red-950">CRITICAL RISK</span>
         {% elif case.risk_level == 'HIGH' %}
           <span class="px-2.5 py-0.5 rounded-full font-semibold text-xs bg-orange-950/90 text-orange-300 border border-orange-700">HIGH RISK</span>
         {% elif case.risk_level == 'MEDIUM' %}
@@ -69,20 +69,20 @@
         {% endif %}
       </div>
 
-      <div class="flex items-center gap-4 text-xs text-gray-400">
-        <div>Opened: <span class="font-mono text-gray-300">{{ case.opened_at }}</span></div>
+      <div class="flex items-center gap-4 text-xs text-outline">
+        <div>Opened: <span class="font-mono text-on-surface-variant">{{ case.opened_at }}</span></div>
         <span>•</span>
-        <div>Trigger: <span class="font-mono text-gray-300">{{ case.trigger_type }}</span></div>
+        <div>Trigger: <span class="font-mono text-on-surface-variant">{{ case.trigger_type }}</span></div>
         <span>•</span>
-        <div>Target Account: <span class="font-mono text-red-400">{{ case.trigger_account_id }}</span></div>
+        <div>Target Account: <span class="font-mono text-error">{{ case.trigger_account_id }}</span></div>
       </div>
     </div>
 
     <!-- Quick action indicator -->
     <div class="flex items-center gap-3">
       <div class="text-right">
-        <div class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">MDL Sufficiency Gate</div>
-        <div class="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1.5 justify-end">
+        <div class="text-[11px] text-outline uppercase tracking-wider font-semibold">MDL Sufficiency Gate</div>
+        <div class="text-xs font-mono font-bold text-primary-container flex items-center gap-1.5 justify-end">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
           <span>Score: {{ case.mdl_score|default(0.28)|round(3) }} (ACT)</span>
         </div>
@@ -97,45 +97,45 @@
     <div class="lg:col-span-7 space-y-6">
 
       <!-- Investigation Timeline (SSE-streamed events as they arrive) -->
-      <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-5 shadow-sm backdrop-blur">
-        <div class="flex items-center justify-between pb-3 mb-4 border-b border-gray-800">
+      <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-5 shadow-sm backdrop-blur">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-surface-container-high">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-            <h2 class="text-sm font-bold text-white tracking-wide uppercase">Autonomous Investigation Stream</h2>
+            <h2 class="text-sm font-bold text-on-surface tracking-wide uppercase">Autonomous Investigation Stream</h2>
           </div>
-          <span id="streamStatus" class="text-[11px] code-font text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">LIVE SSE CONNECTED</span>
+          <span id="streamStatus" class="text-[11px] code-font text-primary-container bg-surface-container-high px-2 py-0.5 rounded border border-emerald-800/60">LIVE SSE CONNECTED</span>
         </div>
 
         <!-- Terminal log style container -->
-        <div id="timelineContainer" class="bg-gray-950 border border-gray-800/80 rounded-lg p-3.5 max-h-72 overflow-y-auto font-mono text-xs space-y-2">
+        <div id="timelineContainer" class="bg-surface-container-lowest border border-surface-container-highest rounded-lg p-3.5 max-h-72 overflow-y-auto font-mono text-xs space-y-2">
           <!-- Populated by SSE stream and server-rendered timeline -->
           {% for item in case.timeline %}
-          <div class="flex items-start gap-2 text-gray-300 timeline-row">
-            <span class="text-gray-500 font-normal select-none">[{{ item.timestamp }}]</span>
-            <span class="text-red-400 font-semibold select-none">[{{ item.node }}]</span>
-            <span class="text-gray-200">{{ item.desc }}</span>
+          <div class="flex items-start gap-2 text-on-surface-variant timeline-row">
+            <span class="text-outline font-normal select-none">[{{ item.timestamp }}]</span>
+            <span class="text-error font-semibold select-none">[{{ item.node }}]</span>
+            <span class="text-on-surface">{{ item.desc }}</span>
           </div>
           {% endfor %}
         </div>
       </div>
 
       <!-- Evidence Table (sortable by weight) -->
-      <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-5 shadow-sm backdrop-blur">
-        <div class="flex items-center justify-between pb-3 mb-4 border-b border-gray-800">
-          <h2 class="text-sm font-bold text-white tracking-wide uppercase flex items-center gap-2">
+      <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-5 shadow-sm backdrop-blur">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-surface-container-high">
+          <h2 class="text-sm font-bold text-on-surface tracking-wide uppercase flex items-center gap-2">
             <span>Graph Forensic Evidence</span>
-            <span class="text-[11px] px-2 py-0.5 rounded bg-gray-800 text-gray-300 font-mono">{{ case.evidence_list|length }} findings</span>
+            <span class="text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-mono">{{ case.evidence_list|length }} findings</span>
           </h2>
-          <div class="text-[11px] text-gray-400">
+          <div class="text-[11px] text-outline">
             <span>Sort by Weight:</span>
-            <button onclick="sortEvidenceTable('desc')" class="hover:text-white underline ml-1">High-to-Low</button>
+            <button onclick="sortEvidenceTable('desc')" class="hover:text-on-surface underline ml-1">High-to-Low</button>
           </div>
         </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs" id="evidenceTable">
             <thead>
-              <tr class="text-[11px] uppercase tracking-wider text-gray-400 border-b border-gray-800 pb-2">
+              <tr class="text-[11px] uppercase tracking-wider text-outline border-b border-surface-container-high pb-2">
                 <th class="pb-2 font-semibold">Evidence Type</th>
                 <th class="pb-2 font-semibold">Forensic Description</th>
                 <th class="pb-2 font-semibold">Source</th>
@@ -144,19 +144,20 @@
             </thead>
             <tbody class="divide-y divide-gray-800/50" id="evidenceBody">
               {% for ev in case.evidence_list %}
-              <tr class="evidence-row hover:bg-gray-800/30 transition" data-score="{{ ev.score }}">
-                <td class="py-2.5 font-mono text-red-300 font-medium">{{ ev.evidence_type }}</td>
-                <td class="py-2.5 text-gray-300 pr-2">{{ ev.description }}</td>
-                <td class="py-2.5 text-gray-400 font-mono text-[11px]">{{ ev.source|default('TigerGraph') }}</td>
+              {% set ev_score = ev.score|default(0.85) %}
+              <tr class="evidence-row hover:bg-surface-container/30 transition" data-score="{{ ev_score }}">
+                <td class="py-2.5 font-mono text-error font-medium">{{ ev.evidence_type|default('graph_finding') }}</td>
+                <td class="py-2.5 text-on-surface-variant pr-2">{{ ev.description|default(ev.claim)|default('Correlated graph artifact') }}</td>
+                <td class="py-2.5 text-outline font-mono text-[11px]">{{ ev.source|default('TigerGraph') }}</td>
                 <td class="py-2.5 text-right font-mono font-semibold">
-                  <span class="px-2 py-0.5 rounded {% if ev.score >= 0.85 %}bg-red-950/80 text-red-300 border border-red-800{% elif ev.score >= 0.65 %}bg-orange-950/80 text-orange-300 border border-orange-800{% else %}bg-yellow-950/80 text-yellow-300 border border-yellow-800{% endif %}">
-                    {{ ev.score|round(2) }}
+                  <span class="px-2 py-0.5 rounded {% if ev_score >= 0.85 %}bg-error-container/40 text-error border border-red-800{% elif ev_score >= 0.65 %}bg-orange-950/80 text-orange-300 border border-orange-800{% else %}bg-yellow-950/80 text-yellow-300 border border-yellow-800{% endif %}">
+                    {{ ev_score|round(2) }}
                   </span>
                 </td>
               </tr>
               {% else %}
               <tr>
-                <td colspan="4" class="py-4 text-center text-gray-500">No explicit evidence items attached.</td>
+                <td colspan="4" class="py-4 text-center text-outline">No explicit evidence items attached.</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -165,33 +166,33 @@
       </div>
 
       <!-- Decision History Accordion -->
-      <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-5 shadow-sm backdrop-blur">
-        <h2 class="text-sm font-bold text-white tracking-wide uppercase pb-3 mb-4 border-b border-gray-800">
+      <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-5 shadow-sm backdrop-blur">
+        <h2 class="text-sm font-bold text-on-surface tracking-wide uppercase pb-3 mb-4 border-b border-surface-container-high">
           Agent Decision History & Audit Chain
         </h2>
         <div class="space-y-3">
           {% for d in case.decision_history %}
-          <div class="border border-gray-800 rounded-lg p-3 bg-gray-950/60">
+          <div class="border border-surface-container-high rounded-lg p-3 bg-surface-container-lowest/60">
             <div class="flex items-center justify-between mb-1">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-950 text-red-400 border border-red-800">{{ d.stage|default('INTERMEDIATE') }}</span>
-                <span class="font-mono text-xs text-white font-semibold">{{ d.verdict }}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-950 text-error border border-red-800">{{ d.stage|default('INTERMEDIATE') }}</span>
+                <span class="font-mono text-xs text-on-surface font-semibold">{{ d.verdict }}</span>
               </div>
-              <span class="text-[11px] text-gray-500 font-mono">{{ d.timestamp }}</span>
+              <span class="text-[11px] text-outline font-mono">{{ d.timestamp }}</span>
             </div>
-            <p class="text-xs text-gray-300 mt-1">{{ d.rationale }}</p>
+            <p class="text-xs text-on-surface-variant mt-1">{{ d.rationale }}</p>
           </div>
           {% else %}
           <!-- Primary Decision Block -->
-          <div class="border border-gray-800 rounded-lg p-3 bg-gray-950/60">
+          <div class="border border-surface-container-high rounded-lg p-3 bg-surface-container-lowest/60">
             <div class="flex items-center justify-between mb-1">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-950 text-red-400 border border-red-800">FINAL VERDICT</span>
-                <span class="font-mono text-xs text-white font-semibold">{{ case.decision.verdict|default('CONFIRMED_FRAUD') }}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-950 text-error border border-red-800">FINAL VERDICT</span>
+                <span class="font-mono text-xs text-on-surface font-semibold">{{ case.decision.verdict|default('CONFIRMED_FRAUD') }}</span>
               </div>
-              <span class="text-[11px] text-gray-500 font-mono">{{ case.opened_at }}</span>
+              <span class="text-[11px] text-outline font-mono">{{ case.opened_at }}</span>
             </div>
-            <p class="text-xs text-gray-300 mt-1">{{ case.decision.rationale|default('Graph multi-hop topological analysis detected coordinated syndicate collusion.') }}</p>
+            <p class="text-xs text-on-surface-variant mt-1">{{ case.decision.rationale|default('Graph multi-hop topological analysis detected coordinated syndicate collusion.') }}</p>
           </div>
           {% endfor %}
         </div>
@@ -203,8 +204,8 @@
     <div class="lg:col-span-5 space-y-6">
 
       <!-- Risk Gauge (circular progress 0-100%) -->
-      <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-5 shadow-sm backdrop-blur flex flex-col items-center">
-        <h2 class="text-sm font-bold text-white tracking-wide uppercase mb-4 self-start">Fraud Risk Evaluation</h2>
+      <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-5 shadow-sm backdrop-blur flex flex-col items-center">
+        <h2 class="text-sm font-bold text-on-surface tracking-wide uppercase mb-4 self-start">Fraud Risk Evaluation</h2>
         
         <div class="relative w-44 h-44 flex items-center justify-center">
           <svg class="w-44 h-44 transform -rotate-90" viewBox="0 0 120 120">
@@ -222,48 +223,48 @@
                     class="gauge-circle" />
           </svg>
           <div class="absolute flex flex-col items-center justify-center text-center">
-            <span class="text-3xl font-extrabold font-mono text-white tracking-tight">{{ pct }}%</span>
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Probability</span>
+            <span class="text-3xl font-extrabold font-mono text-on-surface tracking-tight">{{ pct }}%</span>
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-outline">Probability</span>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 w-full mt-4 pt-4 border-t border-gray-800 text-center text-xs">
-          <div class="bg-gray-950/60 rounded-lg p-2.5 border border-gray-800/80">
-            <span class="text-gray-400 block text-[10px] uppercase">MDL Sufficiency</span>
-            <span class="font-mono font-bold text-emerald-400">{{ case.mdl_score|default(0.28)|round(3) }}</span>
+        <div class="grid grid-cols-2 gap-4 w-full mt-4 pt-4 border-t border-surface-container-high text-center text-xs">
+          <div class="bg-surface-container-lowest/60 rounded-lg p-2.5 border border-surface-container-highest">
+            <span class="text-outline block text-[10px] uppercase">MDL Sufficiency</span>
+            <span class="font-mono font-bold text-primary-container">{{ case.mdl_score|default(0.28)|round(3) }}</span>
           </div>
-          <div class="bg-gray-950/60 rounded-lg p-2.5 border border-gray-800/80">
-            <span class="text-gray-400 block text-[10px] uppercase">Uncertainty</span>
+          <div class="bg-surface-container-lowest/60 rounded-lg p-2.5 border border-surface-container-highest">
+            <span class="text-outline block text-[10px] uppercase">Uncertainty</span>
             <span class="font-mono font-bold text-amber-400">{{ case.uncertainty_score|default(0.12)|round(3) }}</span>
           </div>
         </div>
       </div>
 
       <!-- Cytoscape.js Network Graph -->
-      <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-5 shadow-sm backdrop-blur">
-        <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-800">
+      <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-5 shadow-sm backdrop-blur">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-surface-container-high">
           <div>
-            <h2 class="text-sm font-bold text-white tracking-wide uppercase">Account Network Topology</h2>
-            <p class="text-[11px] text-gray-400">Concentric layout • Center: Primary Account</p>
+            <h2 class="text-sm font-bold text-on-surface tracking-wide uppercase">Account Network Topology</h2>
+            <p class="text-[11px] text-outline">Concentric layout • Center: Primary Account</p>
           </div>
-          <button onclick="resetGraphView()" class="px-2 py-1 text-[11px] rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition">
+          <button onclick="resetGraphView()" class="px-2 py-1 text-[11px] rounded bg-surface-container hover:bg-gray-700 text-on-surface-variant border border-surface-container-highest transition">
             Recenter
           </button>
         </div>
 
         <!-- Legend -->
-        <div class="flex items-center gap-3 text-[10px] font-mono text-gray-400 mb-2 flex-wrap">
+        <div class="flex items-center gap-3 text-[10px] font-mono text-outline mb-2 flex-wrap">
           <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Account (Circle)</div>
           <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rotate-45 bg-red-500 inline-block"></span> Txn (Diamond)</div>
           <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-red-500 inline-block"></span> Device (Square)</div>
         </div>
 
         <!-- Graph canvas container -->
-        <div id="cy" class="border border-gray-800"></div>
+        <div id="cy" class="border border-surface-container-high"></div>
 
         <!-- Tooltip display -->
-        <div id="graphTooltip" class="mt-2 text-xs font-mono text-gray-300 p-2 rounded bg-gray-950 border border-gray-800/80 min-h-[36px] flex items-center">
-          <span class="text-gray-500">Hover over any node or edge to inspect attributes...</span>
+        <div id="graphTooltip" class="mt-2 text-xs font-mono text-on-surface-variant p-2 rounded bg-surface-container-lowest border border-surface-container-highest min-h-[36px] flex items-center">
+          <span class="text-outline">Hover over any node or edge to inspect attributes...</span>
         </div>
       </div>
 
@@ -278,51 +279,51 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       
       <!-- Before Card -->
-      <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-5 shadow-sm backdrop-blur">
-        <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-800">
+      <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-5 shadow-sm backdrop-blur">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-surface-container-high">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wide">Before Additional Evidence</h3>
+            <h3 class="text-sm font-bold text-on-surface uppercase tracking-wide">Before Additional Evidence</h3>
           </div>
           <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800">Initial Alert</span>
         </div>
         <div class="space-y-2 text-xs">
           <div class="flex justify-between">
-            <span class="text-gray-400">Action Type:</span>
-            <span class="font-mono font-semibold text-gray-200">{{ case.action_before.action_type|default('FLAG_FOR_REVIEW') }}</span>
+            <span class="text-outline">Action Type:</span>
+            <span class="font-mono font-semibold text-on-surface">{{ case.action_before.action_type|default('FLAG_FOR_REVIEW') }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">Approval Tier:</span>
+            <span class="text-outline">Approval Tier:</span>
             <span class="font-mono text-amber-300">{{ case.action_before.approval_tier|default('ANALYST_TIER_1') }}</span>
           </div>
-          <div class="mt-2 pt-2 border-t border-gray-800/80 text-gray-300">
-            <span class="text-gray-500 block text-[11px] mb-1">Reason:</span>
+          <div class="mt-2 pt-2 border-t border-surface-container-highest text-on-surface-variant">
+            <span class="text-outline block text-[11px] mb-1">Reason:</span>
             <p>{{ case.action_before.reason|default('Rule-based transaction anomaly triggered initial triage.') }}</p>
           </div>
         </div>
       </div>
 
       <!-- After Card -->
-      <div class="bg-gray-900/80 border border-red-900/50 rounded-xl p-5 shadow-sm backdrop-blur relative overflow-hidden">
+      <div class="bg-surface-container-low border border-red-900/50 rounded-xl p-5 shadow-sm backdrop-blur relative overflow-hidden">
         <div class="absolute top-0 right-0 w-24 h-24 bg-red-600/10 rounded-full blur-2xl pointer-events-none"></div>
-        <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-800">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-surface-container-high">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wide">After Additional Evidence</h3>
+            <h3 class="text-sm font-bold text-on-surface uppercase tracking-wide">After Additional Evidence</h3>
           </div>
-          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-800">Graph Escalation</span>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-red-950 text-error border border-red-800">Graph Escalation</span>
         </div>
         <div class="space-y-2 text-xs">
           <div class="flex justify-between">
-            <span class="text-gray-400">Action Type:</span>
-            <span class="font-mono font-bold text-red-400">{{ case.action_after.action_type|default('FREEZE_ACCOUNT') }}</span>
+            <span class="text-outline">Action Type:</span>
+            <span class="font-mono font-bold text-error">{{ case.action_after.action_type|default('FREEZE_ACCOUNT') }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">Approval Tier:</span>
-            <span class="font-mono text-red-300 font-semibold">{{ case.action_after.approval_tier|default('SUPERVISOR') }}</span>
+            <span class="text-outline">Approval Tier:</span>
+            <span class="font-mono text-error font-semibold">{{ case.action_after.approval_tier|default('SUPERVISOR') }}</span>
           </div>
-          <div class="mt-2 pt-2 border-t border-gray-800/80 text-gray-300">
-            <span class="text-gray-500 block text-[11px] mb-1">Reason:</span>
+          <div class="mt-2 pt-2 border-t border-surface-container-highest text-on-surface-variant">
+            <span class="text-outline block text-[11px] mb-1">Reason:</span>
             <p>{{ case.action_after.reason|default('Topological syndicate collusion confirmed via multi-hop shared device clusters.') }}</p>
           </div>
         </div>
@@ -331,13 +332,13 @@
     </div>
 
     <!-- Case Summary Text & SAR Download -->
-    <div class="bg-gray-900/80 border border-gray-800 rounded-xl p-5 shadow-sm backdrop-blur">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3 mb-3 border-b border-gray-800">
-        <h3 class="text-sm font-bold text-white uppercase tracking-wide">Executive Forensic Case Summary</h3>
+    <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-5 shadow-sm backdrop-blur">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3 mb-3 border-b border-surface-container-high">
+        <h3 class="text-sm font-bold text-on-surface uppercase tracking-wide">Executive Forensic Case Summary</h3>
         
         <!-- SAR Download Button (only if sar_required) -->
         {% if case.sar_required or case.sar_data %}
-        <a href="/case/{{ case.case_id }}/sar" target="_blank" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-semibold text-xs shadow-lg shadow-red-900/40 transition">
+        <a href="/case/{{ case.case_id }}/sar" target="_blank" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-on-surface font-semibold text-xs shadow-lg shadow-red-900/40 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
@@ -346,7 +347,7 @@
         {% endif %}
       </div>
 
-      <div class="text-xs text-gray-300 leading-relaxed font-sans bg-gray-950 p-4 rounded-lg border border-gray-800/80">
+      <div class="text-xs text-on-surface-variant leading-relaxed font-sans bg-surface-container-lowest p-4 rounded-lg border border-surface-container-highest">
         <p>{{ case.case_summary|default('Autonomous agent multi-hop graph investigation established coordinated multi-account device collusion.') }}</p>
       </div>
     </div>
@@ -436,14 +437,14 @@ async function loadNetworkGraph() {
     const tooltip = document.getElementById('graphTooltip');
     cyInstance.on('mouseover', 'node', function(e) {
       const d = e.target.data();
-      tooltip.innerHTML = `<span class="text-red-400 font-bold">[${d.type.toUpperCase()}]</span> <span class="text-white">${d.id}</span> • Fraud Count: ${d.fraud_count || 0} • Shape: ${d.shape}`;
+      tooltip.innerHTML = `<span class="text-error font-bold">[${d.type.toUpperCase()}]</span> <span class="text-on-surface">${d.id}</span> • Fraud Count: ${d.fraud_count || 0} • Shape: ${d.shape}`;
     });
     cyInstance.on('mouseover', 'edge', function(e) {
       const d = e.target.data();
       tooltip.innerHTML = `<span class="text-blue-400 font-bold">[EDGE]</span> ${d.label} (${d.source} &rarr; ${d.target})`;
     });
     cyInstance.on('mouseout', function() {
-      tooltip.innerHTML = '<span class="text-gray-500">Hover over any node or edge to inspect attributes...</span>';
+      tooltip.innerHTML = '<span class="text-outline">Hover over any node or edge to inspect attributes...</span>';
     });
 
   } catch(err) {
@@ -462,16 +463,16 @@ function resetGraphView() {
 function appendToTimeline(data) {
   const container = document.getElementById('timelineContainer');
   const div = document.createElement('div');
-  div.className = 'flex items-start gap-2 text-gray-300 timeline-row animate-fade-in';
+  div.className = 'flex items-start gap-2 text-on-surface-variant timeline-row animate-fade-in';
   
   const ts = data.timestamp || new Date().toISOString().substring(11, 19);
   const node = data.node || data.stage || 'agent';
   const desc = data.desc || data.message || (typeof data.data === 'string' ? data.data : JSON.stringify(data.data || data));
   
   div.innerHTML = `
-    <span class="text-gray-500 font-normal select-none">[${ts}]</span>
-    <span class="text-red-400 font-semibold select-none">[${node}]</span>
-    <span class="text-gray-200">${desc}</span>
+    <span class="text-outline font-normal select-none">[${ts}]</span>
+    <span class="text-error font-semibold select-none">[${node}]</span>
+    <span class="text-on-surface">${desc}</span>
   `;
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
@@ -494,13 +495,13 @@ function setupEventStream() {
 
   evtSource.addEventListener('complete', function() {
     streamStatus.innerText = "STREAM COMPLETE";
-    streamStatus.className = "text-[11px] code-font text-gray-400 bg-gray-800 px-2 py-0.5 rounded border border-gray-700";
+    streamStatus.className = "text-[11px] code-font text-outline bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest";
     evtSource.close();
   });
 
   evtSource.onerror = function() {
     streamStatus.innerText = "STANDALONE SYNCED";
-    streamStatus.className = "text-[11px] code-font text-gray-400 bg-gray-800 px-2 py-0.5 rounded border border-gray-700";
+    streamStatus.className = "text-[11px] code-font text-outline bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest";
     evtSource.close();
   };
 }
