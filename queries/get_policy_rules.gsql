@@ -1,0 +1,20 @@
+USE GRAPH FraudGraph
+
+CREATE OR REPLACE QUERY get_policy_rules(FLOAT txn_amt, FLOAT risk_score) FOR GRAPH FraudGraph {
+    /* @timeout 30000 */
+    /*
+      Return all PolicyRule vertices where
+      (amount_threshold == 0 OR txn_amt >= amount_threshold)
+      AND (risk_threshold == 0 OR risk_score >= risk_threshold)
+      OrderBy risk_threshold DESC.
+      Print as JSON array.
+    */
+    Rules = 
+        SELECT r 
+        FROM PolicyRule:r
+        WHERE (r.amount_threshold == 0 OR txn_amt >= r.amount_threshold)
+          AND (r.risk_threshold == 0 OR risk_score >= r.risk_threshold)
+        ORDER BY r.risk_threshold DESC;
+
+    PRINT Rules AS matching_rules;
+}

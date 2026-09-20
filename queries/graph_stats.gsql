@@ -1,0 +1,89 @@
+USE GRAPH FraudGraph
+
+CREATE OR REPLACE QUERY graph_stats() FOR GRAPH FraudGraph {
+    /* @timeout 30000 */
+    /*
+      Computes comprehensive graph topology statistics:
+      - vertex counts
+      - edge counts
+      - case status breakdown
+      - pattern template counts
+    */
+    SumAccum<INT> @@txn_cnt;
+    SumAccum<INT> @@acc_cnt;
+    SumAccum<INT> @@dev_cnt;
+    SumAccum<INT> @@ip_cnt;
+    SumAccum<INT> @@case_cnt;
+    SumAccum<INT> @@rule_cnt;
+    SumAccum<INT> @@pat_cnt;
+
+    SumAccum<INT> @@open_cases;
+    SumAccum<INT> @@closed_cases;
+    SumAccum<INT> @@confirmed_fraud_cases;
+    SumAccum<INT> @@cleared_cases;
+
+    SumAccum<INT> @@documented_patterns;
+    SumAccum<INT> @@discovered_patterns;
+
+    SumAccum<INT> @@performed_edges;
+    SumAccum<INT> @@shares_dev_edges;
+    SumAccum<INT> @@shares_email_edges;
+    SumAccum<INT> @@shares_addr_edges;
+
+    // Vertices
+    Txns = SELECT t FROM Transaction:t ACCUM @@txn_cnt += 1;
+    Accs = SELECT a FROM Account:a ACCUM @@acc_cnt += 1;
+    Devs = SELECT d FROM Device:d ACCUM @@dev_cnt += 1;
+    IPs  = SELECT i FROM IPCluster:i ACCUM @@ip_cnt += 1;
+    Rules= SELECT r FROM PolicyRule:r ACCUM @@rule_cnt += 1;
+
+    Cases = 
+        SELECT c FROM Case:c 
+        ACCUM 
+            @@case_cnt += 1,
+            IF c.status == "OPEN" THEN @@open_cases += 1 END,
+            IF c.status == "CLOSED" THEN @@closed_cases += 1 END,
+            IF c.disposition LIKE "%FRAUD%" THEN @@confirmed_fraud_cases += 1 END,
+            IF c.disposition LIKE "%CLEAR%" OR c.disposition LIKE "%FALSE%" THEN @@cleared_cases += 1 END;
+
+    Pats = 
+        SELECT p FROM PatternTemplate:p
+        ACCUM 
+            @@pat_cnt += 1,
+            IF p.is_documented == TRUE THEN @@documented_patterns += 1
+            ELSE @@discovered_patterns += 1 END;
+
+    // Edges
+    AccWithPerf = SELECT a FROM Account:a -(PERFORMED:e)-> Transaction:t ACCUM @@performed_edges += 1;
+    AccWithDev  = SELECT a1 FROM Account:a1 -(SHARES_DEVICE:e)-> Account:a2 ACCUM @@shares_dev_edges += 1;
+    AccWithEmail= SELECT a1 FROM Account:a1 -(SHARES_EMAIL_DOMAIN:e)-> Account:a2 ACCUM @@shares_email_edges += 1;
+    AccWithAddr = SELECT a1 FROM Account:a1 -(SHARES_ADDRESS:e)-> Account:a2 ACCUM @@shares_addr_edges += 1;
+
+    PRINT {
+        "vertex_counts": {
+            "Transaction": @@txn_cnt,
+            "Account": @@acc_cnt,
+            "Device": @@dev_cnt,
+            "IPCluster": @@ip_cnt,
+            "Case": @@case_cnt,
+            "PolicyRule": @@rule_cnt,
+            "PatternTemplate": @@pat_cnt
+        },
+        "edge_counts": {
+            "PERFORMED": @@performed_edges,
+            "SHARES_DEVICE": @@shares_dev_edges / 2,
+            "SHARES_EMAIL_DOMAIN": @@shares_email_edges / 2,
+            "SHARES_ADDRESS": @@shares_addr_edges / 2
+        },
+        "case_stats": {
+            "open": @@open_cases,
+            "closed": @@closed_cases,
+            "confirmed_fraud": @@confirmed_fraud_cases,
+            "cleared": @@cleared_cases
+        },
+        "pattern_stats": {
+            "documented": @@documented_patterns,
+            "discovered": @@discovered_patterns
+        }
+    } AS graph_stats;
+}

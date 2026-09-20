@@ -1,0 +1,37 @@
+# TigerGraph
+tigergraph-mcp==1.0.2
+pyTigerGraph>=2.0.4
+
+# Agent
+langgraph==0.4.*
+langchain-mcp-adapters
+
+# LLM
+google-generativeai
+
+# Embeddings
+sentence-transformers==3.0.*
+torch                        # CPU-only sufficient
+
+# Data
+pandas==2.1.*
+numpy==1.26.*
+scikit-learn==1.4.*
+
+# Web
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+httpx
+sse-starlette
+
+# Utils
+pydantic==2.6.*
+python-dotenv
+python-dateutil
+faker
+
+# Test
+pytest
+pytest-asyncio

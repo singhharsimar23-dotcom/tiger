@@ -1,0 +1,141 @@
+-- HHGOA Fraud Investigation Agent - TigerGraph Schema DDL
+-- Graph: FraudGraph
+
+DROP GRAPH FraudGraph
+
+CREATE GRAPH FraudGraph ()
+
+USE GRAPH FraudGraph
+
+-- Core Financial Entities
+CREATE VERTEX Account (
+    PRIMARY_ID account_id STRING,
+    p_emaildomain STRING,
+    addr1 FLOAT,
+    addr2 FLOAT,
+    card1 INT,
+    card2 FLOAT,
+    risk_score FLOAT
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Transaction (
+    PRIMARY_ID txn_id STRING,
+    is_fraud INT,
+    txn_dt INT,
+    amount FLOAT,
+    product_cd STRING,
+    card1 INT,
+    card2 FLOAT,
+    card3 FLOAT,
+    card4 STRING,
+    card5 FLOAT,
+    card6 STRING,
+    addr1 FLOAT,
+    addr2 FLOAT,
+    dist1 FLOAT,
+    dist2 FLOAT,
+    p_emaildomain STRING,
+    r_emaildomain STRING,
+    risk_score FLOAT,
+    v_features_json STRING,
+    m_features_json STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Device (
+    PRIMARY_ID device_id STRING,
+    device_info STRING,
+    device_type STRING,
+    browser STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX IPCluster (
+    PRIMARY_ID ip_cluster_id STRING,
+    ip_hash STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+-- Investigation & Compliance Entities
+-- Requires TigerGraph 4.2+ for vector/TigerVector support
+CREATE VERTEX Case (
+    PRIMARY_ID case_id STRING,
+    status STRING,
+    disposition STRING,
+    risk_score FLOAT,
+    created_at STRING,
+    summary STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Evidence (
+    PRIMARY_ID evidence_id STRING,
+    evidence_type STRING,
+    description STRING,
+    source STRING,
+    score FLOAT
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+-- Requires TigerGraph 4.2+ for vector/TigerVector support
+CREATE VERTEX PatternTemplate (
+    PRIMARY_ID pattern_id STRING,
+    name STRING,
+    description STRING,
+    is_documented BOOL,
+    confidence FLOAT,
+    match_criteria_json STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX PolicyRule (
+    PRIMARY_ID rule_id STRING,
+    name STRING,
+    category STRING,
+    trigger_condition STRING,
+    action_type STRING,
+    approval_tier STRING,
+    risk_threshold FLOAT,
+    amount_threshold FLOAT,
+    regulatory_ref STRING,
+    requires_sar BOOL
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Action (
+    PRIMARY_ID action_id STRING,
+    action_type STRING,
+    status STRING,
+    executed_at STRING,
+    reason STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Decision (
+    PRIMARY_ID decision_id STRING,
+    verdict STRING,
+    rationale STRING,
+    decided_by STRING,
+    timestamp STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+-- Transaction & Device Edges
+CREATE DIRECTED EDGE PERFORMED (FROM Account, TO Transaction, txn_dt INT) WITH REVERSE_EDGE="REVERSE_PERFORMED";
+CREATE DIRECTED EDGE USED_DEVICE (FROM Transaction, TO Device) WITH REVERSE_EDGE="REVERSE_USED_DEVICE";
+CREATE DIRECTED EDGE FROM_IP_CLUSTER (FROM Transaction, TO IPCluster) WITH REVERSE_EDGE="REVERSE_FROM_IP_CLUSTER";
+
+-- Derived Collusion & Ring Edges
+CREATE UNDIRECTED EDGE SHARES_DEVICE (FROM Account, TO Account, device_id STRING, shared_count INT);
+CREATE UNDIRECTED EDGE SHARES_EMAIL_DOMAIN (FROM Account, TO Account, domain STRING, shared_count INT);
+CREATE UNDIRECTED EDGE SHARES_ADDRESS (FROM Account, TO Account, addr_key STRING, shared_count INT);
+
+-- Case Management & Evidence Edges
+CREATE DIRECTED EDGE CASE_TARGETS_TXN (FROM Case, TO Transaction) WITH REVERSE_EDGE="REVERSE_CASE_TARGETS_TXN";
+CREATE DIRECTED EDGE CASE_TARGETS_ACCOUNT (FROM Case, TO Account) WITH REVERSE_EDGE="REVERSE_CASE_TARGETS_ACCOUNT";
+CREATE DIRECTED EDGE EVIDENCE_FOR (FROM Evidence, TO Case) WITH REVERSE_EDGE="REVERSE_EVIDENCE_FOR";
+
+-- Pattern & Typology Edges
+CREATE DIRECTED EDGE CASE_MATCHES_PATTERN (FROM Case, TO PatternTemplate, similarity FLOAT) WITH REVERSE_EDGE="REVERSE_CASE_MATCHES_PATTERN";
+CREATE DIRECTED EDGE TXN_MATCHES_PATTERN (FROM Transaction, TO PatternTemplate, score FLOAT) WITH REVERSE_EDGE="REVERSE_TXN_MATCHES_PATTERN";
+
+-- Policy & Governance Edges
+CREATE DIRECTED EDGE CASE_TRIGGERED_ACTION (FROM Case, TO Action) WITH REVERSE_EDGE="REVERSE_CASE_TRIGGERED_ACTION";
+CREATE DIRECTED EDGE ACTION_GOVERNED_BY (FROM Action, TO PolicyRule) WITH REVERSE_EDGE="REVERSE_ACTION_GOVERNED_BY";
+CREATE DIRECTED EDGE CASE_HAS_DECISION (FROM Case, TO Decision) WITH REVERSE_EDGE="REVERSE_CASE_HAS_DECISION";
+
+-- Case Similarity Edge
+CREATE UNDIRECTED EDGE CASE_SIMILAR_TO (FROM Case, TO Case, similarity FLOAT);
+
+INSTALL QUERY ALL

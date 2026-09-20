@@ -1,0 +1,38 @@
+-- HHGOA Fraud Investigation Agent - Derived Graph Edges GSQL Query
+-- Graph: FraudGraph
+-- Materializes SHARES_DEVICE edges server-side
+
+USE GRAPH FraudGraph
+
+CREATE OR REPLACE QUERY build_device_sharing_pairs() FOR GRAPH FraudGraph {
+    /*
+      Computes account pairs sharing the same physical device.
+      Excludes devices shared by > 100 accounts (public devices).
+    */
+    SumAccum<INT> @txn_count;
+    SetAccum<VERTEX<Account>> @accounts;
+
+    // 1. Gather all devices and their associated accounts and transaction counts
+    Devices = 
+        SELECT d 
+        FROM Account:a -(PERFORMED)-> Transaction:t -(USED_DEVICE)-> Device:d
+        ACCUM 
+            d.@accounts += a,
+            d.@txn_count += 1
+        HAVING d.@accounts.size() >= 2 AND d.@accounts.size() <= 100;
+
+    // 2. Materialize SHARES_DEVICE edges for pairs of distinct accounts
+    FOREACH dev IN Devices DO
+        FOREACH a1 IN dev.@accounts DO
+            FOREACH a2 IN dev.@accounts DO
+                IF getvid(a1) < getvid(a2) THEN
+                    INSERT INTO SHARES_DEVICE VALUES (a1, a2, dev.device_id, dev.@txn_count);
+                END IF;
+            END;
+        END;
+    END;
+
+    PRINT Devices.size() AS devices_processed;
+}
+
+INSTALL QUERY build_device_sharing_pairs

@@ -1,0 +1,87 @@
+USE GRAPH FraudGraph
+
+CREATE OR REPLACE QUERY get_txn_neighborhood(VERTEX<Transaction> txn_id, INT depth) FOR GRAPH FraudGraph {
+    /* @timeout 30000 */
+    /*
+      BFS from transaction vertex up to depth hops (max 3).
+      Returns center transaction, accounts, devices, ip clusters, and edges traversed.
+    */
+    TYPEDEF TUPLE<STRING source, STRING target, STRING edge_type, STRING attributes> EdgeTuple;
+
+    OrAccum @visited;
+    SetAccum<VERTEX<Transaction>> @@center_txn;
+    SetAccum<VERTEX<Account>> @@accounts;
+    SetAccum<VERTEX<Device>> @@devices;
+    SetAccum<VERTEX<IPCluster>> @@ip_clusters;
+    SetAccum<EdgeTuple> @@edges;
+
+    INT max_depth = 3;
+    IF depth > 0 AND depth <= 3 THEN
+        max_depth = depth;
+    END IF;
+
+    Start = {txn_id};
+    Start = SELECT s FROM Start:s ACCUM s.@visited += true, @@center_txn += s;
+
+    // 1-Hop: Transaction -> Device, IPCluster, Account (via REVERSE_PERFORMED)
+    CurrTxns = Start;
+    CurrDevices = 
+        SELECT d 
+        FROM CurrTxns:t -(USED_DEVICE:e)-> Device:d
+        ACCUM 
+            d.@visited += true,
+            @@devices += d,
+            @@edges += EdgeTuple(t.txn_id, d.device_id, "USED_DEVICE", "");
+
+    CurrIPs = 
+        SELECT ip 
+        FROM CurrTxns:t -(FROM_IP_CLUSTER:e)-> IPCluster:ip
+        ACCUM 
+            ip.@visited += true,
+            @@ip_clusters += ip,
+            @@edges += EdgeTuple(t.txn_id, ip.ip_cluster_id, "FROM_IP_CLUSTER", "");
+
+    CurrAccounts = 
+        SELECT a 
+        FROM CurrTxns:t -(REVERSE_PERFORMED:e)-> Account:a
+        ACCUM 
+            a.@visited += true,
+            @@accounts += a,
+            @@edges += EdgeTuple(a.account_id, t.txn_id, "PERFORMED", "txn_dt=" + to_string(e.txn_dt));
+
+    // 2-Hop: If depth >= 2, expand across shared rings from accounts
+    IF max_depth >= 2 THEN
+        SharedAccounts = 
+            SELECT a2 
+            FROM CurrAccounts:a1 -(SHARES_DEVICE:e)-> Account:a2
+            WHERE NOT a2.@visited
+            ACCUM 
+                a2.@visited += true,
+                @@accounts += a2,
+                @@edges += EdgeTuple(a1.account_id, a2.account_id, "SHARES_DEVICE", "device_id=" + e.device_id);
+
+        SharedEmailAccounts = 
+            SELECT a2 
+            FROM CurrAccounts:a1 -(SHARES_EMAIL_DOMAIN:e)-> Account:a2
+            WHERE NOT a2.@visited
+            ACCUM 
+                a2.@visited += true,
+                @@accounts += a2,
+                @@edges += EdgeTuple(a1.account_id, a2.account_id, "SHARES_EMAIL_DOMAIN", "domain=" + e.domain);
+
+        SharedAddrAccounts = 
+            SELECT a2 
+            FROM CurrAccounts:a1 -(SHARES_ADDRESS:e)-> Account:a2
+            WHERE NOT a2.@visited
+            ACCUM 
+                a2.@visited += true,
+                @@accounts += a2,
+                @@edges += EdgeTuple(a1.account_id, a2.account_id, "SHARES_ADDRESS", "addr_key=" + e.addr_key);
+    END IF;
+
+    PRINT @@center_txn AS center,
+          @@accounts AS accounts,
+          @@devices AS devices,
+          @@ip_clusters AS ip_clusters,
+          @@edges AS edges;
+}

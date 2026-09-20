@@ -1,0 +1,90 @@
+USE GRAPH FraudGraph
+
+CREATE OR REPLACE QUERY create_or_get_case(
+    STRING trigger_type,
+    STRING txn_ids_json,
+    STRING account_id,
+    FLOAT trigger_risk_score
+) FOR GRAPH FraudGraph {
+    /* @timeout 30000 */
+    /*
+      Creates or gets a Case vertex, linking it to the target account.
+      Returns case_id.
+    */
+    STRING new_case_id;
+    new_case_id = "CASE_" + to_string(now());
+
+    INSERT INTO Case VALUES (
+        new_case_id,
+        "OPEN",
+        "PENDING_INVESTIGATION",
+        trigger_risk_score,
+        to_string(now()),
+        "Triggered by " + trigger_type + " for Account " + account_id
+    );
+
+    IF account_id != "" THEN
+        INSERT INTO CASE_TARGETS_ACCOUNT VALUES (new_case_id, account_id);
+    END IF;
+
+    PRINT new_case_id AS case_id;
+}
+
+CREATE OR REPLACE QUERY update_case_status(
+    STRING case_id,
+    STRING status,
+    FLOAT fraud_prob,
+    STRING risk_level,
+    STRING fraud_type
+) FOR GRAPH FraudGraph {
+    /* @timeout 30000 */
+    /*
+      Updates case status, fraud probability score, and risk disposition.
+    */
+    TargetCase = {Case.*};
+    Res = 
+        SELECT c 
+        FROM TargetCase:c
+        WHERE c.case_id == case_id
+        POST-ACCUM 
+            c.status = status,
+            c.risk_score = fraud_prob,
+            c.disposition = risk_level + "_" + fraud_type;
+
+    PRINT Res AS updated_case;
+}
+
+CREATE OR REPLACE QUERY close_case(
+    STRING case_id,
+    STRING disposition,
+    INT closed_dt
+) FOR GRAPH FraudGraph {
+    /* @timeout 30000 */
+    /*
+      Closes an active Case with final disposition.
+    */
+    TargetCase = {Case.*};
+    Res = 
+        SELECT c 
+        FROM TargetCase:c
+        WHERE c.case_id == case_id
+        POST-ACCUM 
+            c.status = "CLOSED",
+            c.disposition = disposition;
+
+    PRINT Res AS closed_case;
+}
+
+CREATE OR REPLACE QUERY get_open_cases() FOR GRAPH FraudGraph {
+    /* @timeout 30000 */
+    /*
+      Returns list of currently open Case vertices sorted by risk_score DESC.
+    */
+    OpenCases = 
+        SELECT c 
+        FROM Case:c
+        WHERE c.status == "OPEN"
+        ORDER BY c.risk_score DESC;
+
+    PRINT OpenCases AS open_cases;
+}

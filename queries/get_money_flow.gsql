@@ -1,0 +1,42 @@
+USE GRAPH FraudGraph
+
+CREATE OR REPLACE QUERY get_money_flow(VERTEX<Account> account_id, INT depth) FOR GRAPH FraudGraph {
+    /* @timeout 30000 */
+    /*
+      Follow PERFORMED edges from account to transactions, then see what other
+      accounts those transactions connect to via shared devices/addresses.
+      Detect rings: account appearing as both source and reachable target.
+      Print as: {source_account, chains: [{hops: [...], is_ring: bool}]}
+    */
+    TYPEDEF TUPLE<STRING hop1_txn, STRING connected_account, STRING relation_type, BOOL is_ring> FlowChain;
+
+    ListAccum<FlowChain> @@chains;
+    STRING src_id;
+
+    Start = {account_id};
+    Start = SELECT s FROM Start:s POST-ACCUM src_id = s.account_id;
+
+    // Hop 1: Account -> Transactions
+    Txns = SELECT t FROM Start:a -(PERFORMED)-> Transaction:t;
+
+    // Hop 2: Transactions -> Devices
+    Devs = SELECT d FROM Txns:t -(USED_DEVICE)-> Device:d;
+
+    // Hop 3: Devices -> Other Transactions -> Other Accounts
+    OtherTxns = SELECT t2 FROM Devs:d -(REVERSE_USED_DEVICE)-> Transaction:t2;
+    OtherAccounts = 
+        SELECT a2 
+        FROM OtherTxns:t2 -(REVERSE_PERFORMED)-> Account:a2
+        ACCUM 
+            BOOL ring = (a2.account_id == src_id),
+            @@chains += FlowChain(t2.txn_id, a2.account_id, "SHARED_DEVICE_TXN", ring);
+
+    // Direct SHARES_DEVICE connections
+    DirectRings = 
+        SELECT a2 
+        FROM Start:a1 -(SHARES_DEVICE:e)-> Account:a2
+        ACCUM 
+            @@chains += FlowChain("N/A", a2.account_id, "DIRECT_SHARED_DEVICE", FALSE);
+
+    PRINT src_id AS source_account, @@chains AS chains;
+}

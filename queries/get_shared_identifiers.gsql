@@ -1,0 +1,76 @@
+USE GRAPH FraudGraph
+
+CREATE OR REPLACE QUERY get_shared_identifiers(VERTEX<Account> account_id) FOR GRAPH FraudGraph {
+    /* @timeout 30000 */
+    /*
+      Traverse SHARES_DEVICE, SHARES_EMAIL_DOMAIN, SHARES_ADDRESS from account.
+      For each neighbor: collect (account_id, sharing_type, shared_count, 
+      total_txn_count, fraud_txn_count, is_high_risk=(fraud_txn_count>0)).
+      OrderBy total_txn_count DESC.
+      Print as JSON array.
+    */
+    TYPEDEF TUPLE<
+        STRING account_id,
+        STRING sharing_type,
+        INT shared_count,
+        INT total_txn_count,
+        INT fraud_txn_count,
+        BOOL is_high_risk
+    > SharedNeighbor;
+
+    SumAccum<INT> @total_txns;
+    SumAccum<INT> @fraud_txns;
+    MapAccum<VERTEX<Account>, STRING> @@sharing_type;
+    MapAccum<VERTEX<Account>, INT> @@shared_count;
+    ListAccum<SharedNeighbor> @@results;
+
+    Start = {account_id};
+
+    // 1. Gather neighbors via derived edges
+    NeighborsDevice = 
+        SELECT a2 
+        FROM Start:a1 -(SHARES_DEVICE:e)-> Account:a2
+        ACCUM 
+            @@sharing_type += (a2 -> "SHARES_DEVICE"),
+            @@shared_count += (a2 -> e.shared_count);
+
+    NeighborsEmail = 
+        SELECT a2 
+        FROM Start:a1 -(SHARES_EMAIL_DOMAIN:e)-> Account:a2
+        ACCUM 
+            @@sharing_type += (a2 -> "SHARES_EMAIL_DOMAIN"),
+            @@shared_count += (a2 -> e.shared_count);
+
+    NeighborsAddr = 
+        SELECT a2 
+        FROM Start:a1 -(SHARES_ADDRESS:e)-> Account:a2
+        ACCUM 
+            @@sharing_type += (a2 -> "SHARES_ADDRESS"),
+            @@shared_count += (a2 -> e.shared_count);
+
+    AllNeighbors = NeighborsDevice UNION NeighborsEmail UNION NeighborsAddr;
+
+    // 2. Count transactions and fraud transactions on neighbors
+    NeighborTxns = 
+        SELECT t 
+        FROM AllNeighbors:a -(PERFORMED)-> Transaction:t
+        ACCUM 
+            a.@total_txns += 1,
+            IF t.is_fraud == 1 THEN a.@fraud_txns += 1 END;
+
+    // 3. Assemble results tuple list
+    Res = 
+        SELECT a 
+        FROM AllNeighbors:a
+        ACCUM 
+            @@results += SharedNeighbor(
+                a.account_id,
+                @@sharing_type.get(a),
+                @@shared_count.get(a),
+                a.@total_txns,
+                a.@fraud_txns,
+                (a.@fraud_txns > 0)
+            );
+
+    PRINT @@results AS shared_identifiers;
+}
