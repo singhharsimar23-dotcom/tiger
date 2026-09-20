@@ -15,4 +15,4 @@
 | S12 | DONE | Benchmark orchestration against 20 cases completed & validated (100% compliant) |
 | S13 | DONE | UI Dashboard (FastAPI, Tailwind, Cytoscape.js, HTMX, SSE streaming) operational |
 | S14 | DONE | Documentation + Content (README, BLOG, SOCIAL, ARCHITECTURE) complete |
-| S15 | TODO | Final Polish, Packaging & Hackathon Demonstration |
+| S15 | DONE | QA + Submission Packaging (validation, submission_package/, git tag v1.0.0) |
