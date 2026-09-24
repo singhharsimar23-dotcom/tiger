@@ -2,12 +2,14 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/cases", "destination": "/cases.html" },
+    { "source": "/case/:case_id", "destination": "/case/:case_id.html" },
     { "source": "/analytics", "destination": "/analytics.html" },
     { "source": "/about", "destination": "/about.html" },
     { "source": "/cockpit", "destination": "/index.html" },
     { "source": "/api/cases", "destination": "/data/cases_index.json" },
     { "source": "/api/case/:case_id/graph", "destination": "/data/graphs/:case_id.json" },
     { "source": "/api/graph/:case_id", "destination": "/data/graphs/:case_id.json" },
+    { "source": "/api/case/:case_id/bundle", "destination": "/data/bundles/:case_id.zip" },
     { "source": "/api/case/:case_id/files/:file_name", "destination": "/data/:case_id.json" },
     { "source": "/api/case/:case_id", "destination": "/data/:case_id.json" },
     { "source": "/data/(.*)", "destination": "/data/$1" }
