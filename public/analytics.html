@@ -1,8 +1,123 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graph & Pattern Analytics — FraudSight</title>
+  
+  <!-- Google Fonts: Inter, JetBrains Mono & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  
+  <!-- Cytoscape.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
 
-{% block title %}Graph & Pattern Analytics — FraudSight{% endblock %}
+  <!-- Tailwind CSS CDN with Sentinel Theme -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#051424",
+            "surface": "#051424",
+            "surface-container-lowest": "#010f1f",
+            "surface-container-low": "#0d1c2d",
+            "surface-container": "#122131",
+            "surface-container-high": "#1c2b3c",
+            "surface-container-highest": "#273647",
+            "on-surface": "#d4e4fa",
+            "on-surface-variant": "#b9cacb",
+            "primary": "#e0fdff",
+            "primary-container": "#00f2fe",
+            "primary-fixed-dim": "#00dce6",
+            "on-primary-container": "#00373a",
+            "error": "#ffb4ab",
+            "error-container": "#93000a",
+            "outline": "#849495"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
 
-{% block content %}
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #010f1f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1c2b3c;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #273647;
+    }
+  </style>
+  
+</head>
+<body class="bg-background text-on-surface text-xs min-h-screen flex flex-col antialiased">
+
+  <!-- Top Navigation Header -->
+  <header class="fixed top-0 left-0 right-0 h-14 z-50 bg-surface-container-lowest/90 backdrop-blur-xl border-b border-surface-container-highest/60">
+    <div class="h-14 w-full px-5 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Links -->
+      <div class="flex items-center gap-4 shrink-0">
+        <a href="/" class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center border border-primary-container/30 text-primary-container shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">hub</span>
+          </div>
+          <span class="text-sm font-semibold tracking-tight text-on-surface">FraudSight</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-high text-primary-container border border-primary-container/20 uppercase tracking-wider">TigerGraph + Gemini</span>
+        </a>
+        
+        <div class="h-4 w-px bg-surface-container-highest"></div>
+        
+        <nav class="flex items-center gap-1">
+          <a class="px-3 py-1 rounded-lg font-medium text-xs transition-colors text-on-surface-variant hover:text-on-surface hover:bg-surface-container" href="/">Cockpit</a>
+          <a class="px-3 py-1 rounded-lg font-medium text-xs transition-colors text-on-surface-variant hover:text-on-surface hover:bg-surface-container" href="/cases">Benchmark Cases (20)</a>
+          <a class="px-3 py-1 rounded-lg font-medium text-xs transition-colors bg-surface-container-high text-primary-container border border-primary-container/20" href="/analytics">TigerGraph Analytics</a>
+          <a class="px-3 py-1 rounded-lg font-medium text-xs transition-colors text-on-surface-variant hover:text-on-surface hover:bg-surface-container" href="/about">Architecture</a>
+        </nav>
+      </div>
+
+      <!-- Live Connection Telemetry -->
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-low border border-primary-container/20">
+          <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+          <span class="text-[10px] font-mono uppercase text-primary-fixed-dim font-semibold tracking-wider">TigerGraph Native GSQL</span>
+        </div>
+        
+        <a href="/" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-semibold transition-colors shadow-sm">
+          <span class="material-symbols-outlined text-[16px]">bolt</span>
+          <span>Live Cockpit</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="flex-1 w-full pt-14 pb-8">
+    <div class="max-w-7xl mx-auto px-5 py-5">
+      
 <div class="space-y-5">
 
   <!-- Header -->
@@ -20,7 +135,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
     <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-3.5 shadow-sm">
       <div class="text-[10px] font-semibold text-outline uppercase tracking-wider">Benchmark Cases</div>
-      <div class="text-xl font-bold font-mono text-on-surface mt-1">{{ summary.total_cases|default(20) }} Cases</div>
+      <div class="text-xl font-bold font-mono text-on-surface mt-1">20 Cases</div>
       <div class="text-[10px] text-primary-container mt-1 flex items-center gap-1 font-mono">
         <span class="material-symbols-outlined text-[13px]">verified</span>
         <span>100% Evaluation Pass</span>
@@ -29,9 +144,9 @@
 
     <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-3.5 shadow-sm">
       <div class="text-[10px] font-semibold text-outline uppercase tracking-wider">Confirmed Fraud Rate</div>
-      <div class="text-xl font-bold font-mono text-error mt-1">{{ summary.confirmed_fraud_rate|default('55.0%') }}</div>
+      <div class="text-xl font-bold font-mono text-error mt-1">70.0%</div>
       <div class="text-[10px] text-on-surface-variant mt-1 font-mono">
-        <span>{{ summary.confirmed_count_text|default('11 of 20 Cases Escalated (55.0%)') }}</span>
+        <span>14 of 20 Cases Escalated</span>
       </div>
     </div>
 
@@ -45,9 +160,9 @@
 
     <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-3.5 shadow-sm">
       <div class="text-[10px] font-semibold text-outline uppercase tracking-wider">SAR Filing Referral Rate</div>
-      <div class="text-xl font-bold font-mono text-on-surface mt-1">{{ summary.sar_referral_rate|default('55.0%') }}</div>
+      <div class="text-xl font-bold font-mono text-on-surface mt-1">0.0%</div>
       <div class="text-[10px] text-primary-container mt-1 font-mono">
-        <span>{{ summary.sar_count_text|default('11 of 20 Cases Filed (55.0%)') }}</span>
+        <span>0 of 20 Cases Filed (0.0%)</span>
       </div>
     </div>
   </div>
@@ -60,12 +175,42 @@
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-      {% for v_type, count in (graph_stats.vertices or graph_stats.vertex_counts or {}).items() %}
+      
       <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container-highest">
-        <div class="text-[10px] uppercase font-mono text-outline truncate">{{ v_type }}</div>
-        <div class="text-base font-bold font-mono text-on-surface mt-0.5">{{ "{:,}".format(count) }}</div>
+        <div class="text-[10px] uppercase font-mono text-outline truncate">Transaction</div>
+        <div class="text-base font-bold font-mono text-on-surface mt-0.5">590,742</div>
       </div>
-      {% endfor %}
+      
+      <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container-highest">
+        <div class="text-[10px] uppercase font-mono text-outline truncate">Customer</div>
+        <div class="text-base font-bold font-mono text-on-surface mt-0.5">12,840</div>
+      </div>
+      
+      <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container-highest">
+        <div class="text-[10px] uppercase font-mono text-outline truncate">Card</div>
+        <div class="text-base font-bold font-mono text-on-surface mt-0.5">24,150</div>
+      </div>
+      
+      <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container-highest">
+        <div class="text-[10px] uppercase font-mono text-outline truncate">DeviceProfile</div>
+        <div class="text-base font-bold font-mono text-on-surface mt-0.5">41,200</div>
+      </div>
+      
+      <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container-highest">
+        <div class="text-[10px] uppercase font-mono text-outline truncate">ClosedCase</div>
+        <div class="text-base font-bold font-mono text-on-surface mt-0.5">5,565</div>
+      </div>
+      
+      <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container-highest">
+        <div class="text-[10px] uppercase font-mono text-outline truncate">PolicyRule</div>
+        <div class="text-base font-bold font-mono text-on-surface mt-0.5">10</div>
+      </div>
+      
+      <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container-highest">
+        <div class="text-[10px] uppercase font-mono text-outline truncate">Case</div>
+        <div class="text-base font-bold font-mono text-on-surface mt-0.5">20</div>
+      </div>
+      
     </div>
 
     <!-- Derived Edges summary -->
@@ -93,7 +238,7 @@
         <p class="text-[11px] text-on-surface-variant mt-0.5">Known baseline syndicate schemes vs autonomous graph cluster discoveries</p>
       </div>
       <span class="text-[10px] font-mono text-primary-container px-2 py-0.5 rounded bg-surface-container border border-primary-container/20">
-        {{ patterns|length }} Typologies Cataloged
+        8 Typologies Cataloged
       </span>
     </div>
 
@@ -109,48 +254,319 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-surface-container-highest/60 font-mono text-xs">
-          {% for p in patterns %}
+          
           <tr class="hover:bg-surface-container/60 transition">
             
             <!-- Name -->
             <td class="py-2.5 px-4 font-semibold text-on-surface font-sans">
               <div class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full {% if p.is_documented %}bg-primary-container{% else %}bg-purple-400 animate-pulse{% endif %}"></span>
-                <span>{{ p.name }}</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                <span>Card-Not-Present Fraud (CNP)</span>
               </div>
             </td>
 
             <!-- Classification Badge -->
             <td class="py-2.5 px-4">
-              {% if p.is_documented %}
+              
                 <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-primary-container border border-primary-container/20">BASELINE PATTERN</span>
-              {% else %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-purple-950/60 text-purple-300 border border-purple-800">UNSUPERVISED CLUSTER</span>
-              {% endif %}
+              
             </td>
 
             <!-- Fraud Rate -->
             <td class="py-2.5 px-4 text-on-surface">
-              {{ p.fraud_rate_in_training }}
+              14 observed (100.0% fraud)
             </td>
 
             <!-- Confidence -->
             <td class="py-2.5 px-4">
               <div class="flex items-center gap-2">
                 <div class="w-16 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden border border-surface-container-highest">
-                  <div class="h-1.5 rounded-full bg-primary-container" style="width: {{ (p.confidence * 100)|round }}%"></div>
+                  <div class="h-1.5 rounded-full bg-primary-container" style="width: 95.0%"></div>
                 </div>
-                <span class="text-on-surface font-semibold">{{ (p.confidence * 100)|round }}%</span>
+                <span class="text-on-surface font-semibold">95.0%</span>
               </div>
             </td>
 
             <!-- Match Criteria -->
             <td class="py-2.5 px-4 text-on-surface-variant text-[11px] truncate max-w-xs">
-              {{ p.match_criteria }}
+              Remote e-commerce transactions across inconsistent merchants and IP subnets
             </td>
 
           </tr>
-          {% endfor %}
+          
+          <tr class="hover:bg-surface-container/60 transition">
+            
+            <!-- Name -->
+            <td class="py-2.5 px-4 font-semibold text-on-surface font-sans">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                <span>Account Takeover (ATO)</span>
+              </div>
+            </td>
+
+            <!-- Classification Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-primary-container border border-primary-container/20">BASELINE PATTERN</span>
+              
+            </td>
+
+            <!-- Fraud Rate -->
+            <td class="py-2.5 px-4 text-on-surface">
+              No cases observed (—)
+            </td>
+
+            <!-- Confidence -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <div class="w-16 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden border border-surface-container-highest">
+                  <div class="h-1.5 rounded-full bg-primary-container" style="width: 98.0%"></div>
+                </div>
+                <span class="text-on-surface font-semibold">98.0%</span>
+              </div>
+            </td>
+
+            <!-- Match Criteria -->
+            <td class="py-2.5 px-4 text-on-surface-variant text-[11px] truncate max-w-xs">
+              Abrupt device swap paired with rapid fund dissipation
+            </td>
+
+          </tr>
+          
+          <tr class="hover:bg-surface-container/60 transition">
+            
+            <!-- Name -->
+            <td class="py-2.5 px-4 font-semibold text-on-surface font-sans">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                <span>Card Testing Micro-Spike</span>
+              </div>
+            </td>
+
+            <!-- Classification Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-primary-container border border-primary-container/20">BASELINE PATTERN</span>
+              
+            </td>
+
+            <!-- Fraud Rate -->
+            <td class="py-2.5 px-4 text-on-surface">
+              No cases observed (—)
+            </td>
+
+            <!-- Confidence -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <div class="w-16 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden border border-surface-container-highest">
+                  <div class="h-1.5 rounded-full bg-primary-container" style="width: 92.0%"></div>
+                </div>
+                <span class="text-on-surface font-semibold">92.0%</span>
+              </div>
+            </td>
+
+            <!-- Match Criteria -->
+            <td class="py-2.5 px-4 text-on-surface-variant text-[11px] truncate max-w-xs">
+              High-frequency sub-$5 card authorization attempts across merchant endpoints
+            </td>
+
+          </tr>
+          
+          <tr class="hover:bg-surface-container/60 transition">
+            
+            <!-- Name -->
+            <td class="py-2.5 px-4 font-semibold text-on-surface font-sans">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                <span>CNP New Device Anomaly</span>
+              </div>
+            </td>
+
+            <!-- Classification Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-primary-container border border-primary-container/20">BASELINE PATTERN</span>
+              
+            </td>
+
+            <!-- Fraud Rate -->
+            <td class="py-2.5 px-4 text-on-surface">
+              No cases observed (—)
+            </td>
+
+            <!-- Confidence -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <div class="w-16 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden border border-surface-container-highest">
+                  <div class="h-1.5 rounded-full bg-primary-container" style="width: 91.0%"></div>
+                </div>
+                <span class="text-on-surface font-semibold">91.0%</span>
+              </div>
+            </td>
+
+            <!-- Match Criteria -->
+            <td class="py-2.5 px-4 text-on-surface-variant text-[11px] truncate max-w-xs">
+              Card-not-present activity from an unmapped device profile with zero transaction history
+            </td>
+
+          </tr>
+          
+          <tr class="hover:bg-surface-container/60 transition">
+            
+            <!-- Name -->
+            <td class="py-2.5 px-4 font-semibold text-on-surface font-sans">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                <span>Out-of-Region Geo-Velocity</span>
+              </div>
+            </td>
+
+            <!-- Classification Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-primary-container border border-primary-container/20">BASELINE PATTERN</span>
+              
+            </td>
+
+            <!-- Fraud Rate -->
+            <td class="py-2.5 px-4 text-on-surface">
+              No cases observed (—)
+            </td>
+
+            <!-- Confidence -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <div class="w-16 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden border border-surface-container-highest">
+                  <div class="h-1.5 rounded-full bg-primary-container" style="width: 89.0%"></div>
+                </div>
+                <span class="text-on-surface font-semibold">89.0%</span>
+              </div>
+            </td>
+
+            <!-- Match Criteria -->
+            <td class="py-2.5 px-4 text-on-surface-variant text-[11px] truncate max-w-xs">
+              Transactions occurring across non-adjacent geographic regions in impossible transit windows
+            </td>
+
+          </tr>
+          
+          <tr class="hover:bg-surface-container/60 transition">
+            
+            <!-- Name -->
+            <td class="py-2.5 px-4 font-semibold text-on-surface font-sans">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                <span>Standard Benign Transaction (Legitimate)</span>
+              </div>
+            </td>
+
+            <!-- Classification Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-primary-container border border-primary-container/20">BASELINE PATTERN</span>
+              
+            </td>
+
+            <!-- Fraud Rate -->
+            <td class="py-2.5 px-4 text-on-surface">
+              6 observed (0.0% fraud)
+            </td>
+
+            <!-- Confidence -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <div class="w-16 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden border border-surface-container-highest">
+                  <div class="h-1.5 rounded-full bg-primary-container" style="width: 99.0%"></div>
+                </div>
+                <span class="text-on-surface font-semibold">99.0%</span>
+              </div>
+            </td>
+
+            <!-- Match Criteria -->
+            <td class="py-2.5 px-4 text-on-surface-variant text-[11px] truncate max-w-xs">
+              Authorized cardholder activity confirmed via multi-hop verification and customer shield
+            </td>
+
+          </tr>
+          
+          <tr class="hover:bg-surface-container/60 transition">
+            
+            <!-- Name -->
+            <td class="py-2.5 px-4 font-semibold text-on-surface font-sans">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                <span>High-Velocity Micro-Structuring Smurf Cluster</span>
+              </div>
+            </td>
+
+            <!-- Classification Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-purple-950/60 text-purple-300 border border-purple-800">UNSUPERVISED CLUSTER</span>
+              
+            </td>
+
+            <!-- Fraud Rate -->
+            <td class="py-2.5 px-4 text-on-surface">
+              88%
+            </td>
+
+            <!-- Confidence -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <div class="w-16 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden border border-surface-container-highest">
+                  <div class="h-1.5 rounded-full bg-primary-container" style="width: 94.0%"></div>
+                </div>
+                <span class="text-on-surface font-semibold">94.0%</span>
+              </div>
+            </td>
+
+            <!-- Match Criteria -->
+            <td class="py-2.5 px-4 text-on-surface-variant text-[11px] truncate max-w-xs">
+              Cross-account coordinated micro-transfers under $200 with dense device sharing.
+            </td>
+
+          </tr>
+          
+          <tr class="hover:bg-surface-container/60 transition">
+            
+            <!-- Name -->
+            <td class="py-2.5 px-4 font-semibold text-on-surface font-sans">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                <span>Synchronized Dormancy Reactivation Ring</span>
+              </div>
+            </td>
+
+            <!-- Classification Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-purple-950/60 text-purple-300 border border-purple-800">UNSUPERVISED CLUSTER</span>
+              
+            </td>
+
+            <!-- Fraud Rate -->
+            <td class="py-2.5 px-4 text-on-surface">
+              83%
+            </td>
+
+            <!-- Confidence -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <div class="w-16 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden border border-surface-container-highest">
+                  <div class="h-1.5 rounded-full bg-primary-container" style="width: 91.0%"></div>
+                </div>
+                <span class="text-on-surface font-semibold">91.0%</span>
+              </div>
+            </td>
+
+            <!-- Match Criteria -->
+            <td class="py-2.5 px-4 text-on-surface-variant text-[11px] truncate max-w-xs">
+              Burst of high-value transactions following 90+ days of zero activity across shared IP subnet.
+            </td>
+
+          </tr>
+          
         </tbody>
       </table>
     </div>
@@ -158,4 +574,27 @@
   </div>
 
 </div>
-{% endblock %}
+
+    </div>
+  </main>
+
+  <!-- Institutional Audit Footer -->
+  <footer class="bg-surface-container-lowest border-t border-surface-container-highest/60 py-3 text-xs text-on-surface-variant">
+    <div class="max-w-7xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="font-semibold text-on-surface">FraudSight</span>
+        <span>•</span>
+        <span>Autonomous Graph Investigation System</span>
+        <span>•</span>
+        <span class="text-primary-container font-medium">TigerGraph GSQL Engine</span>
+      </div>
+      <div class="flex items-center space-x-3 text-[11px] font-mono">
+        <span class="text-outline">FinCEN Form 111 &amp; FFIEC SAR Standard</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+      </div>
+    </div>
+  </footer>
+
+  
+</body>
+</html>

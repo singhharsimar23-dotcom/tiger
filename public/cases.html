@@ -1,8 +1,123 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benchmark Case Ledger — FraudSight</title>
+  
+  <!-- Google Fonts: Inter, JetBrains Mono & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  
+  <!-- Cytoscape.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
 
-{% block title %}Benchmark Case Ledger — FraudSight{% endblock %}
+  <!-- Tailwind CSS CDN with Sentinel Theme -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#051424",
+            "surface": "#051424",
+            "surface-container-lowest": "#010f1f",
+            "surface-container-low": "#0d1c2d",
+            "surface-container": "#122131",
+            "surface-container-high": "#1c2b3c",
+            "surface-container-highest": "#273647",
+            "on-surface": "#d4e4fa",
+            "on-surface-variant": "#b9cacb",
+            "primary": "#e0fdff",
+            "primary-container": "#00f2fe",
+            "primary-fixed-dim": "#00dce6",
+            "on-primary-container": "#00373a",
+            "error": "#ffb4ab",
+            "error-container": "#93000a",
+            "outline": "#849495"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
 
-{% block content %}
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #010f1f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1c2b3c;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #273647;
+    }
+  </style>
+  
+</head>
+<body class="bg-background text-on-surface text-xs min-h-screen flex flex-col antialiased">
+
+  <!-- Top Navigation Header -->
+  <header class="fixed top-0 left-0 right-0 h-14 z-50 bg-surface-container-lowest/90 backdrop-blur-xl border-b border-surface-container-highest/60">
+    <div class="h-14 w-full px-5 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Links -->
+      <div class="flex items-center gap-4 shrink-0">
+        <a href="/" class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center border border-primary-container/30 text-primary-container shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">hub</span>
+          </div>
+          <span class="text-sm font-semibold tracking-tight text-on-surface">FraudSight</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-high text-primary-container border border-primary-container/20 uppercase tracking-wider">TigerGraph + Gemini</span>
+        </a>
+        
+        <div class="h-4 w-px bg-surface-container-highest"></div>
+        
+        <nav class="flex items-center gap-1">
+          <a class="px-3 py-1 rounded-lg font-medium text-xs transition-colors text-on-surface-variant hover:text-on-surface hover:bg-surface-container" href="/">Cockpit</a>
+          <a class="px-3 py-1 rounded-lg font-medium text-xs transition-colors bg-surface-container-high text-primary-container border border-primary-container/20" href="/cases">Benchmark Cases (20)</a>
+          <a class="px-3 py-1 rounded-lg font-medium text-xs transition-colors text-on-surface-variant hover:text-on-surface hover:bg-surface-container" href="/analytics">TigerGraph Analytics</a>
+          <a class="px-3 py-1 rounded-lg font-medium text-xs transition-colors text-on-surface-variant hover:text-on-surface hover:bg-surface-container" href="/about">Architecture</a>
+        </nav>
+      </div>
+
+      <!-- Live Connection Telemetry -->
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-low border border-primary-container/20">
+          <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+          <span class="text-[10px] font-mono uppercase text-primary-fixed-dim font-semibold tracking-wider">TigerGraph Native GSQL</span>
+        </div>
+        
+        <a href="/" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-semibold transition-colors shadow-sm">
+          <span class="material-symbols-outlined text-[16px]">bolt</span>
+          <span>Live Cockpit</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="flex-1 w-full pt-14 pb-8">
+    <div class="max-w-7xl mx-auto px-5 py-5">
+      
 <div class="space-y-5">
 
   <!-- Header & KPI Bar -->
@@ -10,7 +125,7 @@
     <div>
       <h1 class="text-xl font-bold text-on-surface tracking-tight flex items-center gap-2.5">
         <span>Benchmark Case Ledger</span>
-        <span class="text-xs px-2 py-0.5 rounded bg-surface-container-high text-primary-container border border-primary-container/20 font-mono" id="caseCountBadge">{{ cases|length }} Cases</span>
+        <span class="text-xs px-2 py-0.5 rounded bg-surface-container-high text-primary-container border border-primary-container/20 font-mono" id="caseCountBadge">20 Cases</span>
       </h1>
       <p class="text-xs text-on-surface-variant mt-0.5">Autonomous graph-augmented forensic ledger and benchmark validation suite</p>
     </div>
@@ -96,90 +211,1187 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-surface-container-highest/60 text-xs font-mono" id="casesBody">
-          {% for c in cases %}
+          
           <tr class="case-row hover:bg-surface-container/60 transition group"
-              data-id="{{ c.case_id }}"
-              data-status="{{ c.status }}"
-              data-risk="{{ c.risk_level }}"
-              data-prob="{{ c.fraud_probability }}"
-              data-trigger="{{ c.trigger_type }}">
+              data-id="HHG-001"
+              data-status="escalated"
+              data-risk="LOW"
+              data-prob="0.05"
+              data-trigger="risk_score">
             
             <!-- Case ID -->
             <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full {% if c.risk_level == 'CRITICAL' %}bg-error animate-pulse{% elif c.risk_level == 'HIGH' %}bg-amber-400{% elif c.risk_level == 'MEDIUM' %}bg-yellow-400{% else %}bg-primary-container{% endif %}"></span>
-              <a href="/case/{{ c.case_id }}" class="hover:text-primary-container transition">{{ c.case_id }}</a>
+              <span class="w-2 h-2 rounded-full bg-primary-container"></span>
+              <a href="/case/HHG-001" class="hover:text-primary-container transition">HHG-001</a>
             </td>
 
             <!-- Status Badge -->
             <td class="py-2.5 px-4">
-              {% if 'legitimate' in c.status or c.status == 'RESOLVED' or c.verdict == 'legitimate' %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20 font-semibold">CLOSED (BENIGN)</span>
-              {% elif 'fraud' in c.status or c.verdict == 'fraud' %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
-              {% elif c.status == 'INVESTIGATING' %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-primary-container/20 text-primary-container border border-primary-container/30 animate-pulse font-semibold">INVESTIGATING</span>
-              {% else %}
+              
                 <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-outline border border-surface-container-highest font-semibold">OPEN</span>
-              {% endif %}
+              
             </td>
 
             <!-- Risk Badge -->
             <td class="py-2.5 px-4 font-semibold">
-              {% if c.risk_level == 'CRITICAL' %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
-              {% elif c.risk_level == 'HIGH' %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-amber-950/60 text-amber-300 border border-amber-700/50">HIGH</span>
-              {% elif c.risk_level == 'MEDIUM' %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-yellow-950/60 text-yellow-300 border border-yellow-700/50">MEDIUM</span>
-              {% else %}
+              
                 <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20">LOW (BENIGN)</span>
-              {% endif %}
+              
             </td>
 
             <!-- Fraud Probability Bar -->
             <td class="py-2.5 px-4">
               <div class="flex items-center gap-2">
-                <span class="font-bold text-on-surface w-12 text-right">{{ "%.1f"|format(c.fraud_probability * 100) }}%</span>
+                <span class="font-bold text-on-surface w-12 text-right">5.0%</span>
                 <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
-                  <div class="h-full rounded-full {% if c.fraud_probability >= 0.75 %}bg-error{% elif c.fraud_probability >= 0.40 %}bg-amber-400{% else %}bg-primary-container{% endif %}"
-                       style="width: {{ c.fraud_probability * 100 }}%"></div>
+                  <div class="h-full rounded-full bg-primary-container"
+                       style="width: 5.0%"></div>
                 </div>
               </div>
             </td>
 
             <!-- Typology -->
             <td class="py-2.5 px-4 text-xs font-mono">
-              {% if c.pattern == 'account_takeover' %}
-                <span class="text-error font-medium">Account Takeover (ATO)</span>
-              {% elif c.pattern == 'card_not_present_fraud' %}
-                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
-              {% elif c.pattern == 'card_testing' %}
-                <span class="text-amber-400 font-medium">Card Testing Velocity</span>
-              {% elif c.pattern == 'card_not_present_new_device' %}
-                <span class="text-error font-medium">CNP New Device Anomaly</span>
-              {% elif c.pattern == 'out_of_region_use' %}
-                <span class="text-amber-400 font-medium">Out-of-Region Geo-Velocity</span>
-              {% elif c.pattern == 'none' or c.verdict == 'legitimate' %}
+              
                 <span class="text-primary-container/90 font-medium">Legitimate Cardholder</span>
-              {% else %}
-                <span class="text-on-surface-variant capitalize">{{ c.pattern|replace('_', ' ') }}</span>
-              {% endif %}
+              
             </td>
 
             <!-- Actions -->
             <td class="py-2.5 px-4 text-right">
               <div class="flex items-center justify-end gap-1.5">
-                <a href="/case/{{ c.case_id }}" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                <a href="/case/HHG-001" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
                   Inspect
                 </a>
-                <a href="/api/case/{{ c.case_id }}/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                <a href="/api/case/HHG-001/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
                   Bundle (.zip)
                 </a>
               </div>
             </td>
 
           </tr>
-          {% endfor %}
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-002"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.88"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-002" class="hover:text-primary-container transition">HHG-002</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">88.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 88.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-002" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-002/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-003"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.95"
+              data-trigger="customer_report">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-003" class="hover:text-primary-container transition">HHG-003</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">95.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 95.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-003" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-003/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-004"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.95"
+              data-trigger="customer_report">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-004" class="hover:text-primary-container transition">HHG-004</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">95.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 95.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-004" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-004/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-005"
+              data-status="closed_legitimate"
+              data-risk="LOW"
+              data-prob="0.04"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-primary-container"></span>
+              <a href="/case/HHG-005" class="hover:text-primary-container transition">HHG-005</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20 font-semibold">CLOSED (BENIGN)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20">LOW (BENIGN)</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">4.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-primary-container"
+                       style="width: 4.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-primary-container/90 font-medium">Legitimate Cardholder</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-005" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-005/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-006"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.95"
+              data-trigger="customer_report">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-006" class="hover:text-primary-container transition">HHG-006</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">95.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 95.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-006" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-006/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-007"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.87"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-007" class="hover:text-primary-container transition">HHG-007</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">87.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 87.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-007" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-007/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-008"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.95"
+              data-trigger="customer_report">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-008" class="hover:text-primary-container transition">HHG-008</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">95.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 95.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-008" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-008/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-009"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.95"
+              data-trigger="customer_report">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-009" class="hover:text-primary-container transition">HHG-009</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">95.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 95.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-009" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-009/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-010"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.9"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-010" class="hover:text-primary-container transition">HHG-010</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">90.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 90.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-010" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-010/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-011"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.95"
+              data-trigger="customer_report">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-011" class="hover:text-primary-container transition">HHG-011</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">95.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 95.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-011" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-011/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-012"
+              data-status="closed_legitimate"
+              data-risk="LOW"
+              data-prob="0.04"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-primary-container"></span>
+              <a href="/case/HHG-012" class="hover:text-primary-container transition">HHG-012</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20 font-semibold">CLOSED (BENIGN)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20">LOW (BENIGN)</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">4.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-primary-container"
+                       style="width: 4.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-primary-container/90 font-medium">Legitimate Cardholder</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-012" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-012/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-013"
+              data-status="closed_legitimate"
+              data-risk="LOW"
+              data-prob="0.06"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-primary-container"></span>
+              <a href="/case/HHG-013" class="hover:text-primary-container transition">HHG-013</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20 font-semibold">CLOSED (BENIGN)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20">LOW (BENIGN)</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">6.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-primary-container"
+                       style="width: 6.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-primary-container/90 font-medium">Legitimate Cardholder</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-013" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-013/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-014"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.85"
+              data-trigger="analyst_request">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-014" class="hover:text-primary-container transition">HHG-014</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">85.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 85.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-014" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-014/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-015"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.88"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-015" class="hover:text-primary-container transition">HHG-015</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">88.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 88.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-015" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-015/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-016"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.95"
+              data-trigger="customer_report">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-016" class="hover:text-primary-container transition">HHG-016</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">95.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 95.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-016" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-016/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-017"
+              data-status="closed_legitimate"
+              data-risk="LOW"
+              data-prob="0.05"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-primary-container"></span>
+              <a href="/case/HHG-017" class="hover:text-primary-container transition">HHG-017</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20 font-semibold">CLOSED (BENIGN)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20">LOW (BENIGN)</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">5.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-primary-container"
+                       style="width: 5.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-primary-container/90 font-medium">Legitimate Cardholder</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-017" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-017/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-018"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.95"
+              data-trigger="customer_report">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-018" class="hover:text-primary-container transition">HHG-018</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">95.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 95.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-018" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-018/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-019"
+              data-status="closed_fraud"
+              data-risk="CRITICAL"
+              data-prob="0.9"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+              <a href="/case/HHG-019" class="hover:text-primary-container transition">HHG-019</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">90.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-error"
+                       style="width: 90.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-019" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-019/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="HHG-020"
+              data-status="closed_legitimate"
+              data-risk="LOW"
+              data-prob="0.04"
+              data-trigger="risk_score">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-primary-container"></span>
+              <a href="/case/HHG-020" class="hover:text-primary-container transition">HHG-020</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20 font-semibold">CLOSED (BENIGN)</span>
+              
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20">LOW (BENIGN)</span>
+              
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">4.0%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full bg-primary-container"
+                       style="width: 4.0%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              
+                <span class="text-primary-container/90 font-medium">Legitimate Cardholder</span>
+              
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/HHG-020" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/HHG-020/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          
         </tbody>
       </table>
     </div>
@@ -238,4 +1450,27 @@ function sortCases() {
   rows.forEach(row => tbody.appendChild(row));
 }
 </script>
-{% endblock %}
+
+    </div>
+  </main>
+
+  <!-- Institutional Audit Footer -->
+  <footer class="bg-surface-container-lowest border-t border-surface-container-highest/60 py-3 text-xs text-on-surface-variant">
+    <div class="max-w-7xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="font-semibold text-on-surface">FraudSight</span>
+        <span>•</span>
+        <span>Autonomous Graph Investigation System</span>
+        <span>•</span>
+        <span class="text-primary-container font-medium">TigerGraph GSQL Engine</span>
+      </div>
+      <div class="flex items-center space-x-3 text-[11px] font-mono">
+        <span class="text-outline">FinCEN Form 111 &amp; FFIEC SAR Standard</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+      </div>
+    </div>
+  </footer>
+
+  
+</body>
+</html>

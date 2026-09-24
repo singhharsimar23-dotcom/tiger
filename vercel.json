@@ -6,6 +6,9 @@
     { "source": "/about", "destination": "/about.html" },
     { "source": "/cockpit", "destination": "/index.html" },
     { "source": "/api/cases", "destination": "/data/cases_index.json" },
+    { "source": "/api/case/:case_id/graph", "destination": "/data/graphs/:case_id.json" },
+    { "source": "/api/graph/:case_id", "destination": "/data/graphs/:case_id.json" },
+    { "source": "/api/case/:case_id/files/:file_name", "destination": "/data/:case_id.json" },
     { "source": "/api/case/:case_id", "destination": "/data/:case_id.json" },
     { "source": "/data/(.*)", "destination": "/data/$1" }
   ]

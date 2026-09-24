@@ -1,0 +1,210 @@
+{
+  "elements": [
+    {
+      "data": {
+        "id": "C13171",
+        "label": "Customer\nC13171",
+        "type": "customer",
+        "role": "Account Holder",
+        "color": "#10b981",
+        "shape": "hexagon"
+      }
+    },
+    {
+      "data": {
+        "id": "C13171-K2",
+        "label": "Card\nC13171-K2",
+        "type": "card",
+        "role": "Primary Payment Instrument",
+        "color": "#3b82f6",
+        "shape": "ellipse"
+      }
+    },
+    {
+      "data": {
+        "id": "e_owns_C13171_C13171-K2",
+        "source": "C13171",
+        "target": "C13171-K2",
+        "label": "OWNS",
+        "color": "#10b981",
+        "style": "solid"
+      }
+    },
+    {
+      "data": {
+        "id": "T3558054",
+        "label": "Txn\nT3558054\n$55.68",
+        "type": "transaction",
+        "role": "Flagged Transaction",
+        "amount": 55.68,
+        "risk": 0.95,
+        "color": "#ef4444",
+        "shape": "diamond"
+      }
+    },
+    {
+      "data": {
+        "id": "e_made_C13171-K2_T3558054",
+        "source": "C13171-K2",
+        "target": "T3558054",
+        "label": "MADE",
+        "color": "#3b82f6",
+        "style": "solid"
+      }
+    },
+    {
+      "data": {
+        "id": "CC-1925",
+        "label": "Prior Case\nCC-1925",
+        "type": "prior_case",
+        "role": "Precedent Case (GraphRAG)",
+        "color": "#ec4899",
+        "shape": "round-diamond"
+      }
+    },
+    {
+      "data": {
+        "id": "e_sim_T3558054_CC-1925",
+        "source": "T3558054",
+        "target": "CC-1925",
+        "label": "SIMILAR_TO",
+        "color": "#ec4899",
+        "style": "dotted"
+      }
+    },
+    {
+      "data": {
+        "id": "CC-3143",
+        "label": "Prior Case\nCC-3143",
+        "type": "prior_case",
+        "role": "Precedent Case (GraphRAG)",
+        "color": "#ec4899",
+        "shape": "round-diamond"
+      }
+    },
+    {
+      "data": {
+        "id": "e_sim_T3558054_CC-3143",
+        "source": "T3558054",
+        "target": "CC-3143",
+        "label": "SIMILAR_TO",
+        "color": "#ec4899",
+        "style": "dotted"
+      }
+    },
+    {
+      "data": {
+        "id": "CC-3306",
+        "label": "Prior Case\nCC-3306",
+        "type": "prior_case",
+        "role": "Precedent Case (GraphRAG)",
+        "color": "#ec4899",
+        "shape": "round-diamond"
+      }
+    },
+    {
+      "data": {
+        "id": "e_sim_T3558054_CC-3306",
+        "source": "T3558054",
+        "target": "CC-3306",
+        "label": "SIMILAR_TO",
+        "color": "#ec4899",
+        "style": "dotted"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "C13171",
+      "label": "Customer\nC13171",
+      "type": "customer",
+      "role": "Account Holder",
+      "color": "#10b981",
+      "shape": "hexagon"
+    },
+    {
+      "id": "C13171-K2",
+      "label": "Card\nC13171-K2",
+      "type": "card",
+      "role": "Primary Payment Instrument",
+      "color": "#3b82f6",
+      "shape": "ellipse"
+    },
+    {
+      "id": "T3558054",
+      "label": "Txn\nT3558054\n$55.68",
+      "type": "transaction",
+      "role": "Flagged Transaction",
+      "amount": 55.68,
+      "risk": 0.95,
+      "color": "#ef4444",
+      "shape": "diamond"
+    },
+    {
+      "id": "CC-1925",
+      "label": "Prior Case\nCC-1925",
+      "type": "prior_case",
+      "role": "Precedent Case (GraphRAG)",
+      "color": "#ec4899",
+      "shape": "round-diamond"
+    },
+    {
+      "id": "CC-3143",
+      "label": "Prior Case\nCC-3143",
+      "type": "prior_case",
+      "role": "Precedent Case (GraphRAG)",
+      "color": "#ec4899",
+      "shape": "round-diamond"
+    },
+    {
+      "id": "CC-3306",
+      "label": "Prior Case\nCC-3306",
+      "type": "prior_case",
+      "role": "Precedent Case (GraphRAG)",
+      "color": "#ec4899",
+      "shape": "round-diamond"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_owns_C13171_C13171-K2",
+      "source": "C13171",
+      "target": "C13171-K2",
+      "label": "OWNS",
+      "color": "#10b981",
+      "style": "solid"
+    },
+    {
+      "id": "e_made_C13171-K2_T3558054",
+      "source": "C13171-K2",
+      "target": "T3558054",
+      "label": "MADE",
+      "color": "#3b82f6",
+      "style": "solid"
+    },
+    {
+      "id": "e_sim_T3558054_CC-1925",
+      "source": "T3558054",
+      "target": "CC-1925",
+      "label": "SIMILAR_TO",
+      "color": "#ec4899",
+      "style": "dotted"
+    },
+    {
+      "id": "e_sim_T3558054_CC-3143",
+      "source": "T3558054",
+      "target": "CC-3143",
+      "label": "SIMILAR_TO",
+      "color": "#ec4899",
+      "style": "dotted"
+    },
+    {
+      "id": "e_sim_T3558054_CC-3306",
+      "source": "T3558054",
+      "target": "CC-3306",
+      "label": "SIMILAR_TO",
+      "color": "#ec4899",
+      "style": "dotted"
+    }
+  ]
+}

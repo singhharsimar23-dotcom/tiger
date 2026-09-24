@@ -1,0 +1,246 @@
+{
+  "elements": [
+    {
+      "data": {
+        "id": "C10434",
+        "label": "Customer\nC10434",
+        "type": "customer",
+        "role": "Account Holder",
+        "color": "#10b981",
+        "shape": "hexagon"
+      }
+    },
+    {
+      "data": {
+        "id": "C10434-K1",
+        "label": "Card\nC10434-K1",
+        "type": "card",
+        "role": "Primary Payment Instrument",
+        "color": "#3b82f6",
+        "shape": "ellipse"
+      }
+    },
+    {
+      "data": {
+        "id": "e_owns_C10434_C10434-K1",
+        "source": "C10434",
+        "target": "C10434-K1",
+        "label": "OWNS",
+        "color": "#10b981",
+        "style": "solid"
+      }
+    },
+    {
+      "data": {
+        "id": "T3506725",
+        "label": "Txn\nT3506725\n$1000.03",
+        "type": "transaction",
+        "role": "Flagged Transaction",
+        "amount": 1000.03,
+        "risk": 0.9,
+        "color": "#ef4444",
+        "shape": "diamond"
+      }
+    },
+    {
+      "data": {
+        "id": "e_made_C10434-K1_T3506725",
+        "source": "C10434-K1",
+        "target": "T3506725",
+        "label": "MADE",
+        "color": "#3b82f6",
+        "style": "solid"
+      }
+    },
+    {
+      "data": {
+        "id": "dp_3506725",
+        "label": "Device\ndp_3506725",
+        "type": "device_profile",
+        "role": "Hardware Profile",
+        "color": "#8b5cf6",
+        "shape": "round-rectangle"
+      }
+    },
+    {
+      "data": {
+        "id": "e_dev_T3506725_dp_3506725",
+        "source": "T3506725",
+        "target": "dp_3506725",
+        "label": "FROM_DEVICE",
+        "color": "#8b5cf6",
+        "style": "dashed"
+      }
+    },
+    {
+      "data": {
+        "id": "CC-0173",
+        "label": "Prior Case\nCC-0173",
+        "type": "prior_case",
+        "role": "Precedent Case (GraphRAG)",
+        "color": "#ec4899",
+        "shape": "round-diamond"
+      }
+    },
+    {
+      "data": {
+        "id": "e_sim_T3506725_CC-0173",
+        "source": "T3506725",
+        "target": "CC-0173",
+        "label": "SIMILAR_TO",
+        "color": "#ec4899",
+        "style": "dotted"
+      }
+    },
+    {
+      "data": {
+        "id": "CC-1532",
+        "label": "Prior Case\nCC-1532",
+        "type": "prior_case",
+        "role": "Precedent Case (GraphRAG)",
+        "color": "#ec4899",
+        "shape": "round-diamond"
+      }
+    },
+    {
+      "data": {
+        "id": "e_sim_T3506725_CC-1532",
+        "source": "T3506725",
+        "target": "CC-1532",
+        "label": "SIMILAR_TO",
+        "color": "#ec4899",
+        "style": "dotted"
+      }
+    },
+    {
+      "data": {
+        "id": "CC-3213",
+        "label": "Prior Case\nCC-3213",
+        "type": "prior_case",
+        "role": "Precedent Case (GraphRAG)",
+        "color": "#ec4899",
+        "shape": "round-diamond"
+      }
+    },
+    {
+      "data": {
+        "id": "e_sim_T3506725_CC-3213",
+        "source": "T3506725",
+        "target": "CC-3213",
+        "label": "SIMILAR_TO",
+        "color": "#ec4899",
+        "style": "dotted"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "C10434",
+      "label": "Customer\nC10434",
+      "type": "customer",
+      "role": "Account Holder",
+      "color": "#10b981",
+      "shape": "hexagon"
+    },
+    {
+      "id": "C10434-K1",
+      "label": "Card\nC10434-K1",
+      "type": "card",
+      "role": "Primary Payment Instrument",
+      "color": "#3b82f6",
+      "shape": "ellipse"
+    },
+    {
+      "id": "T3506725",
+      "label": "Txn\nT3506725\n$1000.03",
+      "type": "transaction",
+      "role": "Flagged Transaction",
+      "amount": 1000.03,
+      "risk": 0.9,
+      "color": "#ef4444",
+      "shape": "diamond"
+    },
+    {
+      "id": "dp_3506725",
+      "label": "Device\ndp_3506725",
+      "type": "device_profile",
+      "role": "Hardware Profile",
+      "color": "#8b5cf6",
+      "shape": "round-rectangle"
+    },
+    {
+      "id": "CC-0173",
+      "label": "Prior Case\nCC-0173",
+      "type": "prior_case",
+      "role": "Precedent Case (GraphRAG)",
+      "color": "#ec4899",
+      "shape": "round-diamond"
+    },
+    {
+      "id": "CC-1532",
+      "label": "Prior Case\nCC-1532",
+      "type": "prior_case",
+      "role": "Precedent Case (GraphRAG)",
+      "color": "#ec4899",
+      "shape": "round-diamond"
+    },
+    {
+      "id": "CC-3213",
+      "label": "Prior Case\nCC-3213",
+      "type": "prior_case",
+      "role": "Precedent Case (GraphRAG)",
+      "color": "#ec4899",
+      "shape": "round-diamond"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_owns_C10434_C10434-K1",
+      "source": "C10434",
+      "target": "C10434-K1",
+      "label": "OWNS",
+      "color": "#10b981",
+      "style": "solid"
+    },
+    {
+      "id": "e_made_C10434-K1_T3506725",
+      "source": "C10434-K1",
+      "target": "T3506725",
+      "label": "MADE",
+      "color": "#3b82f6",
+      "style": "solid"
+    },
+    {
+      "id": "e_dev_T3506725_dp_3506725",
+      "source": "T3506725",
+      "target": "dp_3506725",
+      "label": "FROM_DEVICE",
+      "color": "#8b5cf6",
+      "style": "dashed"
+    },
+    {
+      "id": "e_sim_T3506725_CC-0173",
+      "source": "T3506725",
+      "target": "CC-0173",
+      "label": "SIMILAR_TO",
+      "color": "#ec4899",
+      "style": "dotted"
+    },
+    {
+      "id": "e_sim_T3506725_CC-1532",
+      "source": "T3506725",
+      "target": "CC-1532",
+      "label": "SIMILAR_TO",
+      "color": "#ec4899",
+      "style": "dotted"
+    },
+    {
+      "id": "e_sim_T3506725_CC-3213",
+      "source": "T3506725",
+      "target": "CC-3213",
+      "label": "SIMILAR_TO",
+      "color": "#ec4899",
+      "style": "dotted"
+    }
+  ]
+}
