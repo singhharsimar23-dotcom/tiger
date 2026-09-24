@@ -10,6 +10,7 @@ fraud-detectorgraph.vercel.app
 
 | Deliverable | Location / Link | Details |
 | :--- | :--- | :--- |
+| **Live Production Deployment** | [https://fraud-detectorgraph.vercel.app](https://fraud-detectorgraph.vercel.app) | Live production web application hosted on Vercel |
 | **Public GitHub Repository** | [https://github.com/singhharsimar23-dotcom/tiger](https://github.com/singhharsimar23-dotcom/tiger) | Full production source code, tests, and configuration |
 | **20 Official Case Answer Files** | [`cases/HHG-001.json` … `cases/HHG-020.json`](cases/) | Grounded in raw IEEE-CIS dataset; 20/20 PASS on validator & ground-truth audit |
 

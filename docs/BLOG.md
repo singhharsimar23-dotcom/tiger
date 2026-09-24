@@ -78,3 +78,10 @@ On the agentic side, I learned that LLMs need strict mathematical boundaries. Wi
 Given more time, I would expand FraudSight in two key areas:
 1. **Dynamic GSQL Generation via Schema MCP:** Enable the LLM to write and compile parameterized GSQL queries on the fly for novel graph paths, sandbox-validated through TigerGraph's REST++ query compiler.
 2. **Streaming WebSocket Graph Visualization:** While our Cytoscape.js dashboard renders concentric account networks smoothly and streams timeline events via SSE, streaming live graph node expansions in real time as the BFS expands would provide an even more compelling analyst experience.
+
+---
+
+*Live Production Cockpit: https://fraud-detectorgraph.vercel.app*  
+*GitHub Repository: https://github.com/singhharsimar23-dotcom/tiger*  
+*Demo Video: https://www.loom.com/share/0b70ae2b7e374277bf2cf554b97d04d0*
+

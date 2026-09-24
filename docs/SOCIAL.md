@@ -25,6 +25,7 @@ Check out the full open-source codebase, architecture diagrams, and interactive 
 
 Huge thanks to @TigerGraphDB and @247pmstudio for hosting this challenge! 
 
+Live Cockpit: https://fraud-detectorgraph.vercel.app
 Demo video: https://www.loom.com/share/0b70ae2b7e374277bf2cf554b97d04d0
 Repo: https://github.com/singhharsimar23-dotcom/tiger
 
@@ -35,6 +36,6 @@ Repo: https://github.com/singhharsimar23-dotcom/tiger
 ## X / Twitter Post (280 chars max)
 
 Built an autonomous graph fraud investigator for @TigerGraphDB & @247pmstudio!
-Used TigerGraph GSQL + LangGraph + Gemini for multi-hop fraud detection & FinCEN SARs.
-Demo: https://www.loom.com/share/0b70ae2b7e374277bf2cf554b97d04d0
-Repo: https://github.com/singhharsimar23-dotcom/tiger #TigerGraph #AI
+Multi-hop fraud ring detection + FinCEN SARs via TigerGraph GSQL & LangGraph.
+Live: https://fraud-detectorgraph.vercel.app
+Demo: https://www.loom.com/share/0b70ae2b7e374277bf2cf554b97d04d0 #TigerGraph
