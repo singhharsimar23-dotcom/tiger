@@ -11,10 +11,7 @@
 | :--- | :--- | :--- |
 | **Public GitHub Repository** | [https://github.com/singhharsimar23-dotcom/tiger](https://github.com/singhharsimar23-dotcom/tiger) | Full production source code, tests, and configuration |
 | **20 Official Case Answer Files** | [`cases/HHG-001.json` … `cases/HHG-020.json`](cases/) | Grounded in raw IEEE-CIS dataset; 20/20 PASS on validator & ground-truth audit |
-| **3–5 Min Demo Video** | [Watch Loom Demo Video](https://www.loom.com/share/0b70ae2b7e374277bf2cf554b97d04d0) | End-to-end autonomous multi-hop investigation & real-time cockpit |
-| **Technical Blog Post** | [docs/BLOG.md](docs/BLOG.md) | Architecture, TigerGraph GSQL engine, Agentic design, lessons & roadmap |
-| **Social Media Announcement** | [docs/SOCIAL.md](docs/SOCIAL.md) | Ready-to-share posts for X & LinkedIn tagging `@TigerGraphDB` and `@247pmstudio` |
-| **Official Submission Form** | [https://forms.gle/yxXzqSULGgZ9VUF56](https://forms.gle/yxXzqSULGgZ9VUF56) | Deadline: Sept 24, 2026, 11:59 PM IST |
+
 
 ---
 
