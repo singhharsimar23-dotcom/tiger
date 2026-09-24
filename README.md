@@ -5,7 +5,8 @@
 
 ---
 
-## 🏆 Hackathon Submission & Deliverables fraud-detectorgraph.vercel.app
+## 🏆 Hackathon Submission & Deliverables
+fraud-detectorgraph.vercel.app
 
 | Deliverable | Location / Link | Details |
 | :--- | :--- | :--- |
