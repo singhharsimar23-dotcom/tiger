@@ -1,58 +1,68 @@
 {
   "case_id": "HHG-013",
   "case": {
-    "status": "closed_fraud",
-    "verdict": "fraud",
-    "fraud_probability": 0.92,
-    "pattern": "card_not_present_new_device",
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.06,
+    "pattern": "none",
     "pattern_description": "",
-    "affected_txn_ids": [
-      "T3526826"
-    ],
+    "affected_txn_ids": [],
     "first_suspicious_txn_id": "T3526826",
-    "connected_card_ids": [
-      "C268-K1",
-      "C268-K2"
-    ],
+    "connected_card_ids": [],
     "connected_device_profiles": [
-      "dp_26826"
+      "dp_3526826"
     ],
-    "exposure_usd": 287.5,
+    "exposure_usd": 0.0,
     "evidence": [
       {
-        "claim": "Transaction flagged by graph monitoring with elevated topological risk.",
+        "claim": "Transaction flagged by graph monitoring (trigger_type=risk_score, risk_score=0.76).",
         "source": "graph",
         "ref": "get_txn_neighborhood",
         "entity_ids": [
-          "T3514030"
+          "t3526826"
         ]
       },
       {
-        "claim": "Transaction routed via device profile exhibiting cross-card or anomalous activity.",
+        "claim": "Transaction device profile reviewed via FROM_DEVICE graph traversal.",
         "source": "graph",
         "ref": "FROM_DEVICE",
         "entity_ids": [
-          "T3514030",
-          "dp_01"
+          "t3526826",
+          "dp_3526826"
+        ]
+      },
+      {
+        "claim": "Customer confirmed purchase upon verification outreach.",
+        "source": "customer",
+        "ref": "customer_inquiry_channel",
+        "entity_ids": [
+          "T3526826",
+          "C07671"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-0006",
-      "CC-0003",
-      "CC-0004"
+      "CC-3927",
+      "CC-3435",
+      "CC-0546"
     ],
-    "summary": "Autonomous graph fraud investigation concluded with comprehensive regulatory review and policy enforcement.",
+    "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.05). Policy rules R1-R10 enforced throughout.",
     "written_to_graph": true,
     "graph_case_id": "HHG-013"
   },
-  "evidence_requests": [],
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer confirms legitimate purchase."
+    }
+  ],
   "next_best_actions": {
     "initial": [
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: Elevated fraud risk (0.92) warrants immediate card lock."
+        "reason": "R2: Elevated fraud risk (0.76) warrants immediate card lock."
       },
       {
         "action": "CREATE_CASE",
@@ -62,17 +72,17 @@
     ],
     "final": [
       {
-        "action": "CLOSE_NO_FRAUD",
+        "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
-        "reason": "R3: Customer confirms transaction: recommend CLOSE_NO_FRAUD."
+        "reason": "R1: Single weak signal (risk_score < 0.70) requires customer verification before any block."
       },
       {
-        "action": "ALLOW_TRANSACTION",
+        "action": "STEP_UP_AUTH",
         "route": "auto",
-        "reason": "R3: Legitimate activity verified; allow transaction."
+        "reason": "R1: Step-up authentication requested prior to any card action."
       }
     ],
-    "what_changed": "Actions updated from [BLOCK_CARD, CREATE_CASE] to [CLOSE_NO_FRAUD, ALLOW_TRANSACTION] following evidence intake and stopping rule."
+    "what_changed": "Actions updated from [BLOCK_CARD, CREATE_CASE] to [VERIFY_WITH_CUSTOMER, STEP_UP_AUTH] following evidence intake and stopping rule."
   },
   "sar": {
     "file": false,
@@ -82,8 +92,8 @@
     "total_amount_usd": 0.0,
     "activity_dates": []
   },
-  "stop_reason": "Fraud probability 0.92 with 2 independent evidence pieces meets the confidence threshold.",
-  "tool_calls": 7,
+  "stop_reason": "A verification response settled the question.",
+  "tool_calls": 9,
   "tokens": 0,
-  "latency_s": 0.015
+  "latency_s": 8.423
 }

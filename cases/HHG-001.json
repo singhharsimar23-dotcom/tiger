@@ -1,75 +1,47 @@
 {
   "case_id": "HHG-001",
   "case": {
-    "status": "closed_fraud",
-    "verdict": "fraud",
-    "fraud_probability": 0.98,
-    "pattern": "card_not_present_fraud",
+    "status": "escalated",
+    "verdict": "uncertain",
+    "fraud_probability": 0.05,
+    "pattern": "none",
     "pattern_description": "",
     "affected_txn_ids": [
       "T3514030"
     ],
     "first_suspicious_txn_id": "T3514030",
-    "connected_card_ids": [
-      "C140-K1",
-      "C140-K2"
-    ],
-    "connected_device_profiles": [
-      "dp_14030"
-    ],
-    "exposure_usd": 287.5,
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
     "evidence": [
       {
-        "claim": "Transaction T3514030 triggered a risk score of 0.61, which is below the 0.70 threshold for immediate blocking.",
+        "claim": "Transaction flagged by graph monitoring (trigger_type=risk_score, risk_score=0.05).",
         "source": "graph",
-        "ref": "Trigger Type: risk_score",
+        "ref": "get_txn_neighborhood",
         "entity_ids": [
-          "T3514030"
+          "t3514030"
         ]
       },
       {
-        "claim": "The transaction is linked to device profile dp_14030, which is shared by other cards (C_SHARED_14030) and associated with multiple billing regions and email domains.",
+        "claim": "Transaction device profile reviewed via FROM_DEVICE graph traversal.",
         "source": "graph",
-        "ref": "Graph Traversal Findings",
+        "ref": "FROM_DEVICE",
         "entity_ids": [
-          "dp_14030",
-          "C_SHARED_14030"
-        ]
-      },
-      {
-        "claim": "The transaction chain (T3514030) shows a total forward and backward flow of $287.50, indicating potential rapid movement of funds.",
-        "source": "graph",
-        "ref": "Money flow (NEXT chain)",
-        "entity_ids": [
-          "T3514030"
-        ]
-      },
-      {
-        "claim": "Customer denied transaction authorization.",
-        "source": "customer",
-        "ref": "customer_inquiry_channel",
-        "entity_ids": [
-          "T3514030",
-          "C12382"
+          "t3514030",
+          "none"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-0006",
-      "CC-0005",
-      "CC-0009"
+      "CC-3435",
+      "CC-3751",
+      "CC-2866"
     ],
-    "summary": "Investigation into transaction T3514030 confirmed fraudulent activity on card C12382-K1, resulting in a total exposure of $287.50. The customer formally denied authorization, and graph analysis identified the transaction as part of a broader pattern involving a shared device profile (dp_14030) linked to multiple compromised accounts. Consequently, the card has been blocked, and the case is closed as confirmed fraud. Monitoring has been initiated for all connected cards sharing the identified device profile.",
+    "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.00). Policy rules R1-R10 enforced throughout.",
     "written_to_graph": true,
     "graph_case_id": "HHG-001"
   },
-  "evidence_requests": [
-    {
-      "type": "customer_validation",
-      "asked_after_step": 1,
-      "assumed_response": "Customer denies purchase; reports card details were compromised."
-    }
-  ],
+  "evidence_requests": [],
   "next_best_actions": {
     "initial": [
       {
@@ -85,43 +57,28 @@
     ],
     "final": [
       {
-        "action": "BLOCK_CARD",
-        "route": "L1",
-        "reason": "R2: Customer denied the transaction, necessitating an immediate block."
-      },
-      {
-        "action": "CREATE_CASE",
+        "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
-        "reason": "R2: Customer denied the transaction, requiring a formal case creation."
+        "reason": "R1: Single weak signal (risk_score < 0.70) requires customer verification before any block."
       },
       {
-        "action": "FILE_REPORT",
-        "route": "L2",
-        "reason": "R2: The case connects to a shared device profile (dp_14030) and other cards, requiring a report regardless of the $1,000 threshold."
-      },
-      {
-        "action": "MONITOR_CONNECTED_CARDS",
+        "action": "STEP_UP_AUTH",
         "route": "auto",
-        "reason": "R6: The transaction is linked to a shared device profile (dp_14030) used by other cards, requiring monitoring of all connected cards."
+        "reason": "R1: Step-up authentication requested prior to any card action."
       }
     ],
-    "what_changed": "Actions updated from [VERIFY_WITH_CUSTOMER, STEP_UP_AUTH] to [BLOCK_CARD, CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS] following evidence intake and stopping rule."
+    "what_changed": "Initial action recommendations confirmed after completing evidence gathering."
   },
   "sar": {
-    "file": true,
-    "reason": "R2: The case connects to a shared device profile (dp_14030) and other cards, requiring a report regardless of the $1,000 threshold.",
-    "narrative": "This report concerns fraudulent activity identified on account C12382, specifically involving unauthorized transaction T3514030 totaling $287.50. The customer confirmed they did not authorize this transaction, which was processed via a card-not-present channel. Internal graph analysis revealed that the transaction originated from device profile dp_14030, which is currently associated with multiple other cards and exhibits suspicious patterns across various billing regions and email domains. This shared device profile indicates a coordinated effort to utilize compromised credentials across our platform. Given the association with a known high-risk device profile and the confirmed unauthorized nature of the transaction, this activity is indicative of organized account takeover or card-not-present fraud. We have blocked the affected card and initiated monitoring on all other accounts linked to the identified device profile to prevent further unauthorized access. The institution is filing this report to document the potential systemic risk posed by the shared device infrastructure. We continue to investigate the broader network of accounts associated with dp_14030 to mitigate further financial exposure.",
-    "subjects": [
-      "C12382"
-    ],
-    "total_amount_usd": 287.5,
-    "activity_dates": [
-      "2023-10-27",
-      "2023-10-27"
-    ]
+    "file": false,
+    "reason": "",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
   },
-  "stop_reason": "A verification response settled the question.",
-  "tool_calls": 9,
+  "stop_reason": "Fraud probability 0.05 with 2 independent evidence pieces meets the confidence threshold.",
+  "tool_calls": 7,
   "tokens": 0,
-  "latency_s": 19.176
+  "latency_s": 12.892
 }

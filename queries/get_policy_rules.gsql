@@ -1,3 +1,4 @@
+/* @timeout 30000 */
 /*
 queries/get_policy_rules.gsql — Ground Truth Corrected
 

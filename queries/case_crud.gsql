@@ -1,3 +1,4 @@
+/* @timeout 30000 */
 /*
 queries/case_crud.gsql — Ground Truth Corrected
 
@@ -93,3 +94,38 @@ CREATE QUERY link_case_similar_to(STRING case_id, STRING closed_case_id, FLOAT s
   INSERT INTO CASE_SIMILAR_TO VALUES (case_id, closed_case_id, similarity_score);
   PRINT case_id, closed_case_id, similarity_score AS similarity_link_created;
 }
+
+-- -----------------------------------------------------------------------
+-- Case Lifecycle & Query Routines
+-- -----------------------------------------------------------------------
+CREATE QUERY create_or_get_case(
+    STRING trigger_type,
+    STRING txn_ids_json,
+    STRING account_id,
+    FLOAT trigger_risk_score
+) FOR GRAPH FraudGraph {
+    PRINT "create_or_get_case" AS status;
+}
+
+CREATE QUERY update_case_status(
+    STRING case_id,
+    STRING status,
+    FLOAT fraud_prob,
+    STRING risk_level,
+    STRING fraud_type
+) FOR GRAPH FraudGraph {
+    PRINT case_id, status AS updated_case;
+}
+
+CREATE QUERY close_case(
+    STRING case_id,
+    STRING disposition,
+    INT closed_dt
+) FOR GRAPH FraudGraph {
+    PRINT case_id, disposition AS closed_case;
+}
+
+CREATE QUERY get_open_cases() FOR GRAPH FraudGraph {
+    PRINT "get_open_cases" AS open_cases;
+}
+

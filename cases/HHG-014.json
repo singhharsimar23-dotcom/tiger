@@ -3,46 +3,43 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.92,
-    "pattern": "card_not_present_new_device",
+    "fraud_probability": 0.85,
+    "pattern": "card_not_present_fraud",
     "pattern_description": "",
     "affected_txn_ids": [
       "T3478561"
     ],
     "first_suspicious_txn_id": "T3478561",
-    "connected_card_ids": [
-      "C785-K1",
-      "C785-K2"
-    ],
+    "connected_card_ids": [],
     "connected_device_profiles": [
-      "dp_78561"
+      "dp_3478561"
     ],
-    "exposure_usd": 287.5,
+    "exposure_usd": 74.96,
     "evidence": [
       {
-        "claim": "Transaction flagged by graph monitoring with elevated topological risk.",
+        "claim": "Transaction flagged by graph monitoring (trigger_type=risk_score, risk_score=0.85).",
         "source": "graph",
         "ref": "get_txn_neighborhood",
         "entity_ids": [
-          "T3514030"
+          "t3478561"
         ]
       },
       {
-        "claim": "Transaction routed via device profile exhibiting cross-card or anomalous activity.",
+        "claim": "Transaction device profile reviewed via FROM_DEVICE graph traversal.",
         "source": "graph",
         "ref": "FROM_DEVICE",
         "entity_ids": [
-          "T3514030",
-          "dp_01"
+          "t3478561",
+          "dp_3478561"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-0005",
-      "CC-0007",
-      "CC-0008"
+      "CC-2162",
+      "CC-4588",
+      "CC-3724"
     ],
-    "summary": "Autonomous graph fraud investigation concluded with comprehensive regulatory review and policy enforcement.",
+    "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
     "written_to_graph": true,
     "graph_case_id": "HHG-014"
   },
@@ -52,7 +49,7 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: Elevated fraud risk (0.92) warrants immediate card lock."
+        "reason": "R2: Elevated fraud risk (0.85) warrants immediate card lock."
       },
       {
         "action": "CREATE_CASE",
@@ -62,17 +59,17 @@
     ],
     "final": [
       {
-        "action": "CLOSE_NO_FRAUD",
-        "route": "auto",
-        "reason": "R3: Customer confirms transaction: recommend CLOSE_NO_FRAUD."
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: High fraud confidence \u2014 card block required."
       },
       {
-        "action": "ALLOW_TRANSACTION",
+        "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "R3: Legitimate activity verified; allow transaction."
+        "reason": "R2: Create formal fraud investigation case record."
       }
     ],
-    "what_changed": "Actions updated from [BLOCK_CARD, CREATE_CASE] to [CLOSE_NO_FRAUD, ALLOW_TRANSACTION] following evidence intake and stopping rule."
+    "what_changed": "Initial action recommendations confirmed after completing evidence gathering."
   },
   "sar": {
     "file": false,
@@ -82,8 +79,8 @@
     "total_amount_usd": 0.0,
     "activity_dates": []
   },
-  "stop_reason": "Fraud probability 0.92 with 2 independent evidence pieces meets the confidence threshold.",
+  "stop_reason": "Fraud probability 0.85 with 2 independent evidence pieces meets the confidence threshold.",
   "tool_calls": 7,
   "tokens": 0,
-  "latency_s": 0.014
+  "latency_s": 78.159
 }

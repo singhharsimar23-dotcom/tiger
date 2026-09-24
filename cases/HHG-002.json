@@ -3,56 +3,32 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.98,
-    "pattern": "account_takeover",
+    "fraud_probability": 0.88,
+    "pattern": "card_not_present_fraud",
     "pattern_description": "",
     "affected_txn_ids": [
       "T3478782"
     ],
     "first_suspicious_txn_id": "T3478782",
-    "connected_card_ids": [
-      "C787-K1",
-      "C787-K2"
-    ],
-    "connected_device_profiles": [
-      "dp_78782"
-    ],
-    "exposure_usd": 287.5,
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 292.36,
     "evidence": [
       {
-        "claim": "Transaction T3478782 triggered a high risk score of 0.79, exceeding the threshold for immediate review.",
+        "claim": "Transaction flagged by graph monitoring (trigger_type=risk_score, risk_score=0.79).",
         "source": "graph",
-        "ref": "Trigger Risk Score",
+        "ref": "get_txn_neighborhood",
         "entity_ids": [
-          "T3478782"
+          "t3478782"
         ]
       },
       {
-        "claim": "The device profile dp_78782 is linked to multiple cards (C_SHARED_78782) and shows shared activity across billing regions and email domains.",
+        "claim": "Transaction device profile reviewed via FROM_DEVICE graph traversal.",
         "source": "graph",
-        "ref": "Graph Traversal Findings",
+        "ref": "FROM_DEVICE",
         "entity_ids": [
-          "dp_78782",
-          "C_SHARED_78782"
-        ]
-      },
-      {
-        "claim": "The transaction chain shows a total exposure of $287.50, with forward and backward transaction flows indicating potential layering.",
-        "source": "graph",
-        "ref": "Money flow (NEXT chain)",
-        "entity_ids": [
-          "T3478782",
-          "T3478783",
-          "T3478784",
-          "T3478781"
-        ]
-      },
-      {
-        "claim": "Historical graph data links this customer to previous closed cases CC-0007, CC-0008, and CC-0004.",
-        "source": "document",
-        "ref": "Historical Closed Cases",
-        "entity_ids": [
-          "C11891"
+          "t3478782",
+          "none"
         ]
       },
       {
@@ -66,11 +42,11 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-0007",
-      "CC-0008",
-      "CC-0004"
+      "CC-0379",
+      "CC-2121",
+      "CC-1125"
     ],
-    "summary": "Investigation into Case HHG-002 confirms account takeover activity on card C11891-K1, resulting in a total exposure of $287.50. The customer formally denied authorization for the transaction, and forensic analysis linked the associated device profile, dp_78782, to multiple fraudulent accounts. Given the confirmed unauthorized activity and the presence of a shared device profile, the card has been blocked and the case closed as fraud. This incident aligns with historical patterns observed in previous cases CC-0007, CC-0008, and CC-0004.",
+    "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
     "written_to_graph": true,
     "graph_case_id": "HHG-002"
   },
@@ -86,7 +62,7 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: Elevated fraud risk (0.75) warrants immediate card lock."
+        "reason": "R2: Elevated fraud risk (0.79) warrants immediate card lock."
       },
       {
         "action": "CREATE_CASE",
@@ -98,41 +74,26 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: Customer denied transaction authorization, necessitating immediate card block."
+        "reason": "R2: High fraud confidence \u2014 card block required."
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "R2: Customer denied transaction authorization, requiring a formal case creation."
-      },
-      {
-        "action": "FILE_REPORT",
-        "route": "L2",
-        "reason": "R2: Case connects to a shared device profile (dp_78782) and multiple cards, meeting criteria for filing a report."
-      },
-      {
-        "action": "MONITOR_CONNECTED_CARDS",
-        "route": "auto",
-        "reason": "R6: Shared device profile (dp_78782) identified across multiple cards; monitoring connected cards is required."
+        "reason": "R2: Create formal fraud investigation case record."
       }
     ],
-    "what_changed": "Actions updated from [BLOCK_CARD, CREATE_CASE] to [BLOCK_CARD, CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS] following evidence intake and stopping rule."
+    "what_changed": "Initial action recommendations confirmed after completing evidence gathering."
   },
   "sar": {
-    "file": true,
-    "reason": "R2: Case connects to a shared device profile (dp_78782) and multiple cards, meeting criteria for filing a report.",
-    "narrative": "This Suspicious Activity Report is filed regarding account takeover activity identified on card C11891-K1, which resulted in unauthorized transactions totaling $287.50. The investigation revealed that the device profile dp_78782 is linked to multiple cards exhibiting similar fraudulent patterns, suggesting a coordinated effort to compromise customer accounts. The subject customer confirmed they did not authorize the transaction, and internal graph analysis identified a clear chain of layering activity. This case is part of a broader network of suspicious activity, as the device profile has been observed across multiple billing regions and email domains. Historical data indicates that the customer has been previously associated with closed fraud cases CC-0007, CC-0008, and CC-0004, further suggesting a pattern of targeted exploitation. In accordance with internal policy R2 and R6, the card has been blocked, and connected cards sharing the same device profile have been placed under active monitoring. We are reporting this activity due to the clear evidence of account takeover and the potential for ongoing systemic abuse through the identified device infrastructure. The institution continues to monitor the associated network for further signs of illicit activity.",
-    "subjects": [
-      "C11891"
-    ],
-    "total_amount_usd": 287.5,
-    "activity_dates": [
-      "2023-10-01",
-      "2023-10-27"
-    ]
+    "file": false,
+    "reason": "",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
   },
   "stop_reason": "A verification response settled the question.",
   "tool_calls": 9,
   "tokens": 0,
-  "latency_s": 15.817
+  "latency_s": 8.961
 }

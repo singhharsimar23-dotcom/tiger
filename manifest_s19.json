@@ -1,0 +1,29 @@
+{
+  "generated_at_utc": "2026-09-21T06:18:51.446849",
+  "session": "S19",
+  "files": {
+    "cases\\HHG-001.json": "e756757f3afecedd2eb7806971f3a5b3deb2a2a4a3ef66ef772610056c941281",
+    "cases\\HHG-002.json": "88cb767f1369e9bd279931bbf91be1b6fb21a6a7ca3dcbb6eccbb6470e3402cd",
+    "cases\\HHG-003.json": "511a3dff66a6577daec58e68ee6a3009a0d9395b9b56e4ce373c448ce3634f60",
+    "cases\\HHG-004.json": "63b0d8b58671207e1bf7ebe3664f148bbbbb24e2cef416ff60469cc9533112c7",
+    "cases\\HHG-005.json": "e3186ced1b9a1df2b670ba7db8233427a9ce52dd575aa772e2fdd9ca3dbbcbce",
+    "cases\\HHG-006.json": "2486fe91810bd8a032477de7e5e1e37cdc3c5afd148947a0cbe828673f706990",
+    "cases\\HHG-007.json": "3d951e6ea0b18b3fc8f1b4650e73dc91c7cc00c05d3be8abebc1d4ad24d3167a",
+    "cases\\HHG-008.json": "05d6e5743f09db2705491181b7d1bc59400617da77f4cd389f30a7ce94be3d23",
+    "cases\\HHG-009.json": "b1a8c88dda4d3ddd3f425825b9b0fdc6c2ab59516acdb6f6e088530d9085bac3",
+    "cases\\HHG-010.json": "40616f608539a4ed0f5aab6fc9a56d842c9bce1c1a8afff7e00303a31ec00d80",
+    "cases\\HHG-011.json": "e8386a488f4412735c0ae12e9b46aabf7249172167c5082375ce09e1c983d310",
+    "cases\\HHG-012.json": "a973143c878351a8695f575058e6dc6be125bf8348bab2a58e6d23d2c7d3dd27",
+    "cases\\HHG-013.json": "d5c603a4ceaaacac97022c482ce6e6d24192580befc140678347477565756bdc",
+    "cases\\HHG-014.json": "2a49821682efc8b9f1fe9a634f07ddd75ee0c41b20049764ccd2306cb6b85da8",
+    "cases\\HHG-015.json": "7666f195e51b7e86c61f4453c37059ff20712cb7efc38889ce3c570b27fd3380",
+    "cases\\HHG-016.json": "21297c1864e912183f91b918bcb80c83f90cfb5f4fd9d50aefc6181a92d2736b",
+    "cases\\HHG-017.json": "8feaaae9db44196a20454392c7f905aeef0d54e84f6782813cda6ea0e9cef1c6",
+    "cases\\HHG-018.json": "b52f6fe32cbe4fc447cbe4858fc91e7e0a6c747a856a474c19f64229fe91fa65",
+    "cases\\HHG-019.json": "e269fec76541b305e31c252e467f096f7027bda1473aee6b64e83bb5b6a9c0e0",
+    "cases\\HHG-020.json": "456221c48d8c0703b0db533406716d9385af71ee458847596d10c7201ae54b4e",
+    "audit_log.md": "767dd444825243504f4d7cb4422ba925a4b586e6e2a165fd423acac8f53de660",
+    "innovation/statistical_baseline.py": "8b710df20a9479dde5cb25cdfd54307f62443b41d5c5b4af2d2571886014f922",
+    "innovation/evidence_value.py": "cb62f17a5fd44aac7fff82e815474e7e108482df3af3da78fa53f7f6ce8bda58"
+  }
+}

@@ -32,6 +32,7 @@ CASE_PACK_PATHS = [
 CASES_DIR = Path("cases")
 SUMMARY_PATH = Path("outputs/benchmark_summary.json")
 SESSION_LOG_PATH = Path("SESSION_LOG.md")
+CHECKPOINT_FILE = Path("benchmark_checkpoint.json")
 
 
 def load_case_pack_records() -> list[dict]:
@@ -48,9 +49,33 @@ def load_case_pack_records() -> list[dict]:
     raise FileNotFoundError("case_pack.csv not found on D:/ or data/")
 
 
+def get_tg_connection_reliable(max_wait_s: int = 90):
+    """
+    S23 Part 6: Reliable TigerGraph connection that waits for the Savanna workspace
+    to wake up after auto-stop instead of immediately returning None.
+    Returns the connection object on success, or None after max_wait_s.
+    """
+    conn = tg_tools._get_tg_conn(force=True)
+    if conn:
+        return conn
+    start = time.time()
+    while time.time() - start < max_wait_s:
+        try:
+            conn = tg_tools._get_tg_conn(force=True)
+            if conn:
+                print(f"[TG RELIABLE] Connected after {time.time()-start:.0f}s")
+                return conn
+        except Exception as e:
+            pass
+        print(f"[TG RELIABLE] TG not ready, retrying in 10s... ({time.time()-start:.0f}s elapsed)")
+        time.sleep(10)
+    print(f"[TG RELIABLE] TigerGraph unavailable after {max_wait_s}s — running in standalone mode.")
+    return None
+
+
 async def check_tigergraph_health() -> bool:
     """Check TigerGraph health before starting cases."""
-    conn = tg_tools._get_tg_conn()
+    conn = get_tg_connection_reliable(max_wait_s=90)
     if conn:
         try:
             conn.ping()
@@ -82,8 +107,21 @@ async def run_benchmark(limit: int = 20):
     results_summary = []
     total_start_time = time.time()
 
+    # S23 Part 6: Checkpoint-based runner — resume from where we left off if TG drops mid-run
+    done_ids: set = set()
+    if CHECKPOINT_FILE.exists():
+        try:
+            done_ids = set(json.loads(CHECKPOINT_FILE.read_text(encoding="utf-8")))
+            print(f"[CHECKPOINT] Resuming — {len(done_ids)} cases already done: {sorted(done_ids)}")
+        except Exception:
+            done_ids = set()
+
     for idx, row in enumerate(records, start=1):
         cid = row.get("case_id", f"HHG-{idx:03d}")
+        # S23 Part 6: skip already-completed cases from checkpoint
+        if cid in done_ids:
+            print(f"[{idx:02d}/{len(records)}] Skipping {cid} (already in checkpoint)")
+            continue
         ttype = row.get("trigger_type", "risk_score")
         flagged_txn = row.get("flagged_txn_id", "")
         card_id = row.get("card_id", "")
@@ -143,6 +181,14 @@ async def run_benchmark(limit: int = 20):
                 "error": str(e),
                 "duration_seconds": duration,
             })
+
+        # S23 Part 6: Save checkpoint after every successful case
+        if cid not in done_ids:
+            done_ids.add(cid)
+            try:
+                CHECKPOINT_FILE.write_text(json.dumps(sorted(done_ids)), encoding="utf-8")
+            except Exception as ce:
+                print(f"[CHECKPOINT WARNING] Could not write checkpoint: {ce}")
 
         # Brief rate limit sleep for LLM API stability
         await asyncio.sleep(0.5)

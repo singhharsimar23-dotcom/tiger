@@ -75,8 +75,62 @@ def test_dashboard():
     assert "answer" in ans_data and len(ans_data["answer"]) > 10
     print("POST /api/ask_agent OK ->", ans_data["answer"][:60], "...")
 
+    res = client.get('/api/cluster/status')
+    assert res.status_code == 200, f"GET /api/cluster/status failed: {res.status_code}"
+    print("GET /api/cluster/status OK ->", res.json().get("status"))
+
+    res = client.post('/api/cluster/ping')
+    assert res.status_code == 200, f"POST /api/cluster/ping failed: {res.status_code}"
+    print("POST /api/cluster/ping OK ->", res.json().get("status"))
+
+    res = client.get('/api/case/HHG-014/bundle')
+    assert res.status_code == 200, f"GET /api/case/HHG-014/bundle failed: {res.status_code}"
+    print("GET /api/case/HHG-014/bundle OK -> Content length:", len(res.content))
+
+    # Ground-truth checks on benchmark cases
+    res14 = client.get('/api/case/HHG-014')
+    assert res14.status_code == 200
+    d14 = res14.json()
+    assert d14["amount"] == 74.96, f"Expected 74.96, got {d14['amount']}"
+    assert d14["verdict"] == "fraud"
+    print("GET /api/case/HHG-014 verified: exposure $74.96, verdict fraud")
+
+    res2 = client.get('/api/case/HHG-002')
+    assert res2.status_code == 200
+    d2 = res2.json()
+    assert d2["amount"] == 292.36, f"Expected 292.36, got {d2['amount']}"
+    assert d2["verdict"] == "fraud"
+    print("GET /api/case/HHG-002 verified: exposure $292.36, verdict fraud")
+
+    res7 = client.get('/api/case/HHG-007')
+    assert res7.status_code == 200
+    d7 = res7.json()
+    assert d7["amount"] == 111.92, f"Expected 111.92, got {d7['amount']}"
+    assert d7["verdict"] == "fraud"
+    print("GET /api/case/HHG-007 verified: exposure $111.92, verdict fraud")
+
+    res1 = client.get('/api/case/HHG-001')
+    assert res1.status_code == 200
+    d1 = res1.json()
+    assert d1["amount"] == 0.0, f"Expected 0.0, got {d1['amount']}"
+    assert d1["verdict"] in ["uncertain", "legitimate"]
+    print(f"GET /api/case/HHG-001 verified: exposure $0.00, verdict {d1['verdict']}")
+
+    g14 = client.get('/api/case/HHG-014/graph')
+    assert g14.status_code == 200
+    g14_data = g14.json()
+    g14_node_ids = [n["id"] for n in g14_data.get("nodes", [])]
+    assert "C13487" in g14_node_ids, "Real customer C13487 must be in HHG-014 graph"
+    assert "C13487-K1" in g14_node_ids, "Real card C13487-K1 must be in HHG-014 graph"
+    assert "T3478561" in g14_node_ids, "Real transaction T3478561 must be in HHG-014 graph"
+    print("GET /api/case/HHG-014/graph verified: real customer, card, and transaction present")
+
+    res_static = client.get('/data/HHG-014.json')
+    assert res_static.status_code == 200
+    print("GET /data/HHG-014.json verified: static offline file served successfully")
+
     print("\n==========================================")
-    print("ALL DASHBOARD ROUTES VERIFIED SUCCESSFULLY")
+    print("ALL DASHBOARD ROUTES & GROUND TRUTH VERIFIED")
     print("==========================================")
 
 if __name__ == "__main__":

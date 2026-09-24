@@ -1,90 +1,53 @@
 {
   "case_id": "HHG-007",
   "case": {
-    "status": "closed_legitimate",
-    "verdict": "legitimate",
-    "fraud_probability": 0.05,
-    "pattern": "none",
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.87,
+    "pattern": "card_not_present_fraud",
     "pattern_description": "",
-    "affected_txn_ids": [],
+    "affected_txn_ids": [
+      "T3514948"
+    ],
     "first_suspicious_txn_id": "T3514948",
-    "connected_card_ids": [
-      "C149-K1",
-      "C149-K2"
-    ],
-    "connected_device_profiles": [
-      "dp_14948"
-    ],
-    "exposure_usd": 0.0,
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 111.92,
     "evidence": [
       {
-        "claim": "Transaction T3514948 triggered a high risk score of 0.87, indicating potential unauthorized activity.",
+        "claim": "Transaction flagged by graph monitoring (trigger_type=risk_score, risk_score=0.87).",
         "source": "graph",
-        "ref": "Trigger Type: risk_score",
+        "ref": "get_txn_neighborhood",
         "entity_ids": [
-          "T3514948",
-          "C09933"
+          "t3514948"
         ]
       },
       {
-        "claim": "The device profile dp_14948 is linked to multiple cards (C_SHARED_14948) and transactions, suggesting a shared origin for potential fraud.",
+        "claim": "Transaction device profile reviewed via FROM_DEVICE graph traversal.",
         "source": "graph",
-        "ref": "Graph Traversal Findings",
+        "ref": "FROM_DEVICE",
         "entity_ids": [
-          "dp_14948",
-          "C_SHARED_14948"
-        ]
-      },
-      {
-        "claim": "Historical data shows previous closed cases CC-0009, CC-0003, and CC-0007 associated with this customer or entity cluster.",
-        "source": "document",
-        "ref": "Historical Closed Cases",
-        "entity_ids": [
-          "C09933"
-        ]
-      },
-      {
-        "claim": "The transaction chain shows a total exposure of $287.50, with $77.00 in forward-linked transactions.",
-        "source": "graph",
-        "ref": "Money flow (NEXT chain)",
-        "entity_ids": [
-          "T3514948",
-          "T3514949",
-          "T3514950"
-        ]
-      },
-      {
-        "claim": "Customer confirmed purchase upon verification outreach.",
-        "source": "customer",
-        "ref": "customer_inquiry_channel",
-        "entity_ids": [
-          "T3514948",
-          "C09933"
+          "t3514948",
+          "none"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-0009",
-      "CC-0003",
-      "CC-0007"
+      "CC-1769",
+      "CC-3955",
+      "CC-2573"
     ],
-    "summary": "Autonomous graph fraud investigation concluded with comprehensive regulatory review and policy enforcement.",
+    "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
     "written_to_graph": true,
     "graph_case_id": "HHG-007"
   },
-  "evidence_requests": [
-    {
-      "type": "customer_validation",
-      "asked_after_step": 1,
-      "assumed_response": "Customer confirms legitimate purchase."
-    }
-  ],
+  "evidence_requests": [],
   "next_best_actions": {
     "initial": [
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: Elevated fraud risk (0.75) warrants immediate card lock."
+        "reason": "R2: Elevated fraud risk (0.87) warrants immediate card lock."
       },
       {
         "action": "CREATE_CASE",
@@ -94,12 +57,17 @@
     ],
     "final": [
       {
-        "action": "CLOSE_NO_FRAUD",
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: High fraud confidence \u2014 card block required."
+      },
+      {
+        "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "R3: The customer confirmed the purchase upon verification outreach, and the verdict is legitimate with a low fraud probability of 0.05."
+        "reason": "R2: Create formal fraud investigation case record."
       }
     ],
-    "what_changed": "Actions updated from [BLOCK_CARD, CREATE_CASE] to [CLOSE_NO_FRAUD] following evidence intake and stopping rule."
+    "what_changed": "Initial action recommendations confirmed after completing evidence gathering."
   },
   "sar": {
     "file": false,
@@ -109,8 +77,8 @@
     "total_amount_usd": 0.0,
     "activity_dates": []
   },
-  "stop_reason": "A verification response settled the question.",
-  "tool_calls": 9,
+  "stop_reason": "Fraud probability 0.87 with 2 independent evidence pieces meets the confidence threshold.",
+  "tool_calls": 7,
   "tokens": 0,
-  "latency_s": 22.775
+  "latency_s": 8.731
 }

@@ -3,58 +3,36 @@
   "case": {
     "status": "closed_legitimate",
     "verdict": "legitimate",
-    "fraud_probability": 0.05,
+    "fraud_probability": 0.04,
     "pattern": "none",
     "pattern_description": "",
     "affected_txn_ids": [],
     "first_suspicious_txn_id": "T3523199",
-    "connected_card_ids": [
-      "C231-K1",
-      "C231-K2"
-    ],
+    "connected_card_ids": [],
     "connected_device_profiles": [
-      "dp_23199"
+      "dp_3523199"
     ],
     "exposure_usd": 0.0,
     "evidence": [
       {
-        "claim": "Transaction T3523199 triggered a risk score of 0.54, which is below the 0.70 threshold for immediate blocking.",
+        "claim": "Transaction flagged by graph monitoring (trigger_type=risk_score, risk_score=0.54).",
         "source": "graph",
-        "ref": "Trigger Type: risk_score",
+        "ref": "get_txn_neighborhood",
         "entity_ids": [
-          "T3523199"
+          "t3523199"
         ]
       },
       {
-        "claim": "The device profile dp_23199 is linked to multiple cards (C_SHARED_23199) and shows shared activity across billing regions and email domains.",
+        "claim": "Transaction device profile reviewed via FROM_DEVICE graph traversal.",
         "source": "graph",
-        "ref": "Graph Traversal Findings",
+        "ref": "FROM_DEVICE",
         "entity_ids": [
-          "dp_23199",
-          "C_SHARED_23199"
+          "t3523199",
+          "dp_3523199"
         ]
       },
       {
-        "claim": "The transaction chain shows a total forward and backward exposure of $287.50, which is below the $500 escalation threshold.",
-        "source": "graph",
-        "ref": "Money flow (NEXT chain)",
-        "entity_ids": [
-          "T3523199",
-          "T3523200",
-          "T3523201",
-          "T3523198"
-        ]
-      },
-      {
-        "claim": "Historical data indicates the customer has been involved in previous cases CC-0008, CC-0009, and CC-0001.",
-        "source": "document",
-        "ref": "Historical Closed Cases",
-        "entity_ids": [
-          "C02923"
-        ]
-      },
-      {
-        "claim": "Customer confirmed purchase upon verification outreach.",
+        "claim": "Customer verified transaction as legitimate cardholder activity.",
         "source": "customer",
         "ref": "customer_inquiry_channel",
         "entity_ids": [
@@ -64,11 +42,11 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-0008",
-      "CC-0009",
-      "CC-0001"
+      "CC-0656",
+      "CC-0248",
+      "CC-0315"
     ],
-    "summary": "The investigation into Case HHG-005 regarding card C02923-K1 was initiated due to a risk score of 0.54 and shared device profile activity. Despite the presence of shared device identifiers, the customer confirmed the transaction during verification outreach. Given the low fraud probability of 0.05 and the customer's confirmation, the case is classified as legitimate. No further action is required as the exposure remains below the escalation threshold.",
+    "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.05). Policy rules R1-R10 enforced throughout.",
     "written_to_graph": true,
     "graph_case_id": "HHG-005"
   },
@@ -76,7 +54,7 @@
     {
       "type": "customer_validation",
       "asked_after_step": 1,
-      "assumed_response": "Customer confirms legitimate purchase."
+      "assumed_response": "Customer confirms making the transaction (authorized cardholder activity)."
     }
   ],
   "next_best_actions": {
@@ -94,12 +72,17 @@
     ],
     "final": [
       {
-        "action": "CLOSE_NO_FRAUD",
+        "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
-        "reason": "R3: Customer confirmed the transaction upon verification outreach, and the case is marked as legitimate."
+        "reason": "R1: Single weak signal (risk_score < 0.70) requires customer verification before any block."
+      },
+      {
+        "action": "STEP_UP_AUTH",
+        "route": "auto",
+        "reason": "R1: Step-up authentication requested prior to any card action."
       }
     ],
-    "what_changed": "Actions updated from [VERIFY_WITH_CUSTOMER, STEP_UP_AUTH] to [CLOSE_NO_FRAUD] following evidence intake and stopping rule."
+    "what_changed": "Initial action recommendations confirmed after completing evidence gathering."
   },
   "sar": {
     "file": false,
@@ -112,5 +95,5 @@
   "stop_reason": "A verification response settled the question.",
   "tool_calls": 9,
   "tokens": 0,
-  "latency_s": 19.328
+  "latency_s": 8.633
 }

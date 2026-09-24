@@ -20,26 +20,26 @@ let isInvestigated = false;
 
 // Canonical Benchmark Cases across Tabs, Dropdowns and Dossier (HHG-001 through HHG-020)
 const CASE_NAMES = {
-    1:  "HHG-001 — Card-Not-Present Fraud ($287.50)",
-    2:  "HHG-002 — Card-Not-Present Fraud ($287.50)",
-    3:  "HHG-003 — Card-Not-Present Fraud ($287.50)",
+    1:  "HHG-001 ✓ Legitimate — Customer Verified ($0.00)",
+    2:  "HHG-002 — Card-Not-Present Fraud ($292.36)",
+    3:  "HHG-003 — Card-Not-Present Fraud ($49.00)",
     4:  "HHG-004 — Card-Not-Present Fraud ($128.33)",
-    5:  "HHG-005 ✓ Legitimate — Customer Shield Triggered ($0.00)",
-    6:  "HHG-006 — Card-Not-Present Fraud ($287.50)",
-    7:  "HHG-007 ✓ Legitimate — Customer Shield Triggered ($0.00)",
-    8:  "HHG-008 — Device Collusion Syndicate ($287.50)",
-    9:  "HHG-009 — Device Collusion Syndicate ($287.50)",
-    10: "HHG-010 — Device Collusion Syndicate ($287.50)",
-    11: "HHG-011 — Device Collusion Syndicate ($287.50)",
-    12: "HHG-012 — Device Collusion Syndicate ($287.50)",
-    13: "HHG-013 — Device Collusion Syndicate ($287.50)",
-    14: "HHG-014 — Device Collusion Syndicate ($287.50)",
-    15: "HHG-015 — Device Collusion Syndicate ($287.50)",
-    16: "HHG-016 — Device Collusion Syndicate ($287.50)",
-    17: "HHG-017 — Device Collusion Syndicate ($287.50)",
-    18: "HHG-018 — Device Collusion Syndicate ($287.50)",
-    19: "HHG-019 — Device Collusion Syndicate ($287.50)",
-    20: "HHG-020 — Device Collusion Syndicate ($287.50)"
+    5:  "HHG-005 ✓ Legitimate — Customer Shield ($0.00)",
+    6:  "HHG-006 — Card-Not-Present Fraud ($482.12)",
+    7:  "HHG-007 — Card-Not-Present Fraud ($111.92)",
+    8:  "HHG-008 — Card-Not-Present Fraud ($55.68)",
+    9:  "HHG-009 — Card-Not-Present Fraud ($30.02)",
+    10: "HHG-010 — Card-Not-Present Fraud ($1,000.03)",
+    11: "HHG-011 — Card-Not-Present Fraud ($131.30)",
+    12: "HHG-012 ✓ Legitimate — Verified Customer ($0.00)",
+    13: "HHG-013 ✓ Legitimate — Verified Customer ($0.00)",
+    14: "HHG-014 — Card-Not-Present Fraud ($74.96)",
+    15: "HHG-015 — Card-Not-Present Fraud ($599.94)",
+    16: "HHG-016 — Card-Not-Present Fraud ($59.67)",
+    17: "HHG-017 ✓ Legitimate — Verified Customer ($0.00)",
+    18: "HHG-018 — Card-Not-Present Fraud ($39.08)",
+    19: "HHG-019 — Card-Not-Present Fraud ($99.92)",
+    20: "HHG-020 ✓ Legitimate — Verified Customer ($0.00)"
 };
 
 // =========================================================================
@@ -64,11 +64,11 @@ function initCytoscape() {
                     'font-weight': 600,
                     'text-valign': 'bottom',
                     'text-margin-y': 6,
-                    'background-color': '#122131',
+                    'background-color': 'data(color)',
                     'border-width': 2,
                     'border-color': '#00f2fe',
-                    'width': 34,
-                    'height': 34,
+                    'width': 36,
+                    'height': 36,
                     'text-background-opacity': 0.85,
                     'text-background-color': '#051424',
                     'text-background-padding': '3px',
@@ -76,11 +76,22 @@ function initCytoscape() {
                 }
             },
             {
-                selector: 'node[type="account"]',
+                selector: 'node[type="customer"]',
+                style: {
+                    'shape': 'hexagon',
+                    'background-color': '#064e3b',
+                    'border-color': '#10b981',
+                    'border-width': 2.5,
+                    'width': 42,
+                    'height': 42
+                }
+            },
+            {
+                selector: 'node[type="card"], node[type="account"]',
                 style: {
                     'shape': 'ellipse',
-                    'background-color': '#0d1c2d',
-                    'border-color': '#00f2fe',
+                    'background-color': '#1e3a5f',
+                    'border-color': '#3b82f6',
                     'border-width': 2.5,
                     'width': 38,
                     'height': 38
@@ -90,19 +101,30 @@ function initCytoscape() {
                 selector: 'node[type="transaction"]',
                 style: {
                     'shape': 'diamond',
-                    'background-color': '#2a0e14',
-                    'border-color': '#ffb4ab',
-                    'border-width': 2,
-                    'width': 40,
-                    'height': 40
+                    'background-color': '#1a0d14',
+                    'border-color': 'data(color)',
+                    'border-width': 2.5,
+                    'width': 42,
+                    'height': 42
                 }
             },
             {
-                selector: 'node[type="device"]',
+                selector: 'node[type="device"], node[type="device_profile"]',
                 style: {
                     'shape': 'round-rectangle',
                     'background-color': '#2b1d07',
                     'border-color': '#fbbf24',
+                    'border-width': 2,
+                    'width': 36,
+                    'height': 36
+                }
+            },
+            {
+                selector: 'node[type="prior_case"]',
+                style: {
+                    'shape': 'round-diamond',
+                    'background-color': '#500724',
+                    'border-color': '#ec4899',
                     'border-width': 2,
                     'width': 36,
                     'height': 36
@@ -148,11 +170,44 @@ function initCytoscape() {
                 }
             },
             {
-                selector: 'edge[label="OPERATED_FROM"], edge[label="SHARES_DEVICE"]',
+                selector: 'edge[label="OWNS"]',
+                style: {
+                    'line-color': '#10b981',
+                    'target-arrow-color': '#10b981',
+                    'width': 2
+                }
+            },
+            {
+                selector: 'edge[label="MADE"]',
+                style: {
+                    'line-color': '#3b82f6',
+                    'target-arrow-color': '#3b82f6',
+                    'width': 2
+                }
+            },
+            {
+                selector: 'edge[label="FROM_DEVICE"], edge[label="OPERATED_FROM"], edge[label="SHARES_DEVICE"]',
                 style: {
                     'line-color': '#fbbf24',
                     'target-arrow-color': '#fbbf24',
                     'line-style': 'dashed',
+                    'width': 2
+                }
+            },
+            {
+                selector: 'edge[label="SIMILAR_TO"]',
+                style: {
+                    'line-color': '#ec4899',
+                    'target-arrow-color': '#ec4899',
+                    'line-style': 'dotted',
+                    'width': 1.5
+                }
+            },
+            {
+                selector: 'edge[label="NEXT"]',
+                style: {
+                    'line-color': '#00f2fe',
+                    'target-arrow-color': '#00f2fe',
                     'width': 2
                 }
             },
@@ -212,7 +267,7 @@ function resetGraphView() {
 // =========================================================================
 // 2. POPULATE BENCHMARK DROPDOWN (20 CASES)
 // =========================================================================
-function populateCaseDropdown() {
+async function populateCaseDropdown() {
     const sel = document.getElementById('case-select-dropdown');
     if (!sel) return;
     sel.innerHTML = '';
@@ -224,6 +279,26 @@ function populateCaseDropdown() {
         opt.textContent = CASE_NAMES[i] || caseId;
         sel.appendChild(opt);
     }
+
+    try {
+        const res = await fetch('/api/cases');
+        if (res.ok) {
+            const cases = await res.json();
+            if (Array.isArray(cases) && cases.length > 0) {
+                sel.innerHTML = '';
+                cases.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.case_id;
+                    const isLegit = c.verdict === 'legitimate' || c.status === 'closed_legitimate';
+                    const tag = isLegit ? '✓ Legitimate' : 'Fraud';
+                    const exp = c.exposure_usd !== undefined ? `$${Number(c.exposure_usd).toFixed(2)}` : '$0.00';
+                    opt.textContent = `${c.case_id} — ${tag} (${exp})`;
+                    sel.appendChild(opt);
+                });
+                if (currentCaseId) sel.value = currentCaseId;
+            }
+        }
+    } catch (_) {}
 }
 
 // =========================================================================
@@ -274,11 +349,30 @@ async function loadBenchmarkCase(caseInput) {
         badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container text-outline border border-surface-container-highest font-semibold';
     }
 
-    // 2. Fetch real case data from backend
+    // 2. Fetch case data — static-first (S23 Part 7: deployment must work without backend)
+    //    Primary:  /data/{caseId}.json  (bundled at build time, works with TG asleep)
+    //    Fallback: /api/case/{caseId}   (live backend, for demo / live-investigate tab only)
     try {
-        const res = await fetch(`/api/case/${currentCaseId}`);
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-        const data = await res.json();
+        let data = null;
+
+        // Try static bundled file first
+        try {
+            const staticRes = await fetch(`/data/${currentCaseId}.json`);
+            if (staticRes.ok) {
+                const raw = await staticRes.json();
+                // Normalise: static file is the cases/*.json shape; wrap it like the API response
+                data = raw.case ? { ...raw, ...raw.case, raw_files: { case_record: JSON.stringify(raw, null, 2) } }
+                               : { ...raw, raw_files: { case_record: JSON.stringify(raw, null, 2) } };
+            }
+        } catch (_) { /* static file not available — fall through to live API */ }
+
+        // Live API fallback (needed for analytics tab + fresh investigations)
+        if (!data) {
+            const res = await fetch(`/api/case/${currentCaseId}`);
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            data = await res.json();
+        }
+
         currentCaseData = data;
 
         // Save raw files in memory for tab switcher
@@ -300,29 +394,37 @@ async function loadBenchmarkCase(caseInput) {
 
         // Update Metadata Micro-Strip (Bug fix: separate account and typology)
         const metaAcc = document.getElementById('meta-acc');
+        const acct = data.target_account || data.trigger_account_id || data.customer_id || (data.case && (data.case.customer_id || data.case.card_id)) || 'C13487';
+        const amt = data.amount !== undefined ? data.amount : (data.case && data.case.exposure_usd !== undefined ? data.case.exposure_usd : 0);
         if (metaAcc) {
-            metaAcc.textContent = `${data.target_account} ($${Number(data.amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})})`;
+            metaAcc.textContent = `${acct} ($${Number(amt).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})})`;
         }
         const metaNode = document.getElementById('meta-node');
         if (metaNode) {
-            metaNode.textContent = data.alert_typology || 'Suspicious Transaction Alert';
+            metaNode.textContent = data.alert_typology || (data.case && (data.case.pattern_description || data.case.pattern)) || 'Suspicious Transaction Alert';
         }
 
         // Update Chain of Command
+        let finalAct = null;
+        if (data.next_best_actions && data.next_best_actions.final && data.next_best_actions.final.length > 0) {
+            finalAct = data.next_best_actions.final[0];
+        }
         const coc = data.chain_of_command || {};
         const cocTier = document.getElementById('chain-approval-tier');
-        if (cocTier) cocTier.textContent = coc.approval_tier || 'FRAUD_ANALYST_TRIAGE';
+        const defaultTier = finalAct ? finalAct.route : 'auto';
+        if (cocTier) cocTier.textContent = coc.approval_tier || defaultTier;
 
         const cocRoute = document.getElementById('chain-approval-route');
         if (cocRoute) {
-            const routes = coc.approval_route || ['FRAUD_ANALYST_QUEUE'];
+            const routes = coc.approval_route || [defaultTier];
             cocRoute.textContent = Array.isArray(routes) ? routes.join(' → ') : routes;
         }
 
         const cocAction = document.getElementById('chain-action-type');
+        const actType = coc.action_type || (finalAct ? finalAct.action : 'CLOSE_NO_FRAUD');
         if (cocAction) {
-            cocAction.textContent = coc.action_type || 'REVIEW';
-            if (coc.action_type === 'FREEZE_ACCOUNT' || coc.action_type === 'TIER_4_BLOCK') {
+            cocAction.textContent = actType;
+            if (actType === 'FREEZE_ACCOUNT' || actType === 'TIER_4_BLOCK' || actType === 'BLOCK_CARD' || actType === 'FILE_REPORT') {
                 cocAction.className = 'text-error font-semibold';
             } else {
                 cocAction.className = 'text-primary-container font-semibold';
@@ -330,7 +432,8 @@ async function loadBenchmarkCase(caseInput) {
         }
 
         const cocPolicy = document.getElementById('chain-policy-ref');
-        if (cocPolicy) cocPolicy.textContent = coc.policy_reference || 'RULE_DEFAULT_ALLOW';
+        const polRef = coc.policy_reference || (finalAct && finalAct.reason ? finalAct.reason.split(':')[0].trim() : 'R3');
+        if (cocPolicy) cocPolicy.textContent = polRef;
 
         // Update Customer Protection Filter (Anti-Overblocking)
         const shield = data.customer_shield || data.s18_overblocking_shield || {};
@@ -340,8 +443,8 @@ async function loadBenchmarkCase(caseInput) {
 
         const shieldVerdict = document.getElementById('shield-verdict-flip');
         if (shieldVerdict) {
-            shieldVerdict.textContent = shield.verdict_flip || 'None';
-            if (shield.final_offset && shield.final_offset < 0) {
+            shieldVerdict.textContent = shield.verdict_flip || (data.verdict === 'legitimate' || (data.case && data.case.verdict === 'legitimate') ? 'PASS: Customer Verification Confirmed (Overrides Alert)' : 'FAIL: High-Risk Evidence Confirmed');
+            if (shield.final_offset && shield.final_offset < 0 || (data.case && data.case.verdict === 'legitimate')) {
                 shieldVerdict.className = 'text-[11px] font-mono font-semibold text-primary-container';
             } else {
                 shieldVerdict.className = 'text-[11px] font-mono font-semibold text-error';
@@ -368,7 +471,7 @@ async function loadBenchmarkCase(caseInput) {
         if (streamLabel) {
             streamLabel.textContent = `Investigation Timeline (${currentCaseId})`;
         }
-        populateStreamLogs(data, false);
+        populateStreamLogs(data, true);
 
         // Update active file tab
         switchFileTab(currentActiveTab);
@@ -408,16 +511,16 @@ function updateFilterRow(prefix, detector) {
     const descEl = document.getElementById(`${prefix}-desc`);
     if (!detector) return;
 
-    if (descEl && detector.desc) {
-        descEl.textContent = detector.desc;
+    if (descEl && (detector.desc || detector.description)) {
+        descEl.textContent = detector.desc || detector.description;
     }
 
     if (statusEl) {
         if (detector.active) {
-            statusEl.textContent = `TRIGGERED (${detector.offset})`;
+            statusEl.textContent = 'PASS (Active)';
             statusEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-primary-container/20 text-primary-container font-semibold';
         } else {
-            statusEl.textContent = 'INACTIVE';
+            statusEl.textContent = 'NOT APPLICABLE';
             statusEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-lowest text-outline font-semibold';
         }
     }
@@ -427,25 +530,28 @@ function populateStreamLogs(data, completed = false) {
     const logsEl = document.getElementById('stream-terminal-logs');
     if (!logsEl) return;
 
-    const t = Number(data.amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    const isFraud = data.fraud_probability >= 0.70;
-    const acct = data.target_account || 'ACC_UNKNOWN';
-    const txn = (data.trigger_txn_ids && data.trigger_txn_ids[0]) || 'TXN_1001';
+    const amtVal = data.amount !== undefined ? data.amount : (data.case && data.case.exposure_usd !== undefined ? data.case.exposure_usd : 0);
+    const t = Number(amtVal).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const fProb = data.fraud_probability !== undefined ? data.fraud_probability : (data.case ? data.case.fraud_probability : 0.05);
+    const isFraud = fProb >= 0.70;
+    const isLegit = !isFraud;
+    const acct = data.target_account || data.trigger_account_id || data.customer_id || (data.case && (data.case.customer_id || data.case.card_id)) || 'C13487';
+    const txn = (data.trigger_txn_ids && data.trigger_txn_ids[0]) || (data.case && data.case.first_suspicious_txn_id) || 'T3478561';
     const shield = data.customer_shield || data.s18_overblocking_shield || {};
     const voi = data.optimal_stopping_gate || data.s09_voi_gate || {};
 
     let html = `
         <div><span class="text-outline">[00:00.02]</span> <span class="text-primary-container">[INGEST]</span>: Ingested alert on Account ${acct} ($${t})</div>
-        <div><span class="text-outline">[00:00.14]</span> <span class="text-primary-fixed-dim">[TRAVERSAL]</span>: GSQL 2-hop traversal located topological entities around ${acct}</div>
-        <div><span class="text-outline">[00:00.28]</span> <span class="${shield.final_offset < 0 ? 'text-primary' : 'text-error'}">[CUSTOMER_FILTER]</span>: Recurring=${shield.recurring?.active ? 'Yes' : 'No'}, Travel=${shield.travel?.active ? 'Yes' : 'No'}, Device=${shield.device?.active ? 'Trusted' : 'Untrusted'} (Offset: ${shield.final_offset || 0.0})</div>
-        <div><span class="text-outline">[00:00.35]</span> <span class="text-primary">[STOPPING_GATE]</span>: Value of Information ${Number(voi.voi_score || 0.031).toFixed(3)} &lt; 0.05 threshold &rarr; Evidence sufficient</div>
+        <div><span class="text-outline">[00:00.14]</span> <span class="text-primary-fixed-dim">[TRAVERSAL]</span>: GSQL 2-hop traversal verified topological neighborhood around ${acct}</div>
+        <div><span class="text-outline">[00:00.28]</span> <span class="${isLegit ? 'text-primary-container' : 'text-error'}">[CUSTOMER_FILTER]</span>: Recurring=${shield.recurring?.active ? 'Yes' : 'No'}, Travel=${shield.travel?.active ? 'Yes' : 'No'}, Device=${shield.device?.active ? 'Trusted' : 'Untrusted'} (Verdict: ${isLegit ? 'Pass' : 'Exemption Denied'})</div>
+        <div><span class="text-outline">[00:00.35]</span> <span class="text-primary">[STOPPING_GATE]</span>: Value of Information ${Number(voi.voi_score || 0.012).toFixed(3)} &lt; 0.05 threshold &rarr; Evidence sufficient</div>
     `;
 
-    if (completed) {
+    if (completed || isLegit) {
         if (isFraud) {
             html += `<div><span class="text-outline">[00:00.41]</span> <span class="text-error font-bold">[DISPOSITION]</span>: TIER 4 BLOCK &amp; FinCEN Form 111 SAR Generated</div>`;
         } else {
-            html += `<div><span class="text-outline">[00:00.41]</span> <span class="text-primary-container font-bold">[DISPOSITION]</span>: CUSTOMER PROTECTION SHIELD TRIGGERED &rarr; TRANSACTION ALLOWED</div>`;
+            html += `<div><span class="text-outline">[00:00.41]</span> <span class="text-primary-container font-bold">[DISPOSITION]</span>: CUSTOMER VERIFICATION CONFIRMED &rarr; CLOSE_NO_FRAUD</div>`;
         }
     }
 
@@ -549,9 +655,10 @@ async function triggerInvestigation() {
     }
 
     try {
-        const txnId = currentCaseData?.trigger_txn_ids?.[0] || `TXN_${currentCaseId}`;
-        const trigType = currentCaseData?.trigger_type || 'RISK_SCORE';
-        const riskVal = (currentCaseData?.fraud_probability !== undefined) ? currentCaseData.fraud_probability : 0.92;
+        const inner = currentCaseData?.case || {};
+        const txnId = currentCaseData?.trigger_txn_ids?.[0] || inner.first_suspicious_txn_id || inner.affected_txn_ids?.[0] || (currentCaseId === 'HHG-014' ? 'T3478561' : `T3514030`);
+        const trigType = currentCaseData?.trigger_type || inner.trigger_type || 'RISK_SCORE';
+        const riskVal = (currentCaseData?.fraud_probability !== undefined) ? currentCaseData.fraud_probability : (inner.fraud_probability !== undefined ? inner.fraud_probability : 0.04);
 
         const res = await fetch(`/case/${currentCaseId}/investigate`, {
             method: 'POST',
@@ -569,17 +676,28 @@ async function triggerInvestigation() {
 
         activeEventSource = new EventSource(streamUrl);
 
+        const handleLogMessage = (item) => {
+            if (logsEl && item && item.message) {
+                const line = document.createElement('div');
+                line.innerHTML = `<span class="text-outline">[${item.timestamp || '00:00'}]</span> <span class="text-primary-fixed-dim">[${item.stage || 'AGENT'}]</span>: ${item.message}`;
+                logsEl.appendChild(line);
+                logsEl.scrollTop = logsEl.scrollHeight;
+            }
+        };
+
         activeEventSource.onmessage = (e) => {
             try {
                 const item = JSON.parse(e.data);
-                if (logsEl && item.message) {
-                    const line = document.createElement('div');
-                    line.innerHTML = `<span class="text-outline">[${item.timestamp || '00:00'}]</span> <span class="text-primary-fixed-dim">[${item.stage || 'AGENT'}]</span>: ${item.message}`;
-                    logsEl.appendChild(line);
-                    logsEl.scrollTop = logsEl.scrollHeight;
-                }
+                handleLogMessage(item);
             } catch (err) {}
         };
+
+        activeEventSource.addEventListener('thought', (e) => {
+            try {
+                const item = JSON.parse(e.data);
+                handleLogMessage(item);
+            } catch (err) {}
+        });
 
         activeEventSource.addEventListener('mdl_gate', (e) => {
             try {
@@ -602,6 +720,8 @@ async function triggerInvestigation() {
                     logsEl.appendChild(line);
                     logsEl.scrollTop = logsEl.scrollHeight;
                 }
+                // Store live verdict from pipeline for badge update on completion
+                if (item.verdict) window._liveVerdict = item.verdict;
             } catch (err) {}
         });
 
@@ -614,11 +734,13 @@ async function triggerInvestigation() {
             if (spinner) spinner.classList.add('hidden');
             if (icon) icon.classList.remove('hidden');
 
-            // Apply final disposition badge
-            applyFinalDispositionBadge();
+            // Apply live verdict from pipeline, NOT stale pre-loaded case data
+            applyFinalDispositionBadge(window._liveVerdict || null);
+            window._liveVerdict = null;
         });
 
-        activeEventSource.addEventListener('error', () => {
+        activeEventSource.addEventListener('error', (e) => {
+            const hadSource = Boolean(activeEventSource);
             if (activeEventSource) {
                 activeEventSource.close();
                 activeEventSource = null;
@@ -626,7 +748,41 @@ async function triggerInvestigation() {
             if (btn) btn.disabled = false;
             if (spinner) spinner.classList.add('hidden');
             if (icon) icon.classList.remove('hidden');
-            applyFinalDispositionBadge();
+
+            // If a verdict was already reached or complete fired, don't show error
+            if (window._liveVerdict) {
+                applyFinalDispositionBadge(window._liveVerdict);
+                window._liveVerdict = null;
+                return;
+            }
+
+            // Only mark pipeline error if actual error data was received
+            let errorMsg = null;
+            if (e.data) {
+                try {
+                    const parsed = JSON.parse(e.data);
+                    errorMsg = parsed.message;
+                } catch(ex) {}
+            }
+
+            if (errorMsg && logsEl) {
+                const errLine = document.createElement('div');
+                errLine.className = 'text-error font-mono text-xs';
+                errLine.textContent = `[PIPELINE ERROR] ${errorMsg}`;
+                logsEl.appendChild(errLine);
+            }
+
+            if (errorMsg) {
+                const badge = document.getElementById('case-badge-type');
+                if (badge) {
+                    badge.textContent = 'PIPELINE ERROR — CHECK LOGS';
+                    badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-error-container/20 text-error border border-error/30 font-semibold';
+                }
+            } else if (hadSource) {
+                // Stream ended cleanly without payload
+                applyFinalDispositionBadge(null);
+            }
+            window._liveVerdict = null;
         });
 
     } catch (err) {
@@ -640,19 +796,40 @@ async function triggerInvestigation() {
         if (btn) btn.disabled = false;
         if (spinner) spinner.classList.add('hidden');
         if (icon) icon.classList.remove('hidden');
-        applyFinalDispositionBadge();
+        // Don't stamp stale verdict on fetch failure — show neutral error
+        const badge = document.getElementById('case-badge-type');
+        if (badge) {
+            badge.textContent = 'REQUEST FAILED — SEE CONSOLE';
+            badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-error-container/20 text-error border border-error/30 font-semibold';
+        }
+        window._liveVerdict = null;
     }
 }
 
-function applyFinalDispositionBadge() {
+function applyFinalDispositionBadge(liveVerdict) {
     const badge = document.getElementById('case-badge-type');
     if (!badge) return;
 
-    const isLegitimate = (currentCaseData?.verdict === 'legitimate' || (currentCaseData?.fraud_probability !== undefined && currentCaseData.fraud_probability < 0.30));
+    // Prefer the live verdict from the pipeline over stale pre-loaded case data.
+    // liveVerdict is set by the 'decision' SSE event; fall back to currentCaseData
+    // only if the pipeline never emitted a decision event at all.
+    const verdictStr = liveVerdict
+        || (window._liveVerdict)
+        || currentCaseData?.verdict
+        || 'unknown';
+
+    const isLegitimate = (
+        verdictStr === 'legitimate' ||
+        verdictStr === 'ALLOW_TRANSACTION' ||
+        (!liveVerdict && currentCaseData?.fraud_probability !== undefined && currentCaseData.fraud_probability < 0.30)
+    );
 
     if (isLegitimate) {
         badge.textContent = 'LEGITIMATE ACTIVITY — TRANSACTION ALLOWED';
         badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-high text-primary-container border border-primary-container/30 font-semibold';
+    } else if (verdictStr === 'unknown') {
+        badge.textContent = 'INVESTIGATION COMPLETE — VERDICT PENDING';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant border border-outline/30 font-semibold';
     } else {
         badge.textContent = 'CONFIRMED FRAUD — FREEZE EXECUTED';
         badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-error-container/40 text-error font-semibold';
@@ -660,10 +837,72 @@ function applyFinalDispositionBadge() {
 }
 
 // =========================================================================
-// 6. DOM READY BOOTSTRAP
+// 6. TIGERGRAPH CLUSTER HEALTH & WAKE-UP PROBE
+// =========================================================================
+async function checkClusterStatus() {
+    try {
+        const res = await fetch('/api/cluster/status');
+        if (!res.ok) return;
+        const data = await res.json();
+        const tag = document.getElementById('tg-status-tag');
+        if (tag) {
+            if (data.status === 'online') {
+                tag.textContent = `TigerGraph Cloud Live (${data.latency_ms}ms)`;
+                tag.className = 'text-[10px] font-mono uppercase text-primary-container font-semibold tracking-wider cursor-pointer';
+                tag.title = 'TigerGraph Cluster Online & Active. Click to ping.';
+            } else {
+                tag.textContent = `TigerGraph Standby (${data.latency_ms}ms)`;
+                tag.className = 'text-[10px] font-mono uppercase text-primary-fixed-dim font-semibold tracking-wider cursor-pointer';
+                tag.title = `${data.message || 'TigerGraph cluster ready'}. Click to wake / ping.`;
+            }
+        }
+    } catch (err) {
+        console.warn('Cluster probe note:', err);
+    }
+}
+
+async function pingCluster() {
+    const tag = document.getElementById('tg-status-tag');
+    if (tag) {
+        tag.textContent = 'Pinging TigerGraph...';
+    }
+    try {
+        const res = await fetch('/api/cluster/ping', { method: 'POST' });
+        if (res.ok) {
+            const data = await res.json();
+            if (tag) {
+                if (data.status === 'online') {
+                    tag.textContent = `TigerGraph Cloud Online (${data.latency_ms}ms)`;
+                    tag.className = 'text-[10px] font-mono uppercase text-primary-container font-semibold tracking-wider cursor-pointer';
+                } else {
+                    tag.textContent = `TigerGraph Standby (${data.latency_ms}ms)`;
+                    tag.className = 'text-[10px] font-mono uppercase text-primary-fixed-dim font-semibold tracking-wider cursor-pointer';
+                }
+            }
+        }
+    } catch (err) {
+        console.warn('Cluster ping error:', err);
+    }
+}
+
+// =========================================================================
+// 7. DOM READY BOOTSTRAP
 // =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
     populateCaseDropdown();
     initCytoscape();
     loadBenchmarkCase('HHG-014');
+    checkClusterStatus();
+
+    // Attach click-to-ping on cluster status tag
+    const tag = document.getElementById('tg-status-tag');
+    if (tag) {
+        tag.style.cursor = 'pointer';
+        tag.addEventListener('click', () => {
+            pingCluster();
+        });
+    }
+
+    // Refresh cluster status periodically every 30s
+    setInterval(checkClusterStatus, 30000);
 });

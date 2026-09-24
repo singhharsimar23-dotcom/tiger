@@ -105,8 +105,7 @@ def should_stop(
 ) -> Tuple[bool, str]:
     """
     Section 2 — exact stopping rule.
-    MDL/entropy in innovation/mdl_gate.py picks the next best question;
-    this function decides when to stop asking.
+    Evaluates whether enough independent evidence has been gathered to stop.
     """
     if verification_settled:
         return True, "A verification response settled the question."
@@ -291,7 +290,7 @@ class InvestigationState(BaseModel):
     tool_calls: List[str] = Field(default_factory=list)  # names of tools invoked
 
     # --- MDL/entropy innovation layer ---
-    mdl_sufficiency_score: float = 1.0   # from innovation/mdl_gate.py
+    mdl_sufficiency_score: float = 1.0   # computed by assess_uncertainty_node
     next_evidence_type: Optional[str] = None
 
     def compute_stop(self) -> Tuple[bool, str]:

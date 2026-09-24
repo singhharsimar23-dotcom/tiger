@@ -32,8 +32,8 @@ The system consists of several layered subsystems:
 
 ## 3. Dataset Specification & Storage
 The dataset is structured based on the IEEE-CIS Fraud Detection benchmark with hackathon extensions:
-- `train_transaction.csv`: Transaction features, card details, amounts, email domains, address codes, V-features, and fraud labels.
-- `train_identity.csv`: Device information, browser, and network identifiers.
+- `transactions.csv`: Transaction features, card details, amounts, email domains, address codes, V-features, and fraud labels.
+- `identity.csv`: Device information, browser, and network identifiers.
 - Closed investigation cases: Historical resolved cases for memory retrieval.
 - Fraud policy documents: Governance guidelines, thresholds, and SAR triggers.
 - Fraud pattern documents: Documented fraud typologies (e.g. bust-out, smurfing, ring collusion).

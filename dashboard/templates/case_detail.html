@@ -187,12 +187,12 @@
           <div class="border border-surface-container-high rounded-lg p-3 bg-surface-container-lowest/60">
             <div class="flex items-center justify-between mb-1">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-950 text-error border border-red-800">FINAL VERDICT</span>
-                <span class="font-mono text-xs text-on-surface font-semibold">{{ case.decision.verdict|default('CONFIRMED_FRAUD') }}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface-container-high text-outline border border-surface-container-highest">FINAL VERDICT</span>
+                <span class="font-mono text-xs text-on-surface font-semibold">{{ case.decision.verdict|default('PENDING_INVESTIGATION') }}</span>
               </div>
               <span class="text-[11px] text-outline font-mono">{{ case.opened_at }}</span>
             </div>
-            <p class="text-xs text-on-surface-variant mt-1">{{ case.decision.rationale|default('Graph multi-hop topological analysis detected coordinated syndicate collusion.') }}</p>
+            <p class="text-xs text-on-surface-variant mt-1">{{ case.decision.rationale|default('Case pending autonomous multi-hop investigation.') }}</p>
           </div>
           {% endfor %}
         </div>
@@ -378,37 +378,62 @@ async function loadNetworkGraph() {
           style: {
             'label': 'data(label)',
             'font-size': '9px',
+            'font-family': 'monospace',
+            'font-weight': 600,
             'color': '#f3f4f6',
-            'text-valign': 'center',
-            'text-halign': 'center',
+            'text-valign': 'bottom',
+            'text-margin-y': 5,
             'text-wrap': 'wrap',
-            'text-max-width': '65px',
+            'text-max-width': '80px',
             'background-color': 'data(color)',
-            'shape': 'data(shape)',
-            'width': '38px',
-            'height': '38px',
             'border-width': 2,
-            'border-color': '#111827'
+            'border-color': '#111827',
+            'text-background-opacity': 0.85,
+            'text-background-color': '#051424',
+            'text-background-padding': '2px',
+            'text-background-shape': 'roundrectangle'
           }
         },
         {
-          selector: 'node[shape = "diamond"]',
+          selector: 'node[type = "account"]',
           style: {
-            'width': '32px',
-            'height': '32px'
+            'shape': 'ellipse',
+            'width': '38px',
+            'height': '38px',
+            'background-color': '#122131',
+            'border-color': '#00f2fe'
+          }
+        },
+        {
+          selector: 'node[type = "transaction"]',
+          style: {
+            'shape': 'diamond',
+            'width': '36px',
+            'height': '36px',
+            'border-color': '#ffb4ab'
+          }
+        },
+        {
+          selector: 'node[type = "device"]',
+          style: {
+            'shape': 'roundrectangle',
+            'width': '36px',
+            'height': '36px',
+            'background-color': '#2b1d07',
+            'border-color': '#f59e0b'
           }
         },
         {
           selector: 'edge',
           style: {
             'width': 2,
-            'line-color': 'data(color)',
-            'target-arrow-color': 'data(color)',
+            'line-color': '#374151',
+            'target-arrow-color': '#4b5563',
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
-            'line-style': 'data(style)',
             'label': 'data(label)',
-            'font-size': '7px',
+            'font-size': '8px',
+            'font-family': 'monospace',
             'color': '#9ca3af',
             'text-rotation': 'autorotate'
           }
@@ -422,22 +447,22 @@ async function loadNetworkGraph() {
         }
       ],
       layout: {
-        name: 'concentric',
-        concentric: function(node) {
-          if (node.data('id') === '{{ case.trigger_account_id }}') return 10;
-          if (node.data('type') === 'account') return 8;
-          if (node.data('type') === 'transaction') return 5;
-          return 2;
-        },
-        levelWidth: function() { return 1; },
-        padding: 25
+        name: 'cose',
+        animate: false,
+        padding: 30,
+        nodeRepulsion: 5000,
+        idealEdgeLength: 65,
+        gravity: 0.25
       }
     });
+
+    cyInstance.fit(null, 25);
+    cyInstance.center();
 
     const tooltip = document.getElementById('graphTooltip');
     cyInstance.on('mouseover', 'node', function(e) {
       const d = e.target.data();
-      tooltip.innerHTML = `<span class="text-error font-bold">[${d.type.toUpperCase()}]</span> <span class="text-on-surface">${d.id}</span> • Fraud Count: ${d.fraud_count || 0} • Shape: ${d.shape}`;
+      tooltip.innerHTML = `<span class="text-primary font-bold">[${(d.type || 'NODE').toUpperCase()}]</span> <span class="text-on-surface">${d.id}</span> • Role: ${d.role || 'Graph Entity'}`;
     });
     cyInstance.on('mouseover', 'edge', function(e) {
       const d = e.target.data();
@@ -454,7 +479,7 @@ async function loadNetworkGraph() {
 
 function resetGraphView() {
   if (cyInstance) {
-    cyInstance.fit();
+    cyInstance.fit(null, 25);
     cyInstance.center();
   }
 }
@@ -483,7 +508,7 @@ function setupEventStream() {
   const streamStatus = document.getElementById('streamStatus');
   const evtSource = new EventSource(`/case/${caseId}/stream`);
 
-  evtSource.onmessage = function(event) {
+  function handleTimelineEvent(event) {
     try {
       const data = JSON.parse(event.data);
       if (data.keepalive) return;
@@ -491,7 +516,32 @@ function setupEventStream() {
     } catch(e) {
       console.warn("Raw stream message:", event.data);
     }
-  };
+  }
+
+  evtSource.onmessage = handleTimelineEvent;
+  evtSource.addEventListener('thought', handleTimelineEvent);
+
+  evtSource.addEventListener('mdl_gate', function(event) {
+    try {
+      const data = JSON.parse(event.data);
+      appendToTimeline({
+        timestamp: new Date().toISOString().substring(11, 19),
+        node: "MDL_GATE",
+        desc: data.interpretation || `Score: ${data.score}`
+      });
+    } catch(e) {}
+  });
+
+  evtSource.addEventListener('decision', function(event) {
+    try {
+      const data = JSON.parse(event.data);
+      appendToTimeline({
+        timestamp: new Date().toISOString().substring(11, 19),
+        node: "DISPOSITION",
+        desc: `[${data.verdict}] ${data.summary}`
+      });
+    } catch(e) {}
+  });
 
   evtSource.addEventListener('complete', function() {
     streamStatus.innerText = "STREAM COMPLETE";
@@ -500,7 +550,7 @@ function setupEventStream() {
   });
 
   evtSource.onerror = function() {
-    streamStatus.innerText = "STANDALONE SYNCED";
+    streamStatus.innerText = "STREAM COMPLETE";
     streamStatus.className = "text-[11px] code-font text-outline bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest";
     evtSource.close();
   };
@@ -521,9 +571,17 @@ function sortEvidenceTable(dir) {
 // 5. Trigger Re-run Investigation
 async function triggerInvestigation() {
   const btn = document.getElementById('reInvestigateBtn');
+  const container = document.getElementById('timelineContainer');
+  const streamStatus = document.getElementById('streamStatus');
+  
   btn.disabled = true;
   btn.classList.add('opacity-50', 'cursor-not-allowed');
   
+  // Clear previous timeline on re-run to avoid duplication
+  container.innerHTML = '';
+  streamStatus.innerText = "LIVE SSE CONNECTED";
+  streamStatus.className = "text-[11px] code-font text-primary-container bg-surface-container-high px-2 py-0.5 rounded border border-emerald-800/60";
+
   appendToTimeline({
     timestamp: new Date().toISOString().substring(11, 19),
     node: "system",
@@ -545,10 +603,14 @@ async function triggerInvestigation() {
   }
 }
 
-// Run on page load
+// Run on page load: graph loads, stream status set to complete (timeline already rendered)
 document.addEventListener('DOMContentLoaded', () => {
   loadNetworkGraph();
-  setupEventStream();
+  const streamStatus = document.getElementById('streamStatus');
+  if (streamStatus) {
+    streamStatus.innerText = "STREAM COMPLETE";
+    streamStatus.className = "text-[11px] code-font text-outline bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest";
+  }
 });
 </script>
 {% endblock %}

@@ -2,6 +2,7 @@ import os
 import sys
 import math
 import csv
+import random
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from retrieval.embedder import Embedder
@@ -22,13 +23,30 @@ class GraphRAGRetriever:
     Hybrid GraphRAG retriever combining structural graph proximity (Card / ClosedCase edges)
     and semantic vector similarity (ClosedCase notes_embedding).
     Formula: 0.4 * structural + 0.6 * semantic.
+
+    S23 FIX: local corpus now loads the FULL closed_cases_history.csv (all 5,565 rows)
+    instead of the previous 200-row cap that caused only ~10 distinct case IDs to ever
+    appear across 20 investigations.
+
+    S23 FIX: Added hard pattern-filter Stage 0 before semantic re-ranking. Cases that
+    match the current investigation's fraud pattern are always preferred. For 'none'
+    pattern (legitimate/cleared cases), filter to cleared outcome first.
+
+    S23 FIX: TigerGraph online path now fetches limit=5000 instead of 100 ClosedCase
+    vertices, and applies the same pattern pre-filter before scoring.
     """
+
     def __init__(self, embedder: Embedder):
         self.embedder = embedder
         self._local_corpus: Optional[List[Dict[str, Any]]] = None
 
     def _get_local_closed_cases(self) -> List[Dict[str, Any]]:
-        """Load closed_cases_history.csv if available for offline fallback."""
+        """Load FULL closed_cases_history.csv for offline fallback.
+
+        S23 FIX: Removed the `if len(corpus) >= 200: break` early-exit that capped
+        the corpus at 200 rows. The full file has 5,565 rows; the cap meant all 20
+        investigations drew from the same tiny pool of ~10 cases at the top of the file.
+        """
         if self._local_corpus is not None:
             return self._local_corpus
         corpus = []
@@ -43,28 +61,71 @@ class GraphRAGRetriever:
                         reader = csv.DictReader(f)
                         for row in reader:
                             corpus.append(row)
-                            if len(corpus) >= 200:
-                                break
+                        # S23 FIX: NO cap — load all rows
+                    print(f"[GRAPHRAG] Loaded {len(corpus)} closed cases from {p}", file=sys.stderr)
                     break
-                except Exception:
-                    pass
+                except Exception as e:
+                    print(f"[GRAPHRAG WARNING] Could not load {p}: {e}", file=sys.stderr)
         self._local_corpus = corpus
         return corpus
+
+    def _filter_by_pattern(
+        self,
+        candidates: List[Dict[str, Any]],
+        current_pattern: str,
+        min_count: int = 20,
+    ) -> List[Dict[str, Any]]:
+        """
+        S23 FIX: Hard pattern pre-filter before semantic scoring.
+
+        Strategy:
+        1. If current_pattern is a real fraud pattern (not 'none'/'undocumented'):
+           prefer cases with the same pattern.
+        2. If current_pattern == 'none' (cleared/legitimate):
+           prefer cases with outcome == 'cleared'.
+        3. Fall back to full candidate set only if filtered set has < min_count entries
+           (prevents over-restriction when a pattern is rare in history).
+        """
+        if not candidates:
+            return candidates
+
+        if current_pattern and current_pattern not in ("none", "undocumented", ""):
+            filtered = [c for c in candidates if c.get("pattern", "") == current_pattern]
+            if len(filtered) >= min_count:
+                return filtered
+            # Widen: same pattern OR related fraud (not cleared)
+            filtered2 = [c for c in candidates if c.get("outcome", "") == "confirmed_fraud"]
+            if len(filtered2) >= min_count:
+                return filtered2
+            return candidates
+
+        elif current_pattern in ("none", ""):
+            # For legitimate / cleared cases, prefer cleared outcome
+            filtered = [c for c in candidates if c.get("outcome", "") == "cleared"]
+            if len(filtered) >= min_count:
+                return filtered
+            return candidates
+
+        return candidates
 
     async def get_similar_prior_cases(
         self,
         case_id: str,
         query_cards: Optional[List[str]] = None,
         query_text: str = "",
-        top_k: int = 5
+        top_k: int = 3,
+        current_pattern: str = "",
+        query_accounts: Optional[List[str]] = None,
+        **kwargs,
     ) -> List[Dict[str, Any]]:
         """
         Full hybrid retrieval for prior ClosedCase records.
+        Step 0: Hard pattern / outcome pre-filter (S23 FIX).
         Step 1: Structural — check CC_ON_CARD / CC_CONNECTED_TO edges for matching cards.
         Step 2: Semantic — embed query_text, compare with notes_embedding.
         Step 3: Merge scores (0.4 * structural + 0.6 * semantic), return top_k.
         """
-        query_cards = query_cards or []
+        query_cards = query_cards or query_accounts or []
         structural_scores: Dict[str, float] = {}
         semantic_scores: Dict[str, float] = {}
         case_metadata: Dict[str, Dict[str, Any]] = {}
@@ -93,18 +154,33 @@ class GraphRAGRetriever:
         try:
             conn = tg_tools._get_tg_conn()
             if conn:
-                candidates = conn.getVertices("ClosedCase", limit=100)
-                for c in candidates:
+                # S23 FIX: was limit=100 — increased to 5000 to cover the full 5,565-case history
+                candidates_raw = conn.getVertices("ClosedCase", limit=5000)
+
+                # Build metadata dict from TG response
+                all_tg_meta = {}
+                for c in candidates_raw:
                     c_id = c.get("v_id")
                     if c_id == case_id:
                         continue
                     attrs = c.get("attributes", {})
-                    case_metadata[c_id] = {
+                    all_tg_meta[c_id] = {
                         "case_id": c_id,
                         "outcome": attrs.get("outcome", "confirmed_fraud"),
                         "pattern": attrs.get("pattern", "none"),
                         "notes": (attrs.get("analyst_notes", "") or "")[:200],
+                        "_attrs": attrs,
                     }
+
+                # S23 FIX: apply pattern pre-filter before scoring
+                filtered_meta = self._filter_by_pattern(
+                    list(all_tg_meta.values()), current_pattern
+                )
+
+                for meta in filtered_meta:
+                    c_id = meta["case_id"]
+                    case_metadata[c_id] = meta
+                    attrs = meta["_attrs"]
                     target_emb = attrs.get("notes_embedding")
                     if target_emb and isinstance(target_emb, list) and len(target_emb) == len(query_embedding):
                         sim = cosine_similarity(query_embedding, target_emb)
@@ -124,8 +200,18 @@ class GraphRAGRetriever:
         if not case_metadata:
             local_cases = self._get_local_closed_cases()
             if local_cases:
-                # Fast slice: take top 10 cases to prevent embedding loop delays
-                for row in local_cases[:10]:
+                # S23 FIX: Apply pattern pre-filter to local corpus too
+                filtered_local = self._filter_by_pattern(local_cases, current_pattern, min_count=20)
+
+                # S23 FIX: was `for row in local_cases[:10]` — now scores up to 300 pattern-
+                # filtered candidates so the top_k result has real diversity across 5,565 cases.
+                # We embed a sample of up to 300 to keep latency reasonable.
+                sample_size = min(300, len(filtered_local))
+                # Use a simple stride to pick evenly distributed candidates from the filtered set
+                stride = max(1, len(filtered_local) // sample_size)
+                sampled = [filtered_local[i] for i in range(0, len(filtered_local), stride)][:sample_size]
+
+                for row in sampled:
                     c_id = row.get("case_id", "")
                     if not c_id or c_id == case_id:
                         continue
@@ -189,6 +275,7 @@ class GraphRAGRetriever:
             fused.append({
                 "case_id": c_id,
                 "outcome": meta.get("outcome"),
+                "disposition": meta.get("outcome"),
                 "pattern": meta.get("pattern"),
                 "similarity_score": score,
                 "notes": meta.get("notes"),
@@ -196,3 +283,7 @@ class GraphRAGRetriever:
 
         fused.sort(key=lambda x: x["similarity_score"], reverse=True)
         return fused[:top_k]
+
+
+# hashlib imported at top-of-file level via standard library (no extra import needed)
+import hashlib as _hashlib  # noqa: F401 — kept for potential future use

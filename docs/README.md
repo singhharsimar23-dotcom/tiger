@@ -154,9 +154,9 @@ tiger/
 
 ## 6. Dataset Specification
 
-The system is trained and benchmarked on the industry-standard **IEEE-CIS Fraud Detection** dataset (via `HHGOA_IEEE`):
-- `train_transaction.csv`: 590,540 financial transactions featuring amounts, card identities, product codes, address coordinates, and time deltas.
-- `train_identity.csv`: 144,233 device fingerprints, browser strings, and network attributes.
+The system is evaluated against the official benchmark dataset:
+- `transactions.csv`: 590,742 financial transactions featuring amounts, card identities, product codes, address coordinates, and time deltas.
+- `identity.csv`: Device fingerprints, browser strings, and network attributes.
 - **20 Curated Benchmark Scenarios:** Covering rapid velocity smurfing, synthetic identity rings, device collusion farms, account takeovers, and cross-border proxy tunnels.
 
 ---

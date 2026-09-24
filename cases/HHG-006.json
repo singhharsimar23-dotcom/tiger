@@ -3,68 +3,43 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.85,
+    "fraud_probability": 0.95,
     "pattern": "card_not_present_fraud",
     "pattern_description": "",
     "affected_txn_ids": [
       "T3476682"
     ],
     "first_suspicious_txn_id": "T3476682",
-    "connected_card_ids": [
-      "C766-K1",
-      "C766-K2"
-    ],
+    "connected_card_ids": [],
     "connected_device_profiles": [
-      "dp_76682"
+      "dp_3476682"
     ],
-    "exposure_usd": 287.5,
+    "exposure_usd": 482.12,
     "evidence": [
       {
-        "claim": "Customer C07297 explicitly denies transaction T3476682, reporting it as unauthorized.",
-        "source": "customer",
-        "ref": "Trigger Text",
-        "entity_ids": [
-          "C07297",
-          "T3476682"
-        ]
-      },
-      {
-        "claim": "Transaction T3476682 is linked to device profile dp_76682, which is shared with other cards (C_SHARED_76682) and multiple historical fraud cases.",
+        "claim": "Transaction flagged by graph monitoring (trigger_type=customer_report, risk_score=0.00).",
         "source": "graph",
-        "ref": "Graph Traversal Findings",
+        "ref": "get_txn_neighborhood",
         "entity_ids": [
-          "T3476682",
-          "dp_76682",
-          "C_SHARED_76682"
+          "t3476682"
         ]
       },
       {
-        "claim": "The device profile dp_76682 is associated with multiple cards, billing regions, and email domains, indicating a coordinated fraud pattern.",
+        "claim": "Transaction device profile reviewed via FROM_DEVICE graph traversal.",
         "source": "graph",
-        "ref": "Shared identifiers (live traversal)",
+        "ref": "FROM_DEVICE",
         "entity_ids": [
-          "dp_76682",
-          "444.0",
-          "gmail.com"
-        ]
-      },
-      {
-        "claim": "Historical data confirms previous fraud cases (CC-0001, CC-0004, CC-0007) linked to the current entity network.",
-        "source": "document",
-        "ref": "Historical Closed Cases",
-        "entity_ids": [
-          "CC-0001",
-          "CC-0004",
-          "CC-0007"
+          "t3476682",
+          "dp_3476682"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-0001",
-      "CC-0004",
-      "CC-0007"
+      "CC-2045",
+      "CC-1912",
+      "CC-3689"
     ],
-    "summary": "Investigation into Case HHG-006 confirms unauthorized activity on card C07297-K1, with the customer explicitly denying transaction T3476682. Forensic analysis identified a shared device profile, dp_76682, which is linked to multiple historical fraud cases and a coordinated network of compromised accounts. Given the high fraud probability of 0.85 and the confirmed link to known fraudulent entities, the card has been blocked and the case closed as fraud. This action aligns with internal policy R2 and R6 regarding shared device identifiers.",
+    "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
     "written_to_graph": true,
     "graph_case_id": "HHG-006"
   },
@@ -74,7 +49,7 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: Elevated fraud risk (0.85) warrants immediate card lock."
+        "reason": "R2: Elevated fraud risk (0.95) warrants immediate card lock."
       },
       {
         "action": "CREATE_CASE",
@@ -86,41 +61,26 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: Customer explicitly denies the transaction and the case connects to a shared device profile linked to multiple historical fraud cases."
+        "reason": "R2: High fraud confidence \u2014 card block required."
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "R2: Customer denies the transaction and the case involves a shared device profile."
-      },
-      {
-        "action": "FILE_REPORT",
-        "route": "L2",
-        "reason": "R2: Exposure is linked to a shared device profile and multiple historical fraud cases."
-      },
-      {
-        "action": "MONITOR_CONNECTED_CARDS",
-        "route": "auto",
-        "reason": "R6: The device profile dp_76682 is shared across multiple cards and shows a coordinated fraud pattern."
+        "reason": "R2: Create formal fraud investigation case record."
       }
     ],
-    "what_changed": "Actions updated from [BLOCK_CARD, CREATE_CASE] to [BLOCK_CARD, CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS] following evidence intake and stopping rule."
+    "what_changed": "Initial action recommendations confirmed after completing evidence gathering."
   },
   "sar": {
-    "file": true,
-    "reason": "R2: Exposure is linked to a shared device profile and multiple historical fraud cases.",
-    "narrative": "This report documents fraudulent activity associated with customer C07297, specifically involving unauthorized transaction T3476682 totaling $287.50. Investigation revealed that the transaction originated from device profile dp_76682, which has been identified as a common denominator in a series of coordinated fraud events, including historical cases CC-0001, CC-0004, and CC-0007. The device profile is associated with multiple cards, disparate billing regions, and various email domains, suggesting a sophisticated, multi-account fraud operation. The customer has formally denied the transaction, and the pattern of activity is consistent with card-not-present fraud. Due to the clear nexus between this transaction and a known fraudulent network, the account has been restricted to prevent further illicit activity. We are monitoring all connected cards sharing the dp_76682 identifier to mitigate ongoing exposure. This filing is submitted to report the identified pattern of coordinated account takeover and unauthorized access.",
-    "subjects": [
-      "C07297"
-    ],
-    "total_amount_usd": 287.5,
-    "activity_dates": [
-      "2023-10-27",
-      "2023-10-27"
-    ]
+    "file": false,
+    "reason": "",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
   },
-  "stop_reason": "Fraud probability 0.85 with 2 independent evidence pieces meets the confidence threshold.",
+  "stop_reason": "Fraud probability 0.95 with 2 independent evidence pieces meets the confidence threshold.",
   "tool_calls": 7,
   "tokens": 0,
-  "latency_s": 13.845
+  "latency_s": 7.548
 }

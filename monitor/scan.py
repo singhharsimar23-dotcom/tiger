@@ -18,8 +18,7 @@ Output:
     monitor/outputs/top_N/          (full investigation outputs for top-N)
 
 The "unlabeled window" is everything BEYOND the labeled training split.
-For IEEE-CIS that is TransactionDT >= 15_897_600 (the test split start, as
-documented in the Kaggle dataset README — roughly 6 months post-training start).
+For this dataset that is TransactionDT >= 15_897_600.
 """
 
 from __future__ import annotations
@@ -42,21 +41,29 @@ load_dotenv(ROOT / ".env")
 
 import pandas as pd
 
-from agent.state import InvestigationState, CaseStatus
+from agent.state import InvestigationState, CaseStatus, ActionType, approval_route
 from agent.nodes import investigate_node, gather_evidence_node
 from tools import tg_tools
-from innovation.mdl_gate import decide
 from innovation.legit_detectors import run_all_detectors as _run_legit_detectors
+
+def decide(score: float, exposure_usd: float = 0.0) -> tuple:
+    if score >= 0.70:
+        act = ActionType.BLOCK_CARD
+    elif score >= 0.40:
+        act = ActionType.VERIFY_WITH_CUSTOMER
+    else:
+        act = ActionType.ALLOW_TRANSACTION
+    return act.value, approval_route(act, exposure_usd).value
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
 DATASET_PATH = Path(os.getenv("DATASET_PATH", str(ROOT / "data")))
-TRANSACTION_FILE = DATASET_PATH / "train_transaction.csv"
-IDENTITY_FILE = DATASET_PATH / "train_identity.csv"
+TRANSACTION_FILE = DATASET_PATH / "transactions.csv"
+IDENTITY_FILE = DATASET_PATH / "identity.csv"
 
-# IEEE-CIS test split boundary (TransactionDT epoch offset)
+# Dataset test split boundary (TransactionDT epoch offset)
 # Training data covers DT 86400 – 15897600 (~184 days)
 # We treat the final 20% (DT >= 12718080) as the "unlabeled window"
 UNLABELED_DT_START = int(os.getenv("MONITOR_DT_START", "12718080"))

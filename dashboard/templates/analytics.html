@@ -29,9 +29,9 @@
 
     <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-3.5 shadow-sm">
       <div class="text-[10px] font-semibold text-outline uppercase tracking-wider">Confirmed Fraud Rate</div>
-      <div class="text-xl font-bold font-mono text-error mt-1">{{ summary.confirmed_fraud_rate|default('85.0%') }}</div>
+      <div class="text-xl font-bold font-mono text-error mt-1">{{ summary.confirmed_fraud_rate|default('55.0%') }}</div>
       <div class="text-[10px] text-on-surface-variant mt-1 font-mono">
-        <span>17 of 20 Cases Escalated</span>
+        <span>{{ summary.confirmed_count_text|default('11 of 20 Cases Escalated (55.0%)') }}</span>
       </div>
     </div>
 
@@ -45,9 +45,9 @@
 
     <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-3.5 shadow-sm">
       <div class="text-[10px] font-semibold text-outline uppercase tracking-wider">SAR Filing Referral Rate</div>
-      <div class="text-xl font-bold font-mono text-on-surface mt-1">{{ summary.sar_referral_rate|default('70.0%') }}</div>
+      <div class="text-xl font-bold font-mono text-on-surface mt-1">{{ summary.sar_referral_rate|default('55.0%') }}</div>
       <div class="text-[10px] text-primary-container mt-1 font-mono">
-        <span>FFIEC 111 Standard Format</span>
+        <span>{{ summary.sar_count_text|default('11 of 20 Cases Filed (55.0%)') }}</span>
       </div>
     </div>
   </div>

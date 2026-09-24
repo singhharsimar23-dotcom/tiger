@@ -93,6 +93,7 @@ Respond ONLY in valid JSON:
 RISK_ASSESSMENT_PROMPT = """You are a compliance risk officer deciding whether the investigation has enough evidence to conclude.
 
 Case ID: {case_id}
+Trigger Type: {trigger_type}
 Iteration: {iteration_count}
 Trigger Risk Score: {trigger_risk_score}
 Current Fraud Probability Estimate: {current_fraud_probability}
@@ -250,6 +251,7 @@ def fill_risk_assessment(state) -> str:
     ) or "  (no evidence yet)"
     return RISK_ASSESSMENT_PROMPT.format(
         case_id=state.case_id,
+        trigger_type=state.trigger_type,
         iteration_count=state.iteration_count,
         trigger_risk_score=state.trigger_risk_score,
         current_fraud_probability=state.fraud_probability,

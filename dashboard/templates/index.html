@@ -187,22 +187,23 @@
                             </div>
 
                             <!-- 4 Rapid Selector Tabs -->
+                            <!-- 4 Rapid Selector Tabs -->
                             <div class="grid grid-cols-2 gap-1.5 pt-2">
                                 <button class="p-2 rounded-lg text-left bg-surface-container-high text-primary-container border border-primary-container/30 text-xs transition-all" id="tab-c014" onclick="loadBenchmarkCase('HHG-014')">
-                                    <div class="text-[10px] font-mono text-outline uppercase">HHG-014</div>
-                                    <div class="font-medium truncate">Device Ring ($287.50)</div>
+                                    <div class="text-[10px] font-mono text-outline uppercase">HHG-014 (Fraud)</div>
+                                    <div class="font-medium truncate">Analyst Flag ($74.96)</div>
                                 </button>
                                 <button class="p-2 rounded-lg text-left bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent text-xs transition-all" id="tab-c007" onclick="loadBenchmarkCase('HHG-007')">
-                                    <div class="text-[10px] font-mono text-outline uppercase">HHG-007 (Legitimate)</div>
-                                    <div class="font-medium truncate">Customer Shield ($0.00)</div>
+                                    <div class="text-[10px] font-mono text-outline uppercase">HHG-007 (Fraud)</div>
+                                    <div class="font-medium truncate">Card-Not-Present ($111.92)</div>
                                 </button>
-                                <button class="p-2 rounded-lg text-left bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent text-xs transition-all" id="tab-c005" onclick="loadBenchmarkCase('HHG-005')">
-                                    <div class="text-[10px] font-mono text-outline uppercase">HHG-005 (Legitimate)</div>
-                                    <div class="font-medium truncate">Customer Shield ($0.00)</div>
+                                <button class="p-2 rounded-lg text-left bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent text-xs transition-all" id="tab-c002" onclick="loadBenchmarkCase('HHG-002')">
+                                    <div class="text-[10px] font-mono text-outline uppercase">HHG-002 (Fraud)</div>
+                                    <div class="font-medium truncate">CNP New Device ($292.36)</div>
                                 </button>
                                 <button class="p-2 rounded-lg text-left bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent text-xs transition-all" id="tab-c001" onclick="loadBenchmarkCase('HHG-001')">
-                                    <div class="text-[10px] font-mono text-outline uppercase">HHG-001</div>
-                                    <div class="font-medium truncate">Card-Not-Present ($287.50)</div>
+                                    <div class="text-[10px] font-mono text-outline uppercase">HHG-001 (Legitimate)</div>
+                                    <div class="font-medium truncate">Customer Verified ($0.00)</div>
                                 </button>
                             </div>
 
@@ -218,11 +219,11 @@
                             <div class="grid grid-cols-2 gap-2 mt-2.5 pt-2.5 border-t border-surface-container-highest">
                                 <div class="bg-surface-container rounded p-2">
                                     <span class="text-[10px] font-mono text-outline block">Target Account</span>
-                                    <span class="text-xs font-mono text-on-surface font-semibold block truncate" id="meta-acc">ACC_11492 (Primary Account)</span>
+                                    <span class="text-xs font-mono text-on-surface font-semibold block truncate" id="meta-acc">C13487 ($74.96)</span>
                                 </div>
                                 <div class="bg-surface-container rounded p-2">
                                     <span class="text-[10px] font-mono text-outline block">Alert Typology</span>
-                                    <span class="text-xs font-mono text-on-surface font-semibold block truncate" id="meta-node">Device Collusion Syndicate</span>
+                                    <span class="text-xs font-mono text-on-surface font-semibold block truncate" id="meta-node">Card-Not-Present Fraud</span>
                                 </div>
                             </div>
 
@@ -236,11 +237,7 @@
                                     <span class="text-[10px] font-mono text-primary-fixed-dim">Autonomous Reasoning Stream</span>
                                 </div>
                                 <div class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-container-high font-mono text-[11px] text-on-surface space-y-1 max-h-[140px] overflow-y-auto" id="stream-terminal-logs">
-                                    <div><span class="text-outline">[00:00.02]</span> <span class="text-primary-container">[INGEST]</span>: Ingested alert on Account ACC_11492 ($12,500.00)</div>
-                                    <div><span class="text-outline">[00:00.14]</span> <span class="text-primary-fixed-dim">[TRAVERSAL]</span>: GSQL 2-hop traversal located shared hardware cluster</div>
-                                    <div><span class="text-outline">[00:00.28]</span> <span class="text-error">[CUSTOMER_FILTER]</span>: Recurring=No, Travel=No, Device=Compromised (Offset: 0.0)</div>
-                                    <div><span class="text-outline">[00:00.35]</span> <span class="text-primary">[STOPPING_GATE]</span>: Value of Information 0.031 &lt; 0.05 threshold &rarr; Evidence sufficient</div>
-                                    <div><span class="text-outline">[00:00.41]</span> <span class="text-error font-bold">[DISPOSITION]</span>: TIER 4 BLOCK &amp; FinCEN Form 111 SAR Generated</div>
+                                    <div class="text-on-surface-variant">// Loading live autonomous investigation timeline...</div>
                                 </div>
                             </div>
                         </div>
@@ -252,21 +249,21 @@
                                     <span class="material-symbols-outlined text-[18px] text-primary-container">account_tree</span>
                                     <span class="text-xs font-semibold text-on-surface">Institutional Chain of Command</span>
                                 </div>
-                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container text-primary-container border border-primary-container/20 font-semibold" id="chain-approval-tier">FRAUD_OPS_LEAD</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container text-primary-container border border-primary-container/20 font-semibold uppercase" id="chain-approval-tier">auto</span>
                             </div>
 
                             <div class="mt-2.5 space-y-2 font-mono text-xs">
                                 <div class="flex items-center justify-between p-2 rounded bg-surface-container border border-surface-container-highest">
                                     <span class="text-outline">Approval Routing:</span>
-                                    <span class="text-on-surface font-semibold truncate max-w-[280px]" id="chain-approval-route">FRAUD_ANALYST_QUEUE &rarr; SUPERVISOR_QUEUE</span>
+                                    <span class="text-on-surface font-semibold truncate max-w-[280px]" id="chain-approval-route">AUTONOMOUS_PIPELINE</span>
                                 </div>
                                 <div class="flex items-center justify-between p-2 rounded bg-surface-container border border-surface-container-highest">
                                     <span class="text-outline">Action Executed:</span>
-                                    <span class="text-error font-semibold" id="chain-action-type">FREEZE_ACCOUNT &amp; FILE_SAR</span>
+                                    <span class="text-primary-container font-semibold" id="chain-action-type">CLOSE_NO_FRAUD</span>
                                 </div>
                                 <div class="flex items-center justify-between p-2 rounded bg-surface-container border border-surface-container-highest">
                                     <span class="text-outline">Policy Reference:</span>
-                                    <span class="text-primary-container font-semibold" id="chain-policy-ref">RULE_BLOCK_ACC_002</span>
+                                    <span class="text-primary-container font-semibold" id="chain-policy-ref">R3: Customer Confirmation</span>
                                 </div>
                             </div>
                         </div>
@@ -288,11 +285,11 @@
                                     <div class="min-w-0 pr-2">
                                         <div class="flex items-center gap-1.5">
                                             <span class="font-mono text-[11px] text-primary-container font-medium">Recurring Subscription Cadence</span>
-                                            <span class="text-[10px] font-mono px-1 rounded bg-surface-container-lowest text-outline">-0.45 offset</span>
+                                            <span class="text-[10px] font-mono px-1 rounded bg-surface-container-lowest text-outline">Risk Dampener: Cadence</span>
                                         </div>
                                         <span class="text-[10px] text-on-surface-variant block mt-0.5" id="det-recurring-desc">Monthly billing cadence &amp; fixed subscription amount</span>
                                     </div>
-                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-lowest text-outline font-semibold" id="det-recurring-status">INACTIVE</span>
+                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-primary-container/20 text-primary-container font-semibold" id="det-recurring-status">PASS (Active)</span>
                                 </div>
 
                                 <!-- Detector 2 -->
@@ -300,11 +297,11 @@
                                     <div class="min-w-0 pr-2">
                                         <div class="flex items-center gap-1.5">
                                             <span class="font-mono text-[11px] text-primary-container font-medium">Flight Corridor Velocity</span>
-                                            <span class="text-[10px] font-mono px-1 rounded bg-surface-container-lowest text-outline">-0.40 offset</span>
+                                            <span class="text-[10px] font-mono px-1 rounded bg-surface-container-lowest text-outline">Risk Dampener: Transit</span>
                                         </div>
                                         <span class="text-[10px] text-on-surface-variant block mt-0.5" id="det-travel-desc">Physical velocity corresponds to scheduled airline flight route</span>
                                     </div>
-                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-lowest text-outline font-semibold" id="det-travel-status">INACTIVE</span>
+                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-lowest text-outline font-semibold" id="det-travel-status">NOT APPLICABLE</span>
                                 </div>
 
                                 <!-- Detector 3 -->
@@ -312,17 +309,17 @@
                                     <div class="min-w-0 pr-2">
                                         <div class="flex items-center gap-1.5">
                                             <span class="font-mono text-[11px] text-primary-container font-medium">Trusted Hardware Anchor</span>
-                                            <span class="text-[10px] font-mono px-1 rounded bg-surface-container-lowest text-outline">-0.50 offset</span>
+                                            <span class="text-[10px] font-mono px-1 rounded bg-surface-container-lowest text-outline">Risk Dampener: Hardware</span>
                                         </div>
                                         <span class="text-[10px] text-on-surface-variant block mt-0.5" id="det-device-desc">Historical hardware fingerprint verified over 90+ days</span>
                                     </div>
-                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-lowest text-outline font-semibold" id="det-device-status">INACTIVE</span>
+                                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-primary-container/20 text-primary-container font-semibold" id="det-device-status">PASS (Active)</span>
                                 </div>
                             </div>
 
                             <div class="mt-2.5 p-2 rounded bg-surface-container flex items-center justify-between">
                                 <span class="text-[10px] font-mono text-outline">Filter Outcome:</span>
-                                <span class="text-[11px] font-mono font-semibold text-error" id="shield-verdict-flip">None (Collusion Evidence Overrides Innocence)</span>
+                                <span class="text-[11px] font-mono font-semibold text-primary-container" id="shield-verdict-flip">PASS: Customer Verification Confirmed (Overrides Alert)</span>
                             </div>
                         </div>
 

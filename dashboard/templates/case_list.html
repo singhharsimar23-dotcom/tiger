@@ -48,10 +48,10 @@
       <div>
         <label class="block text-[10px] font-semibold text-outline uppercase tracking-wider mb-1">Disposition Status</label>
         <select id="statusFilter" onchange="filterCases()" class="w-full bg-surface-container-lowest border border-surface-container-highest rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-primary-container transition">
-          <option value="ALL">All Statuses</option>
-          <option value="RESOLVED">RESOLVED</option>
-          <option value="INVESTIGATING">INVESTIGATING</option>
-          <option value="OPEN">OPEN</option>
+          <option value="ALL">All Dispositions</option>
+          <option value="closed_fraud">Closed (Confirmed Fraud)</option>
+          <option value="closed_legitimate">Closed (Legitimate / Benign)</option>
+          <option value="open">Open / In Progress</option>
         </select>
       </div>
 
@@ -112,12 +112,14 @@
 
             <!-- Status Badge -->
             <td class="py-2.5 px-4">
-              {% if c.status == 'RESOLVED' %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20">RESOLVED</span>
+              {% if 'legitimate' in c.status or c.status == 'RESOLVED' or c.verdict == 'legitimate' %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20 font-semibold">CLOSED (BENIGN)</span>
+              {% elif 'fraud' in c.status or c.verdict == 'fraud' %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
               {% elif c.status == 'INVESTIGATING' %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-primary-container/20 text-primary-container border border-primary-container/30 animate-pulse">INVESTIGATING</span>
+                <span class="px-2 py-0.5 rounded text-[10px] bg-primary-container/20 text-primary-container border border-primary-container/30 animate-pulse font-semibold">INVESTIGATING</span>
               {% else %}
-                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-outline border border-surface-container-highest">OPEN</span>
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-outline border border-surface-container-highest font-semibold">OPEN</span>
               {% endif %}
             </td>
 
@@ -137,7 +139,7 @@
             <!-- Fraud Probability Bar -->
             <td class="py-2.5 px-4">
               <div class="flex items-center gap-2">
-                <span class="font-bold text-on-surface w-10 text-right">{{ "%.1f"|format(c.fraud_probability * 100) }}%</span>
+                <span class="font-bold text-on-surface w-12 text-right">{{ "%.1f"|format(c.fraud_probability * 100) }}%</span>
                 <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
                   <div class="h-full rounded-full {% if c.fraud_probability >= 0.75 %}bg-error{% elif c.fraud_probability >= 0.40 %}bg-amber-400{% else %}bg-primary-container{% endif %}"
                        style="width: {{ c.fraud_probability * 100 }}%"></div>
@@ -146,8 +148,22 @@
             </td>
 
             <!-- Typology -->
-            <td class="py-2.5 px-4 text-on-surface-variant text-[11px]">
-              {{ c.trigger_type }}
+            <td class="py-2.5 px-4 text-xs font-mono">
+              {% if c.pattern == 'account_takeover' %}
+                <span class="text-error font-medium">Account Takeover (ATO)</span>
+              {% elif c.pattern == 'card_not_present_fraud' %}
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              {% elif c.pattern == 'card_testing' %}
+                <span class="text-amber-400 font-medium">Card Testing Velocity</span>
+              {% elif c.pattern == 'card_not_present_new_device' %}
+                <span class="text-error font-medium">CNP New Device Anomaly</span>
+              {% elif c.pattern == 'out_of_region_use' %}
+                <span class="text-amber-400 font-medium">Out-of-Region Geo-Velocity</span>
+              {% elif c.pattern == 'none' or c.verdict == 'legitimate' %}
+                <span class="text-primary-container/90 font-medium">Legitimate Cardholder</span>
+              {% else %}
+                <span class="text-on-surface-variant capitalize">{{ c.pattern|replace('_', ' ') }}</span>
+              {% endif %}
             </td>
 
             <!-- Actions -->
