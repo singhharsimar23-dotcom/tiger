@@ -1,10 +1,10 @@
 # Building a Graph-Powered Agentic Fraud Investigator with TigerGraph
 
-*By Harsimar Singh — HHGOA Hackathon 2026*
+*By Harsimar Singh 
 
 ---
 
-## 1. What You Built (~150 words)
+## 1. What waas Built 
 
 When financial fraud occurs, it rarely happens in isolation. Fraud rings operate across dozens of synthetic accounts, rotating burner devices, and coordinated timing windows. Standard relational tables and isolated machine learning scoring models are blind to these relational topologies. 
 
@@ -14,7 +14,7 @@ Rather than producing a black-box probability score, the agent compiles four reg
 
 ---
 
-## 2. The Architecture (~300 words)
+## 2. The Architecture 
 
 The architecture connects TigerGraph's high-performance native graph engine to an 8-node cyclic state machine orchestrated via LangGraph. 
 
@@ -38,7 +38,7 @@ If more context is mathematically required, `gather_more_evidence_node` executes
 
 ---
 
-## 3. How TigerGraph is Used (~200 words)
+## 3. How TigerGraph is Used 
 
 TigerGraph serves as the foundational source of truth and analytical engine for FraudSight. Our `FraudGraph` schema hosts 10 vertex types (including `Account`, `Transaction`, `Device`, `IPCluster`, `Case`, and `PolicyRule`) and 15 edge types.
 
@@ -55,7 +55,7 @@ Through pyTigerGraph and an MCP-compliant adapter, the agent invokes these queri
 
 ---
 
-## 4. Agentic Capabilities (~150 words)
+## 4. Agentic Capabilities 
 
 FraudSight operates as a truly autonomous agent rather than a hardcoded script. Its reasoning capabilities include:
 - **Tool Use with Circuit Breakers:** The agent dynamically decides which graph queries to execute based on active evidence gaps, backed by connection-pooling and graceful fallback handlers.
@@ -65,7 +65,7 @@ FraudSight operates as a truly autonomous agent rather than a hardcoded script. 
 
 ---
 
-## 5. What You Learned (~100 words)
+## 5. What was learnt
 
 Building this system reinforced that **graph topology completely outperforms raw feature engineering for financial crime**. A tabular classifier only sees a single $1,200 transaction; TigerGraph immediately exposes that three separate accounts logged in through the identical device fingerprint within ten minutes. 
 
