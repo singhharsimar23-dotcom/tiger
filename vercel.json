@@ -1,0 +1,12 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/cases", "destination": "/cases.html" },
+    { "source": "/analytics", "destination": "/analytics.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/cockpit", "destination": "/index.html" },
+    { "source": "/api/cases", "destination": "/data/cases_index.json" },
+    { "source": "/api/case/:case_id", "destination": "/data/:case_id.json" },
+    { "source": "/data/(.*)", "destination": "/data/$1" }
+  ]
+}

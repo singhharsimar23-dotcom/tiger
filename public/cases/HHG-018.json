@@ -1,0 +1,84 @@
+{
+  "case_id": "HHG-018",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.95,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "T3491361"
+    ],
+    "first_suspicious_txn_id": "T3491361",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 39.08,
+    "evidence": [
+      {
+        "claim": "Transaction flagged by graph monitoring (trigger_type=customer_report, risk_score=0.00).",
+        "source": "graph",
+        "ref": "get_txn_neighborhood",
+        "entity_ids": [
+          "t3491361"
+        ]
+      },
+      {
+        "claim": "Transaction device profile reviewed via FROM_DEVICE graph traversal.",
+        "source": "graph",
+        "ref": "FROM_DEVICE",
+        "entity_ids": [
+          "t3491361",
+          "none"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-4718",
+      "CC-1007",
+      "CC-1986"
+    ],
+    "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+    "written_to_graph": true,
+    "graph_case_id": "HHG-018"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Elevated fraud risk (0.95) warrants immediate card lock."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Formal fraud case created for confirmed risk exposure."
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: High fraud confidence \u2014 card block required."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Create formal fraud investigation case record."
+      }
+    ],
+    "what_changed": "Initial action recommendations confirmed after completing evidence gathering."
+  },
+  "sar": {
+    "file": false,
+    "reason": "",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Fraud probability 0.95 with 2 independent evidence pieces meets the confidence threshold.",
+  "tool_calls": 7,
+  "tokens": 0,
+  "latency_s": 7.083
+}

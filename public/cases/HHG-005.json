@@ -1,0 +1,99 @@
+{
+  "case_id": "HHG-005",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.04,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "T3523199",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "dp_3523199"
+    ],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Transaction flagged by graph monitoring (trigger_type=risk_score, risk_score=0.54).",
+        "source": "graph",
+        "ref": "get_txn_neighborhood",
+        "entity_ids": [
+          "t3523199"
+        ]
+      },
+      {
+        "claim": "Transaction device profile reviewed via FROM_DEVICE graph traversal.",
+        "source": "graph",
+        "ref": "FROM_DEVICE",
+        "entity_ids": [
+          "t3523199",
+          "dp_3523199"
+        ]
+      },
+      {
+        "claim": "Customer verified transaction as legitimate cardholder activity.",
+        "source": "customer",
+        "ref": "customer_inquiry_channel",
+        "entity_ids": [
+          "T3523199",
+          "C02923"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0656",
+      "CC-0248",
+      "CC-0315"
+    ],
+    "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.05). Policy rules R1-R10 enforced throughout.",
+    "written_to_graph": true,
+    "graph_case_id": "HHG-005"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer confirms making the transaction (authorized cardholder activity)."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Weak single signal with fraud probability < 0.70 requires customer verification before blocking."
+      },
+      {
+        "action": "STEP_UP_AUTH",
+        "route": "auto",
+        "reason": "R1: Step-up authentication requested prior to any card block."
+      }
+    ],
+    "final": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Single weak signal (risk_score < 0.70) requires customer verification before any block."
+      },
+      {
+        "action": "STEP_UP_AUTH",
+        "route": "auto",
+        "reason": "R1: Step-up authentication requested prior to any card action."
+      }
+    ],
+    "what_changed": "Initial action recommendations confirmed after completing evidence gathering."
+  },
+  "sar": {
+    "file": false,
+    "reason": "",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "A verification response settled the question.",
+  "tool_calls": 9,
+  "tokens": 0,
+  "latency_s": 8.633
+}

@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Benchmark Case Ledger — FraudSight{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+  <!-- Header & KPI Bar -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-bold text-on-surface tracking-tight flex items-center gap-2.5">
+        <span>Benchmark Case Ledger</span>
+        <span class="text-xs px-2 py-0.5 rounded bg-surface-container-high text-primary-container border border-primary-container/20 font-mono" id="caseCountBadge">{{ cases|length }} Cases</span>
+      </h1>
+      <p class="text-xs text-on-surface-variant mt-0.5">Autonomous graph-augmented forensic ledger and benchmark validation suite</p>
+    </div>
+    
+    <div class="flex items-center gap-2.5">
+      <a href="/" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container shadow-sm flex items-center gap-1.5 transition">
+        <span class="material-symbols-outlined text-[16px]">bolt</span>
+        <span>Interactive Cockpit</span>
+      </a>
+      <button onclick="window.location.reload()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface border border-surface-container-highest flex items-center gap-1.5 transition">
+        <span class="material-symbols-outlined text-[15px]">refresh</span>
+        <span>Refresh Ledger</span>
+      </button>
+      <a href="/analytics" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary-container border border-primary-container/20 flex items-center gap-1.5 transition">
+        <span class="material-symbols-outlined text-[15px]">insights</span>
+        <span>Graph Analytics</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="bg-surface-container-low border border-surface-container-high rounded-xl p-3.5 shadow-sm">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      
+      <!-- Search -->
+      <div>
+        <label class="block text-[10px] font-semibold text-outline uppercase tracking-wider mb-1">Search Case / Account</label>
+        <div class="relative">
+          <input type="text" id="searchInput" oninput="filterCases()" placeholder="Search by case ID, trigger..." class="w-full bg-surface-container-lowest border border-surface-container-highest rounded-lg px-2.5 py-1.5 text-xs text-on-surface placeholder-outline focus:outline-none focus:border-primary-container transition">
+          <span class="material-symbols-outlined text-[15px] text-outline absolute right-2 top-2">search</span>
+        </div>
+      </div>
+
+      <!-- Status Dropdown -->
+      <div>
+        <label class="block text-[10px] font-semibold text-outline uppercase tracking-wider mb-1">Disposition Status</label>
+        <select id="statusFilter" onchange="filterCases()" class="w-full bg-surface-container-lowest border border-surface-container-highest rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-primary-container transition">
+          <option value="ALL">All Dispositions</option>
+          <option value="closed_fraud">Closed (Confirmed Fraud)</option>
+          <option value="closed_legitimate">Closed (Legitimate / Benign)</option>
+          <option value="open">Open / In Progress</option>
+        </select>
+      </div>
+
+      <!-- Risk Level Dropdown -->
+      <div>
+        <label class="block text-[10px] font-semibold text-outline uppercase tracking-wider mb-1">Risk Classification</label>
+        <select id="riskFilter" onchange="filterCases()" class="w-full bg-surface-container-lowest border border-surface-container-highest rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-primary-container transition">
+          <option value="ALL">All Risk Levels</option>
+          <option value="CRITICAL">CRITICAL</option>
+          <option value="HIGH">HIGH</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="LOW">LOW</option>
+        </select>
+      </div>
+
+      <!-- Date / Sorting -->
+      <div>
+        <label class="block text-[10px] font-semibold text-outline uppercase tracking-wider mb-1">Sort Order</label>
+        <select id="sortFilter" onchange="sortCases()" class="w-full bg-surface-container-lowest border border-surface-container-highest rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-primary-container transition">
+          <option value="risk_desc">Highest Assessed Risk</option>
+          <option value="risk_asc">Lowest Assessed Risk</option>
+          <option value="id_asc">Case ID (Ascending)</option>
+          <option value="id_desc">Case ID (Descending)</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Case Table -->
+  <div class="bg-surface-container-low border border-surface-container-high rounded-xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse" id="casesTable">
+        <thead>
+          <tr class="border-b border-surface-container-highest bg-surface-container-lowest/80 text-[10px] uppercase tracking-wider text-outline font-semibold">
+            <th class="py-2.5 px-4">Case ID</th>
+            <th class="py-2.5 px-4">Status</th>
+            <th class="py-2.5 px-4">Risk Level</th>
+            <th class="py-2.5 px-4 w-44">Risk Score</th>
+            <th class="py-2.5 px-4">Typology</th>
+            <th class="py-2.5 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-container-highest/60 text-xs font-mono" id="casesBody">
+          {% for c in cases %}
+          <tr class="case-row hover:bg-surface-container/60 transition group"
+              data-id="{{ c.case_id }}"
+              data-status="{{ c.status }}"
+              data-risk="{{ c.risk_level }}"
+              data-prob="{{ c.fraud_probability }}"
+              data-trigger="{{ c.trigger_type }}">
+            
+            <!-- Case ID -->
+            <td class="py-2.5 px-4 font-bold text-on-surface flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full {% if c.risk_level == 'CRITICAL' %}bg-error animate-pulse{% elif c.risk_level == 'HIGH' %}bg-amber-400{% elif c.risk_level == 'MEDIUM' %}bg-yellow-400{% else %}bg-primary-container{% endif %}"></span>
+              <a href="/case/{{ c.case_id }}" class="hover:text-primary-container transition">{{ c.case_id }}</a>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="py-2.5 px-4">
+              {% if 'legitimate' in c.status or c.status == 'RESOLVED' or c.verdict == 'legitimate' %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20 font-semibold">CLOSED (BENIGN)</span>
+              {% elif 'fraud' in c.status or c.verdict == 'fraud' %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/30 text-error border border-error/30 font-semibold">CLOSED (FRAUD)</span>
+              {% elif c.status == 'INVESTIGATING' %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-primary-container/20 text-primary-container border border-primary-container/30 animate-pulse font-semibold">INVESTIGATING</span>
+              {% else %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container text-outline border border-surface-container-highest font-semibold">OPEN</span>
+              {% endif %}
+            </td>
+
+            <!-- Risk Badge -->
+            <td class="py-2.5 px-4 font-semibold">
+              {% if c.risk_level == 'CRITICAL' %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-error-container/40 text-error font-semibold">CRITICAL</span>
+              {% elif c.risk_level == 'HIGH' %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-amber-950/60 text-amber-300 border border-amber-700/50">HIGH</span>
+              {% elif c.risk_level == 'MEDIUM' %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-yellow-950/60 text-yellow-300 border border-yellow-700/50">MEDIUM</span>
+              {% else %}
+                <span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-high text-primary-container border border-primary-container/20">LOW (BENIGN)</span>
+              {% endif %}
+            </td>
+
+            <!-- Fraud Probability Bar -->
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-on-surface w-12 text-right">{{ "%.1f"|format(c.fraud_probability * 100) }}%</span>
+                <div class="flex-1 bg-surface-container-lowest rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full rounded-full {% if c.fraud_probability >= 0.75 %}bg-error{% elif c.fraud_probability >= 0.40 %}bg-amber-400{% else %}bg-primary-container{% endif %}"
+                       style="width: {{ c.fraud_probability * 100 }}%"></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Typology -->
+            <td class="py-2.5 px-4 text-xs font-mono">
+              {% if c.pattern == 'account_takeover' %}
+                <span class="text-error font-medium">Account Takeover (ATO)</span>
+              {% elif c.pattern == 'card_not_present_fraud' %}
+                <span class="text-error font-medium">Card-Not-Present (CNP)</span>
+              {% elif c.pattern == 'card_testing' %}
+                <span class="text-amber-400 font-medium">Card Testing Velocity</span>
+              {% elif c.pattern == 'card_not_present_new_device' %}
+                <span class="text-error font-medium">CNP New Device Anomaly</span>
+              {% elif c.pattern == 'out_of_region_use' %}
+                <span class="text-amber-400 font-medium">Out-of-Region Geo-Velocity</span>
+              {% elif c.pattern == 'none' or c.verdict == 'legitimate' %}
+                <span class="text-primary-container/90 font-medium">Legitimate Cardholder</span>
+              {% else %}
+                <span class="text-on-surface-variant capitalize">{{ c.pattern|replace('_', ' ') }}</span>
+              {% endif %}
+            </td>
+
+            <!-- Actions -->
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <a href="/case/{{ c.case_id }}" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] transition">
+                  Inspect
+                </a>
+                <a href="/api/case/{{ c.case_id }}/bundle" class="px-2 py-1 rounded bg-primary-container/15 hover:bg-primary-container hover:text-on-primary-container text-primary-container text-[11px] transition">
+                  Bundle (.zip)
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function filterCases() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const risk = document.getElementById('riskFilter').value;
+  const rows = document.querySelectorAll('.case-row');
+
+  let visibleCount = 0;
+  rows.forEach(row => {
+    const id = row.getAttribute('data-id').toLowerCase();
+    const trig = row.getAttribute('data-trigger').toLowerCase();
+    const rStatus = row.getAttribute('data-status');
+    const rRisk = row.getAttribute('data-risk');
+
+    const matchQuery = id.includes(query) || trig.includes(query);
+    const matchStatus = status === 'ALL' || rStatus === status;
+    const matchRisk = risk === 'ALL' || rRisk === risk;
+
+    if (matchQuery && matchStatus && matchRisk) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+
+  const badge = document.getElementById('caseCountBadge');
+  if (badge) badge.textContent = `${visibleCount} Cases`;
+}
+
+function sortCases() {
+  const sort = document.getElementById('sortFilter').value;
+  const tbody = document.getElementById('casesBody');
+  const rows = Array.from(document.querySelectorAll('.case-row'));
+
+  rows.sort((a, b) => {
+    if (sort === 'risk_desc') {
+      return parseFloat(b.getAttribute('data-prob')) - parseFloat(a.getAttribute('data-prob'));
+    } else if (sort === 'risk_asc') {
+      return parseFloat(a.getAttribute('data-prob')) - parseFloat(b.getAttribute('data-prob'));
+    } else if (sort === 'id_asc') {
+      return a.getAttribute('data-id').localeCompare(b.getAttribute('data-id'));
+    } else if (sort === 'id_desc') {
+      return b.getAttribute('data-id').localeCompare(a.getAttribute('data-id'));
+    }
+    return 0;
+  });
+
+  rows.forEach(row => tbody.appendChild(row));
+}
+</script>
+{% endblock %}
