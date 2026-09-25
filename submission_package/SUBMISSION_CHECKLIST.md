@@ -13,43 +13,43 @@ Date: 2026-09-20
 |---|:---|:---|:---:|:---|
 | 1 | **GitHub Repository** | `https://github.com/singhharsimar23-dotcom/tiger` | **DONE** | Clean root directory with master `README.md`, `.gitignore`, and tagged release `v1.0.0`. |
 | 2 | **Root README.md** | `README.md` & `docs/README.md` | **DONE** | 961 words; includes 2-para overview, LangGraph 8-node ASCII diagram, Quick Start, dataset details, and tech stack table. |
-| 3 | **Benchmark Case Dossiers (20 Cases)** | `outputs/cases/case_01/` ... `case_20/` | **DONE** | 100% complete; verified via `benchmark/validate_outputs.py` with all 4 required canonical files per case. |
-| 4 | **Benchmark Summary** | `outputs/benchmark_summary.json` | **DONE** | Full aggregate statistics across all 20 benchmark test cases (100% success rate). |
-| 5 | **Technical Blog Post** | `docs/BLOG.md` & `submission_package/blog_post.md` | **DONE** | 883 words (Brief: 500-1500 words); technical first-person narrative covering all 6 required sections. |
+| 3 | **Benchmark Case Dossiers (20 Cases)** | `cases/HHG-001.json` ... `cases/HHG-020.json` | **DONE** | 100% complete; verified via `benchmark/validate_outputs.py` (20/20 PASS, 0 errors). |
+| 4 | **Benchmark Summary** | `cases/` | **DONE** | All 20 benchmark test cases validated against ground truth with 100% accuracy. |
+| 5 | **Technical Blog Post** | `docs/BLOG.md` & `submission_package/blog_post.md` | **DONE** | Technical first-person narrative covering all required sections, including architecture realities and production roadmap. |
 | 6 | **Social Media Announcements** | `docs/SOCIAL.md` & `submission_package/social_post.md` | **DONE** | LinkedIn post (< 300 words) with @TigerGraphDB tag; X/Twitter post (279 characters, < 280-char limit). |
 | 7 | **Technical Architecture Blueprint** | `docs/ARCHITECTURE.md` | **DONE** | Detailed architecture document with ASCII schema, DAG flowchart, MDL formulas/numbers, and GraphRAG. |
-| 8 | **Interactive UI Dashboard** | `dashboard/app.py` & `dashboard/templates/` | **DONE** | FastAPI + Jinja2 + Tailwind CSS (CDN) + Cytoscape.js + HTMX + SSE streaming. Tested and 100% operational. |
-| 9 | **Complete Session Log** | `SESSION_LOG.md` | **DONE** | End-to-end engineering changelog covering S01 through S15. |
-| 10 | **Submission Package** | `submission_package/` | **DONE** | Self-contained package containing all outputs, documentation, and checklists. |
+| 8 | **Interactive UI Dashboard** | `dashboard/app.py` & `dashboard/templates/` | **DONE** | Live at https://fraud-detectorgraph.vercel.app with Cytoscape.js + SSE streaming. Tested and 100% operational. |
+| 9 | **Complete Session Log** | `SESSION_LOG.md` | **DONE** | End-to-end engineering changelog covering S01 through S23. |
+| 10 | **Submission Package** | `submission_package/` | **DONE** | Self-contained package containing documentation and checklists. |
 
 ---
 
 ## 2. Benchmark Case Files Verification Matrix
 
-Every case in `outputs/cases/` contains all 4 canonical files verified for JSON schema compliance:
+All 20 case files are located at `cases/HHG-001.json` through `cases/HHG-020.json`, each containing `case.verdict`, `case.evidence`, `case.pattern`, and before/after `next_best_actions`:
 
-| Case ID | `case_record.json` | `sar.json` | `action_before.json` | `action_after.json` | Status |
-|:---|:---:|:---:|:---:|:---:|:---:|
-| `case_01` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_02` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_03` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_04` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_05` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_06` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_07` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_08` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_09` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_10` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_11` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_12` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_13` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_14` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_15` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_16` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_17` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_18` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_19` | DONE | DONE | DONE | DONE | **PASS (100%)** |
-| `case_20` | DONE | DONE | DONE | DONE | **PASS (100%)** |
+| Case ID | Verdict | Pattern | Exposure | NBA (Initial & Final) | SAR Status | Schema Validation |
+|:---|:---:|:---:|:---:|:---:|:---:|:---:|
+| `HHG-001` | `legitimate` | `none` | $0.00 | `VERIFY_WITH_CUSTOMER` (R1) | No SAR | **PASS** |
+| `HHG-002` | `fraud` | `card_not_present_fraud` | $292.36 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-003` | `fraud` | `card_not_present_fraud` | $461.50 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-004` | `fraud` | `card_not_present_fraud` | $200.00 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-005` | `fraud` | `card_not_present_fraud` | $117.00 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-006` | `fraud` | `card_not_present_fraud` | $44.53 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-007` | `fraud` | `card_not_present_fraud` | $50.00 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-008` | `fraud` | `card_not_present_fraud` | $44.00 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-009` | `fraud` | `card_not_present_fraud` | $30.02 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-010` | `fraud` | `card_not_present_fraud` | $1,000.03 | `BLOCK_CARD` (R2) + `FILE_REPORT` (L2) | **SAR Filed** | **PASS** |
+| `HHG-011` | `fraud` | `card_not_present_fraud` | $131.30 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-012` | `legitimate` | `none` | $0.00 | `VERIFY_WITH_CUSTOMER` (R1) | No SAR | **PASS** |
+| `HHG-013` | `legitimate` | `none` | $0.00 | `VERIFY_WITH_CUSTOMER` (R1) | No SAR | **PASS** |
+| `HHG-014` | `fraud` | `card_not_present_fraud` | $74.96 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-015` | `fraud` | `card_not_present_fraud` | $599.94 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-016` | `fraud` | `card_not_present_fraud` | $59.67 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-017` | `legitimate` | `none` | $0.00 | `VERIFY_WITH_CUSTOMER` (R1) | No SAR | **PASS** |
+| `HHG-018` | `fraud` | `card_not_present_fraud` | $39.08 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-019` | `fraud` | `card_not_present_fraud` | $99.92 | `BLOCK_CARD` (R2) | No SAR | **PASS** |
+| `HHG-020` | `legitimate` | `none` | $0.00 | `VERIFY_WITH_CUSTOMER` (R1) | No SAR | **PASS** |
 
 ---
 
