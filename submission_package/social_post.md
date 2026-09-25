@@ -23,7 +23,11 @@ Key highlights:
 Check out the full open-source codebase, architecture diagrams, and interactive dashboard here:  
 👉 https://github.com/singhharsimar23-dotcom/tiger
 
-Huge thanks to @TigerGraphDB for hosting this challenge! 
+Huge thanks to @TigerGraphDB and @247pmstudio for hosting this challenge! 
+
+Live Cockpit: https://fraud-detectorgraph.vercel.app
+Demo video: https://www.loom.com/share/0b70ae2b7e374277bf2cf554b97d04d0
+Repo: https://github.com/singhharsimar23-dotcom/tiger
 
 #TigerGraph #FraudDetection #GraphDatabase #AI #LangGraph #MachineLearning #Fintech #Cybersecurity
 
@@ -31,8 +35,8 @@ Huge thanks to @TigerGraphDB for hosting this challenge!
 
 ## X / Twitter Post (280 chars max)
 
-Built an agentic fraud investigator for @TigerGraphDB hackathon.
-Key insight: used MDL theory to tell the agent WHEN to stop gathering evidence.
-Graph traversal > ML for fraud rings.
-590K txns, 8-node LangGraph DAG.
-https://github.com/singhharsimar23-dotcom/tiger #TigerGraph #AI
+Built an autonomous graph fraud investigator for @TigerGraphDB & @247pmstudio!
+Multi-hop fraud ring detection + FinCEN SARs via TigerGraph GSQL & LangGraph.
+Live: https://fraud-detectorgraph.vercel.app
+Demo: https://www.loom.com/share/0b70ae2b7e374277bf2cf554b97d04d0 #TigerGraph
+
