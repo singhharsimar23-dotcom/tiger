@@ -35,26 +35,26 @@ All 20 case files are located at `cases/HHG-001.json` through `cases/HHG-020.jso
 
 | Case ID | Primary Card | Trigger Txn | Raw Exposure (USD) | Fraud Pattern Typology | Ground Truth Verdict | Next Best Action (Final) | Ground Truth Verification |
 | :--- | :--- | :--- | :---: | :--- | :---: | :--- | :---: |
-| **HHG-001** | `C12382-K1` | `T3514030` | **$0.00** | `none` | `uncertain` | `VERIFY_WITH_CUSTOMER` (R1) | **PASS (6/6)** |
+| **HHG-001** | `C12382-K1` | `T3514030` | **$0.00** | `none` | `legitimate` | `VERIFY_WITH_CUSTOMER` (R1) | **PASS (6/6)** |
 | **HHG-002** | `C11891-K1` | `T3478782` | **$292.36** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-003** | `C12349-K1` | `T3492716` | **$126.95** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-004** | `C12361-K1` | `T3500360` | **$117.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-005** | `C12371-K1` | `T3503258` | **$144.15** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-006** | `C12378-K1` | `T3512250` | **$117.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-007** | `C12423-K1` | `T3529323` | **$111.92** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-008** | `C12380-K1` | `T3513364` | **$117.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-009** | `C12381-K1` | `T3513686` | **$117.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-010** | `C12383-K1` | `T3506725` | **$1,000.03** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-011** | `C12384-K1` | `T3514068` | **$117.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-012** | `C12387-K1` | `T3517409` | **$144.15** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-013** | `C12390-K1` | `T3518972` | **$124.95** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-003** | `C08623-K2` | `T3530164` | **$49.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-004** | `C08106-K1` | `T3583227` | **$128.33** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-005** | `C02923-K1` | `T3523199` | **$0.00** | `none` | `legitimate` | `VERIFY_WITH_CUSTOMER` (R1) | **PASS (6/6)** |
+| **HHG-006** | `C07297-K1` | `T3476682` | **$482.12** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-007** | `C09933-K2` | `T3514948` | **$111.92** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-008** | `C13171-K2` | `T3558054` | **$55.68** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-009** | `C08299-K1` | `T3581141` | **$30.02** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-010** | `C10434-K1` | `T3506725` | **$1,000.03** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-011** | `C11923-K2` | `T3583368` | **$131.30** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-012** | `C05876-K2` | `T3553342` | **$0.00** | `none` | `legitimate` | `VERIFY_WITH_CUSTOMER` (R1) | **PASS (6/6)** |
+| **HHG-013** | `C07671-K2` | `T3526826` | **$0.00** | `none` | `legitimate` | `VERIFY_WITH_CUSTOMER` (R1) | **PASS (6/6)** |
 | **HHG-014** | `C13487-K1` | `T3478561` | **$74.96** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-015** | `C12396-K1` | `T3521361` | **$117.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-016** | `C12399-K1` | `T3521946` | **$117.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-017** | `C12404-K1` | `T3523284` | **$144.15** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-018** | `C12411-K1` | `T3524673` | **$117.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-019** | `C12412-K1` | `T3524806` | **$117.00** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
-| **HHG-020** | `C12413-K1` | `T3525287` | **$144.15** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-015** | `C03042-K1` | `T3464869` | **$599.94** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-016** | `C09988-K1` | `T3534820` | **$59.67** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-017** | `C04570-K1` | `T3450629` | **$0.00** | `none` | `legitimate` | `VERIFY_WITH_CUSTOMER` (R1) | **PASS (6/6)** |
+| **HHG-018** | `C02354-K2` | `T3491361` | **$39.08** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-019** | `C07987-K2` | `T3503878` | **$99.92** | `card_not_present_fraud` | `fraud` | `BLOCK_CARD` (R2) | **PASS (6/6)** |
+| **HHG-020** | `C12265-K2` | `T3509359` | **$0.00** | `none` | `legitimate` | `VERIFY_WITH_CUSTOMER` (R1) | **PASS (6/6)** |
 
 ### Strict Quality Verification Checklist
 - [x] **Official Schema Validator**: `python benchmark/validate_outputs.py` &rarr; **20/20 PASS, 0 errors**.

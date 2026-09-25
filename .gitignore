@@ -1,5 +1,5 @@
 .env
-data/
+/data/
 __pycache__/
 *.pyc
 .pytest_cache/
@@ -8,5 +8,8 @@ dist/
 scratch/
 venv/
 .venv/
-
 .vercel
+verification_matrix*.csv
+*.log
+dashboard/static/data/
+public/static/data/

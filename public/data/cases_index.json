@@ -1,0 +1,186 @@
+{
+  "total_cases": 20,
+  "total_exposure_usd": 3154.33,
+  "cases": [
+    {
+      "case_id": "HHG-001",
+      "verdict": "uncertain",
+      "pattern": "none",
+      "fraud_probability": 0.05,
+      "exposure_usd": 0.0,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.00). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-002",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.88,
+      "exposure_usd": 292.36,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-003",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.95,
+      "exposure_usd": 49.0,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-004",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.95,
+      "exposure_usd": 128.33,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-005",
+      "verdict": "legitimate",
+      "pattern": "none",
+      "fraud_probability": 0.04,
+      "exposure_usd": 0.0,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.05). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-006",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.95,
+      "exposure_usd": 482.12,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-007",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.87,
+      "exposure_usd": 111.92,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-008",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.95,
+      "exposure_usd": 55.68,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-009",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.95,
+      "exposure_usd": 30.02,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-010",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.9,
+      "exposure_usd": 1000.03,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-011",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.95,
+      "exposure_usd": 131.3,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-012",
+      "verdict": "legitimate",
+      "pattern": "none",
+      "fraud_probability": 0.04,
+      "exposure_usd": 0.0,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.05). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-013",
+      "verdict": "legitimate",
+      "pattern": "none",
+      "fraud_probability": 0.06,
+      "exposure_usd": 0.0,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.05). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-014",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.85,
+      "exposure_usd": 74.96,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-015",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.88,
+      "exposure_usd": 599.94,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-016",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.95,
+      "exposure_usd": 59.67,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-017",
+      "verdict": "legitimate",
+      "pattern": "none",
+      "fraud_probability": 0.05,
+      "exposure_usd": 0.0,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.05). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-018",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.95,
+      "exposure_usd": 39.08,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-019",
+      "verdict": "fraud",
+      "pattern": "card_not_present_fraud",
+      "fraud_probability": 0.9,
+      "exposure_usd": 99.92,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=fraud (confidence=0.95). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    },
+    {
+      "case_id": "HHG-020",
+      "verdict": "legitimate",
+      "pattern": "none",
+      "fraud_probability": 0.04,
+      "exposure_usd": 0.0,
+      "summary": "Autonomous graph fraud investigation concluded with verdict=legitimate (confidence=0.05). Policy rules R1-R10 enforced throughout.",
+      "sar_file": false
+    }
+  ]
+}

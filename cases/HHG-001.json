@@ -1,14 +1,12 @@
 {
   "case_id": "HHG-001",
   "case": {
-    "status": "escalated",
-    "verdict": "uncertain",
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
     "fraud_probability": 0.05,
     "pattern": "none",
     "pattern_description": "",
-    "affected_txn_ids": [
-      "T3514030"
-    ],
+    "affected_txn_ids": [],
     "first_suspicious_txn_id": "T3514030",
     "connected_card_ids": [],
     "connected_device_profiles": [],
@@ -30,6 +28,15 @@
           "t3514030",
           "none"
         ]
+      },
+      {
+        "claim": "Customer verified transaction as legitimate cardholder activity.",
+        "source": "customer",
+        "ref": "customer_inquiry_channel",
+        "entity_ids": [
+          "T3514030",
+          "C12382"
+        ]
       }
     ],
     "similar_prior_cases": [
@@ -41,7 +48,13 @@
     "written_to_graph": true,
     "graph_case_id": "HHG-001"
   },
-  "evidence_requests": [],
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 1,
+      "assumed_response": "Customer confirms making the transaction (authorized cardholder activity)."
+    }
+  ],
   "next_best_actions": {
     "initial": [
       {
@@ -77,7 +90,7 @@
     "total_amount_usd": 0.0,
     "activity_dates": []
   },
-  "stop_reason": "Fraud probability 0.05 with 2 independent evidence pieces meets the confidence threshold.",
+  "stop_reason": "A verification response settled the question.",
   "tool_calls": 7,
   "tokens": 0,
   "latency_s": 12.892
