@@ -6,13 +6,15 @@
 ---
 
 ## 🏆 Hackathon Submission & Deliverables
-fraud-detectorgraph.vercel.app
 
 | Deliverable | Location / Link | Details |
 | :--- | :--- | :--- |
 | **Live Production Deployment** | [https://fraud-detectorgraph.vercel.app](https://fraud-detectorgraph.vercel.app) | Live production web application hosted on Vercel |
+| **End-to-End Demo Video** | [Loom Walkthrough (3-5 min)](https://www.loom.com/share/0b70ae2b7e374277bf2cf554b97d04d0) | Live video demonstrating end-to-end autonomous agent workflow |
 | **Public GitHub Repository** | [https://github.com/singhharsimar23-dotcom/tiger](https://github.com/singhharsimar23-dotcom/tiger) | Full production source code, tests, and configuration |
 | **20 Official Case Answer Files** | [`cases/HHG-001.json` … `cases/HHG-020.json`](cases/) | Grounded in raw IEEE-CIS dataset; 20/20 PASS on validator & ground-truth audit |
+| **Technical Blog Post** | [`docs/BLOG.md`](docs/BLOG.md) | Architectural deep-dive covering LangGraph, TigerGraph GSQL, and GraphRAG |
+| **Social Media Announcement** | [`docs/SOCIAL.md`](docs/SOCIAL.md) | Public post on approach and experience building on TigerGraph |
 
 
 ---
@@ -63,7 +65,7 @@ All 20 case files are located at `cases/HHG-001.json` through `cases/HHG-020.jso
 - [x] **Ground Truth Raw File Diff**: `python scratch/s23_reverify.py` &rarr; **20/20 PASS** across all 6 columns:
   - `case_id_in_pack`: 20/20
   - `all_txn_ids_real`: 20/20 (0 hallucinated transaction IDs)
-  - `prior_cases_real`: 20/20 (56 distinct historical cases cited from `closed_cases_history.csv`)
+  - `prior_cases_real`: 20/20 (55 distinct historical cases cited from `closed_cases_history.csv`)
   - `connected_cards_real`: 20/20 (0 hallucinated cards)
   - `exposure_matches`: 20/20 (exact cent-for-cent sum of raw `TransactionAmt`)
   - `pattern_grounded`: 20/20 (verified against `identity.csv`)
