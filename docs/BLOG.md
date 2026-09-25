@@ -73,11 +73,13 @@ On the agentic side, I learned that LLMs need strict mathematical boundaries. Wi
 
 ---
 
-## 6. What You'd Improve (~100 words)
+## 6. What You'd Improve With More Time
 
-Given more time, I would expand FraudSight in two key areas:
-1. **Dynamic GSQL Generation via Schema MCP:** Enable the LLM to write and compile parameterized GSQL queries on the fly for novel graph paths, sandbox-validated through TigerGraph's REST++ query compiler.
-2. **Streaming WebSocket Graph Visualization:** While our Cytoscape.js dashboard renders concentric account networks smoothly and streams timeline events via SSE, streaming live graph node expansions in real time as the BFS expands would provide an even more compelling analyst experience.
+Given more time and transition to enterprise banking infrastructure, I would expand FraudSight in three key operational dimensions:
+
+1. **Enterprise Multi-Node Cluster Scaling**: Moving beyond the free-tier cloud instance lifecycle (which enters standby sleep when idle) to an autoscaling TigerGraph Enterprise cluster with dedicated read replicas, persistent VPC peering, and zero-sleep sub-second SLAs.
+2. **Two-Tier Latency Decoupling**: Architecting a two-tier pipeline where a lightweight GSQL graph rule evaluates inline (<25ms) to hold suspicious transactions, immediately handing off the alert to FraudSight's 8-node LangGraph agent for deep asynchronous forensic BFS and SAR drafting.
+3. **Dynamic GSQL Generation via Sandboxed MCP**: Enabling the agent to dynamically synthesize and validate novel GSQL graph patterns on the fly using TigerGraph's schema introspection MCP tools.
 
 ---
 
