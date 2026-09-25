@@ -13,3 +13,4 @@ verification_matrix*.csv
 *.log
 dashboard/static/data/
 public/static/data/
+public/api/

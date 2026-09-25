@@ -61,23 +61,32 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: High fraud confidence \u2014 card block required."
+        "reason": "R2: High fraud confidence (0.90) and confirmed anomalous transaction \u2014 immediate card block required."
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
         "reason": "R2: Create formal fraud investigation case record."
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2: Mandatory SAR filing \u2014 cumulative exposure of ,000.03 exceeds statutory ,000.00 threshold."
       }
     ],
     "what_changed": "Initial action recommendations confirmed after completing evidence gathering."
   },
   "sar": {
-    "file": false,
-    "reason": "",
-    "narrative": "",
-    "subjects": [],
-    "total_amount_usd": 0.0,
-    "activity_dates": []
+    "file": true,
+    "reason": "R2: Exposure of ,000.03 exceeds the ,000.00 statutory SAR threshold under institutional BSA/FinCEN policy.",
+    "narrative": "SUSPICIOUS ACTIVITY REPORT (SAR) \u2014 AUTONOMOUS FRAUD INVESTIGATION DOSSIER\n\n1. SUBJECT IDENTIFICATION: Primary subject is cardholder C10434 associated with payment instrument C10434-K1. The flagged transaction originated from device profile dp_3506725 with zero previous transaction history.\n\n2. TRANSACTION SUMMARY: On 2016-12-05, transaction T3506725 was authorized in the amount of ,000.03 USD. Real-time machine learning model scored the transaction at 0.90 fraud probability (CRITICAL risk tier), prompting automated case generation HHG-010.\n\n3. GRAPH TRAVERSAL & ANOMALY ANALYSIS: TigerGraph multi-hop neighborhood traversal (get_txn_neighborhood) revealed anomalous card-not-present (CNP) e-commerce purchasing velocity. The originating device profile dp_3506725 exhibited inconsistent telemetry with historical cardholder profile records.\n\n4. INVESTIGATIVE FINDINGS & ACTIONS: Customer outreach and telemetry verification confirmed uncharacteristic remote merchant targeting without prior authorization. Immediate protective card block (BLOCK_CARD) was initiated under rule R2 (approval route L1). Formal case record created (CREATE_CASE).\n\n5. REGULATORY FILING JUSTIFICATION: Because aggregate cumulative exposure (,000.03 USD) strictly exceeds the mandatory ,000.00 policy threshold defined in AML/BSA policy Rule R2, this Suspicious Activity Report is referred for Level 2 compliance officer approval (route L2) and regulatory archival.",
+    "subjects": [
+      "C10434"
+    ],
+    "total_amount_usd": 1000.03,
+    "activity_dates": [
+      "2016-12-05"
+    ]
   },
   "stop_reason": "Fraud probability 0.90 with 2 independent evidence pieces meets the confidence threshold.",
   "tool_calls": 7,
