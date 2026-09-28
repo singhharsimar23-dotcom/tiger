@@ -109,13 +109,15 @@ def test_env_example_keys():
         assert key in env_keys, f"Environment variable {key} missing from .env.example"
 
 def test_root_files_exist():
-    """Verify core root documentation and tracking files exist."""
+    """Verify core root documentation and configuration files exist."""
     required_files = [
         ".gitignore",
-        "PROJECT.md",
-        "TASKS.md",
-        "SESSION_LOG.md",
+        "README.md",
+        "requirements.txt",
+        "pyproject.toml",
+        "vercel.json",
     ]
     for f in required_files:
         file_path = REPO_ROOT / f
         assert file_path.is_file(), f"Required root file missing: {f}"
+
