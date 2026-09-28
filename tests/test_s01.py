@@ -18,7 +18,7 @@ def test_directories_exist():
         "dashboard/templates",
         "dashboard/static",
         "docs",
-        "outputs/cases",
+        "cases",
         "data",
     ]
     for d in required_dirs:

@@ -14,3 +14,7 @@ verification_matrix*.csv
 dashboard/static/data/
 public/static/data/
 public/api/
+outputs/
+checkpoints/
+monitor/
+*.checkpoint
